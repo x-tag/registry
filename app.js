@@ -3,9 +3,8 @@ var express = require('express'),
 	exgf = require('amanda'),
 	Sequelize = require('sequelize');
 
-var sequelize = new Sequelize('xtags', 'xtagregistry', 'password123', {
-	dialect: 'sqlite',
-	storage: 'data/xtags.sqlite'
+var sequelize = new Sequelize('heroku_c3396e57a4b4fb8', 'b9736dae691596', 'eb9d0764', {
+	host: 'us-cdbr-east.cleardb.com'
 });
 
 var XTagRepo = sequelize.define('XTagRepo', {
@@ -14,7 +13,8 @@ var XTagRepo = sequelize.define('XTagRepo', {
 	description: Sequelize.TEXT,
 	author: { type: Sequelize.STRING },
 	email: 	{ type: Sequelize.STRING, validate: { isEmail: true }},
-	revision: { type: Sequelize.STRING }
+	revision: { type: Sequelize.STRING },
+	ref: { type: Sequelize.STRING}
 });
 
 var XTagElement = sequelize.define('XTagElement', {	
@@ -73,8 +73,11 @@ app.post('/customtag', function(req, res){
 
 		console.log("POSTED Data:", req.body);
 
+try{
 		addUpdateRepo(req.body, findControls);
-
+}catch(e){
+	console.log("ERROR",e);
+}
 		res.send(200);
 
 	});
@@ -96,8 +99,8 @@ var addUpdateRepo = function(ghData, callback){
 			}).error(function(err){
 				console.log("UPDATE-ERR", err, ghData.repository.url);				
 			}).success(function(){
-				console.log("repo " + repo.repo + " updated");
-				callback(repo.repo, ghData.ref);
+				console.log("repo " + ghData.repository.url + " updated");
+				callback(ghData.repository.url, ghData.ref);
 			});
 		} else {
 			repo = XTagRepo.create({ 
@@ -110,14 +113,17 @@ var addUpdateRepo = function(ghData, callback){
 			}).error(function(err){
 				console.log("CREATE-ERR", err, ghData.repository.url);
 			}).success(function(){
-				console.log("repo " + repo.repo + " created");
-				callback(repo.repo,  ghData.ref);
+				console.log("repo " + ghData.repository.url + " created");
+				callback(ghData.repository.url,  ghData.ref);
 			});
 		}
 	});
 }
 
 var findControls = function(repoUrl, branch){
+	if(!repoUrl || !branch) {
+		console.log("[findControls] invalid params", arguments);
+	} 
 	//https://github.com/pennyfx/FlightDeck
 	console.log("looking around for controls", repoUrl);
 	var xtagJsonUrl = "https://raw.github.com/{user}/{repo}/{branch}/xtag.json";

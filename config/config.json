@@ -1,6 +1,6 @@
 {
-  "username": "xtagregistry",
-  "password": "password123",
-  "dialect": "sqlite",
-  "storage": "data/xtags.sqlite"
+  "username": "b9736dae691596",
+  "password": "eb9d0764",
+  "host": "us-cdbr-east.cleardb.com",
+  "database": "heroku_c3396e57a4b4fb8"
 }
