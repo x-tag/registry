@@ -1,12 +1,11 @@
 {
-  "name": "x-tag custom tag registry",
+  "name": "xtag-repository",
   "version": "0.0.1",
   "engines":{
   	"node": "0.6.5"
   },
   "dependencies": {
     "express": "2.5.5",
-    "sqlite3": "2.1.1",
     "sequelize": "1.4.1",
     "amanda": "0.4.2"
   }
