@@ -92,7 +92,8 @@ var addUpdateRepo = function(ghData, callback){
 				title: ghData.repository.name,
 				description: ghData.repository.description,
 				email: ghData.repository.owner.email,
-				revision: ghData.after
+				revision: ghData.after, 
+				ref: ghData.ref
 			}).error(function(err){
 				console.log("UPDATE-ERR", err, ghData.repository.url);				
 			}).success(function(){
@@ -106,7 +107,8 @@ var addUpdateRepo = function(ghData, callback){
 				description: ghData.repository.description,
 				author: ghData.repository.owner.name,
 				email: ghData.repository.owner.email,
-				revision: ghData.after
+				revision: ghData.after, 
+				ref: ghData.ref
 			}).error(function(err){
 				console.log("CREATE-ERR", err, ghData.repository.url);
 			}).success(function(){
