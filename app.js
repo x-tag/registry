@@ -65,19 +65,17 @@ app.use(express.logger());
 app.use(express.bodyParser());
 
 app.post('/customtag', function(req, res){
-	exgf.validate(req.body, githubSchema, function(err){
+	var gitHubData = JSON.parse(req.body.payload || '{}');
+	exgf.validate(gitHubData, githubSchema, function(err){
 		if (err){
-			console.log("deal breaker:", req.body);
+			console.log("deal breaker:", gitHubData);
 			return res.send(400);
 		}
 
-		console.log("POSTED Data:", req.body);
+		console.log("POSTED Data:", gitHubData);
 
-try{
 		addUpdateRepo(req.body, findControls);
-}catch(e){
-	console.log("ERROR",e);
-}
+
 		res.send(200);
 
 	});
