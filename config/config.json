@@ -1,0 +1,6 @@
+{
+  "username": "xtagregistry",
+  "password": "password123",
+  "dialect": "sqlite",
+  "storage": "data/xtags.sqlite"
+}
