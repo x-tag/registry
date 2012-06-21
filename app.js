@@ -17,6 +17,11 @@ var XTagRepo = sequelize.define('XTagRepo', {
 	ref: { type: Sequelize.STRING}
 });
 
+var XTagRevision = sequelize.define('XTagRevision', {
+	revision: { type: Sequelize.STRING },
+	ref: { type: Sequelize.STRING}
+});
+
 var XTagElement = sequelize.define('XTagElement', {	
 	name: { type: Sequelize.STRING },
 	description: { type: Sequelize.TEXT },
@@ -25,6 +30,9 @@ var XTagElement = sequelize.define('XTagElement', {
 	demo_url: { type: Sequelize.STRING, validation: { isUrl: true }},
 	raw: { type: Sequelize.TEXT }
 });
+
+XTagRepo.hasMany(XTagRevision);
+XTagRevision.hasMany(XTagElement);
 XTagRepo.hasMany(XTagElement);
 
 var githubSchema = {
@@ -71,6 +79,8 @@ app.post('/customtag', function(req, res){
 			console.log("deal breaker:", gitHubData);
 			return res.send(400);
 		}
+
+		console.log("DATA:", gitHubData);
 
 		console.log("Received webhook data from:", gitHubData.repository.url);
 
