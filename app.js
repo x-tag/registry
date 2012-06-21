@@ -72,9 +72,9 @@ app.post('/customtag', function(req, res){
 			return res.send(400);
 		}
 
-		console.log("POSTED Data:", gitHubData);
+		console.log("Received webhook data from:", gitHubData.repository.url);
 
-		addUpdateRepo(req.body, findControls);
+		addUpdateRepo(gitHubData, findControls);
 
 		res.send(200);
 
@@ -86,8 +86,7 @@ app.get('/search', function(req, res){
 });
 
 var addUpdateRepo = function(ghData, callback){	
-	XTagRepo.find({ where: { repo: ghData.repository.url }}).success(function(repo){
-		console.log("searched for repo", ghData.repository.url);
+	XTagRepo.find({ where: { repo: ghData.repository.url }}).success(function(repo){		
 		if (repo){
 			repo.updateAttributes({ 
 				title: ghData.repository.name,
