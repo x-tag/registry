@@ -134,7 +134,7 @@ var findControls = function(repoUrl, branch){
 	} 
 	//https://github.com/pennyfx/FlightDeck
 	console.log("looking around for controls", repoUrl);
-	var xtagJsonUrl = "/{user}/{repo}/tree/{tag}/xtag.json";
+	var xtagJsonUrl = "/{user}/{repo}/{tag}/xtag.json";
 	var urlParts = repoUrl.split('/');
 	var branchParts = branch.split('/');
 	xtagJsonUrl = xtagJsonUrl.replace('{user}', urlParts[urlParts.length-2])
@@ -146,7 +146,17 @@ var findControls = function(repoUrl, branch){
 		host: 'raw.github.com',
 		path: xtagJsonUrl
 	}, function(res){
+		res.setEncoding('utf8');
 		console.log("request response:",res.statusCode);
+		if(res.statusCode == 200){
+			var data = '';
+			res.on('data', function(chuck){
+				data += chuck;
+			});
+			res.on('end', function(){
+				console.log("request finished:", data);
+			});
+		}
 	}).on('error', function(err){
 		console.log("error pulling xtag.json"); // notify user via github issues
 	});
