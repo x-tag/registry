@@ -12,9 +12,7 @@ var XTagRepo = sequelize.define('XTagRepo', {
 	title: 	{ type: Sequelize.STRING, allowNull: false },
 	description: Sequelize.TEXT,
 	author: { type: Sequelize.STRING },
-	email: 	{ type: Sequelize.STRING, validate: { isEmail: true }},
-	revision: { type: Sequelize.STRING },
-	ref: { type: Sequelize.STRING}
+	email: 	{ type: Sequelize.STRING, validate: { isEmail: true }},	
 });
 
 var XTagRevision = sequelize.define('XTagRevision', {
@@ -80,6 +78,11 @@ app.post('/customtag', function(req, res){
 			return res.send(400);
 		}
 
+		if (gitHubData.ref.indexOf('refs/tags/xtag')!=0){
+			console.log("Ignoring webhook for ", gitHubData.repository.url, gitHubData.ref);
+			return res.send(200);
+		}
+
 		console.log("DATA:", gitHubData);
 
 		console.log("Received webhook data from:", gitHubData.repository.url);
@@ -101,24 +104,20 @@ var addUpdateRepo = function(ghData, callback){
 			repo.updateAttributes({ 
 				title: ghData.repository.name,
 				description: ghData.repository.description,
-				email: ghData.repository.owner.email,
-				revision: ghData.after, 
-				ref: ghData.ref
+				email: ghData.repository.owner.email,			
 			}).error(function(err){
-				console.log("UPDATE-ERR", err, ghData.repository.url);				
+				console.log("UPDATE-ERR", err, ghData.repository.url);
 			}).success(function(){
 				console.log("repo " + ghData.repository.url + " updated");
 				callback(ghData.repository.url, ghData.ref);
 			});
 		} else {
-			repo = XTagRepo.create({ 
+			repo = XTagRepo.create({
 				repo: ghData.repository.url,
 				title: ghData.repository.name, 
 				description: ghData.repository.description,
 				author: ghData.repository.owner.name,
-				email: ghData.repository.owner.email,
-				revision: ghData.after, 
-				ref: ghData.ref
+				email: ghData.repository.owner.email,		
 			}).error(function(err){
 				console.log("CREATE-ERR", err, ghData.repository.url);
 			}).success(function(){
@@ -135,13 +134,22 @@ var findControls = function(repoUrl, branch){
 	} 
 	//https://github.com/pennyfx/FlightDeck
 	console.log("looking around for controls", repoUrl);
-	var xtagJsonUrl = "https://raw.github.com/{user}/{repo}/{branch}/xtag.json";
+	var xtagJsonUrl = "/{user}/{repo}/tree/{tag}/xtag.json";
 	var urlParts = repoUrl.split('/');
 	var branchParts = branch.split('/');
 	xtagJsonUrl = xtagJsonUrl.replace('{user}', urlParts[urlParts.length-2])
 		.replace('{repo}', urlParts[urlParts.length-1])
-		.replace('{branch}', branchParts[branchParts.length-1]);
+		.replace('{tag}', branchParts[branchParts.length-1]);
 	console.log("fetching", xtagJsonUrl);
+	var http = require('https');
+	http.get({
+		host: 'raw.github.com',
+		path: xtagJsonUrl
+	}, function(res){
+		console.log("request response:",res);
+	}).on('error', function(err){
+		console.log("error pulling xtag.json"); // notify user via github issues
+	});
 	//https://raw.github.com/sdepold/sequelize/master/xtag.json
 
 }
