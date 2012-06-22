@@ -146,7 +146,7 @@ var findControls = function(repoUrl, branch){
 		host: 'raw.github.com',
 		path: xtagJsonUrl
 	}, function(res){
-		console.log("request response:",res);
+		console.log("request response:",res.statusCode);
 	}).on('error', function(err){
 		console.log("error pulling xtag.json"); // notify user via github issues
 	});
