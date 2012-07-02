@@ -3,24 +3,20 @@ var path = require('path'),
 	app = express.createServer(),
 	exgf = require('amanda'),
 	elastical = require('elastical'),	
-	Sequelize = require('sequelize');
+	Sequelize = require('sequelize'),
+	Settings = require('settings');
 
-console.log("app starting: ", JSON.parse(process.env.VMC_SERVICES)[0]);
+var config = new Settings(require('./config'));
 
-var db = JSON.parse(process.env.VMC_SERVICES)[0].options;
+console.log("App starting: ", process.env.VMC_SERVICES, " db:",config.db.host, " es:", config.es.host);
 
-var sequelize = new Sequelize(db.name, db.username, db.password, {
-	host: db.hostname
-});
+var sequelize = new Sequelize(config.db.database, config.db.user, config.db.password, { host: config.db.host });
 
-var es_client = new elastical.Client();
+var es_client = new elastical.Client(config.es.host);
 
 var XTagRepo = sequelize.import(__dirname + '/models/xtagrepo');
 var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
-
 XTagRepo.hasMany(XTagElement);
-
-
 
 console.log("db-sync:", sequelize.sync());
 
@@ -118,7 +114,7 @@ app.post('/customtag', function(req, res){
 app.get('/search', function(req, res){
 	console.log("searching",req.query);
 	var query = {
-		index: 'xtag',
+		index: config.es.index,
 		type: 'element'
 	};
 	if (req.query.query){
@@ -280,7 +276,7 @@ var processXtagJson = function(repoData, xtagJson){
 			}).success(function(tag){
 				console.log("saved control", xtagJson.name);
 				//index into ES
-				es_client.index('xtag', 'element', {
+				es_client.index(config.es.index, 'element', {
 					name: tag.name, 
 					tag_name: tag.tag_name,
 					description: tag.description, 

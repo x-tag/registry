@@ -5,6 +5,7 @@
   	"node": "0.6.7"
   },
   "dependencies": {
+    "settings": "0.1.0",
     "express": "2.5.5",
     "sequelize": "1.4.1",
     "amanda": "0.4.2",
