@@ -5,6 +5,8 @@ var path = require('path'),
 	elastical = require('elastical'),	
 	Sequelize = require('sequelize');
 
+console.log("app starting: ", process.env);
+
 var sequelize = new Sequelize('ddad73ff9e8c34d47ae0f3043382681de', 'utuRlWT8Q1zO9', 'pPRQx50x5jT4S', {
 	host: 'localhost'
 });
@@ -15,6 +17,8 @@ var XTagRepo = sequelize.import(__dirname + '/models/xtagrepo');
 var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
 
 XTagRepo.hasMany(XTagElement);
+
+
 
 console.log("db-sync:", sequelize.sync());
 
