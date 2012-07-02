@@ -5,8 +5,8 @@ var path = require('path'),
 	elastical = require('elastical'),	
 	Sequelize = require('sequelize');
 
-var sequelize = new Sequelize('heroku_c3396e57a4b4fb8', 'b9736dae691596', 'eb9d0764', {
-	host: 'us-cdbr-east.cleardb.com'
+var sequelize = new Sequelize('ddad73ff9e8c34d47ae0f3043382681de', 'utuRlWT8Q1zO9', 'pPRQx50x5jT4S', {
+	host: 'localhost'
 });
 
 var es_client = new elastical.Client();
