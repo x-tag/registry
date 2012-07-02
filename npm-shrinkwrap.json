@@ -1,0 +1,78 @@
+{
+  "name": "xtag-repository",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": {
+      "version": "2.5.5",
+      "dependencies": {
+        "connect": {
+          "version": "1.9.0",
+          "dependencies": {
+            "formidable": {
+              "version": "1.0.11"
+            }
+          }
+        },
+        "mime": {
+          "version": "1.2.5"
+        },
+        "qs": {
+          "version": "0.5.0"
+        },
+        "mkdirp": {
+          "version": "0.0.7"
+        }
+      }
+    },
+    "sequelize": {
+      "version": "1.4.1",
+      "dependencies": {
+        "mysql": {
+          "version": "0.9.6",
+          "dependencies": {
+            "hashish": {
+              "version": "0.0.4",
+              "dependencies": {
+                "traverse": {
+                  "version": "0.6.3"
+                }
+              }
+            }
+          }
+        },
+        "underscore": {
+          "version": "1.2.4"
+        },
+        "underscore.string": {
+          "version": "2.0.0"
+        },
+        "lingo": {
+          "version": "0.0.4"
+        },
+        "validator": {
+          "version": "0.3.9"
+        },
+        "moment": {
+          "version": "1.1.1"
+        },
+        "commander": {
+          "version": "0.5.2"
+        },
+        "generic-pool": {
+          "version": "1.0.9"
+        }
+      }
+    },
+    "amanda": {
+      "version": "0.4.2"
+    },
+    "elastical": {
+      "version": "0.0.8",
+      "dependencies": {
+        "request": {
+          "version": "2.9.200"
+        }
+      }
+    }
+  }
+}
