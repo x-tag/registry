@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8" />
+		
+		<title>X-Tag - Custom Tag Registry</title>
+		
+		<link href="images/shortcut.png" rel="shortcut icon" type="image/x-icon" />
+		<link rel="stylesheet" type="text/css" href="css/reset.css" />
+		<link rel="stylesheet" type="text/css" href="css/global.css"/>
+		<link href='http://fonts.googleapis.com/css?family=Days+One|Righteous' rel='stylesheet' type='text/css'>
+	</head>
+
+<body>
+
+<header>
+	<span id="logo">&lt;<span>x</span>&gt;</span>
+	<h1>Tag Registry</h1>
+</header>
+
+<div id="tags" class="max-width">
+	
+	
+	<section id="controls">
+		<ul id="search_controls">
+			<li id="search_query"><input id="search_input" type="text" /><button id="advanced_button"></button><button id="search_button">Search</button></li>
+		</ul>
+		
+		<div id="advanced_controls">
+			<div>
+				<div id="sorts">
+					<input type="radio" name="browse" checked="checked" />
+					<button>Category</button>
+					
+					<input type="radio" name="browse" />
+					<button>Hashtag</button>
+					
+					<input type="radio" name="browse" />
+					<button>Compatibility</button>
+				</div>
+				
+				<div id="browse_facets">
+					
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section id="results">
+		<ul id="result_list">
+			<li>
+				<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>
+				
+				<div class="tag-header">
+					<h3 class="tag-name">SuperTag</h3>
+					<nav class="tag-categories">
+						<a><b>Structural</b></a>
+						<a><b>Media</b></a>
+						<a><b>Input</b></a>
+					</nav>
+				</div>
+				
+				<p class="tag-description">This is one of the most super tags known to man.</p>
+				
+				<ul class="tag-compatibility">
+					<li class="browser firefox">5</li>
+					<li class="browser chrome">4</li>
+					<li class="browser opera">11</li>
+				</ul>
+				
+			</li>
+			
+			<li>
+				<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>
+				
+				<div class="tag-header">
+					<h3 class="tag-name">Slidebox</h3>
+					<nav class="tag-categories">
+						<a><b>Structural</b></a>
+					</nav>
+				</div>
+				
+				<p class="tag-description">The tag slides crap around, nuff said.</p>
+				
+				<ul class="tag-compatibility">
+					<li class="browser firefox">5</li>
+					<li class="browser chrome">4</li>
+					<li class="browser opera">11</li>
+					<li class="browser ie">10</li>
+				</ul>
+			</li>
+		</ul>
+	</section>
+
+</div>
+
+</body>
+
+<script type="text/javascript" src="js/mootools-core-1.4.5.js"></script>
+<script type="text/javascript" src="js/Extend.Native.js"></script>
+<script type="text/javascript" src="js/Extend.DOM.js"></script>
+<script type="text/javascript" src="js/mootools-more-1.4.0.1.js"></script>
+<script type="text/javascript" src="js/ContentBox.js"></script>
+
+<script type="text/javascript">
+
+(function(){
+	
+	advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	
+	window.addEvents({
+		'click:relay(#sorts button)': function(){
+			this.getPrevious().checked = 'checked';
+		},
+		'click:relay(#advanced_button)': function(){
+			var shown = $('advanced_controls').getStyle('height') == 'auto';
+			this[shown ? 'removeClass' : 'addClass']('pressed');
+			advancedBox[shown ? 'collapse' : 'show']();
+		}
+	});
+	
+	
+
+})();
+
+</script>
+
+</html>
