@@ -149,7 +149,7 @@ app.get('/search', function(req, res){
 				"WHERE e.id IN (" + ids.join(',')  + ")";		
 			sequelize.query(query, {}, {raw: true}).success(function(results){
 
-				res.json(ids.map(function(id){
+				res.json({ data: ids.map(function(id){
 					// reorder to es sort
 					for (var i = 0; i < results.length; i++ ){
 						if (id == results[i].id){
@@ -159,13 +159,13 @@ app.get('/search', function(req, res){
 							return results[i];
 						}
 					}
-				}), 200);
+				})}, 200);
 
 			}).failure(function(err){
 				res.json(err, 400);
 			});
 		} else{
-			res.json([], 200);
+			res.json({ data: []}, 200);
 		}
 	});
 });
@@ -341,4 +341,4 @@ var fetchXtagJson = function(url, callback){
 	});
 }
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
