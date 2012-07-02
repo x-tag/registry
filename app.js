@@ -5,10 +5,12 @@ var path = require('path'),
 	elastical = require('elastical'),	
 	Sequelize = require('sequelize');
 
-console.log("app starting: ", process.env);
+console.log("app starting: ", JSON.parse(process.env.VMC_SERVICES)[0]);
 
-var sequelize = new Sequelize('ddad73ff9e8c34d47ae0f3043382681de', 'utuRlWT8Q1zO9', 'pPRQx50x5jT4S', {
-	host: 'localhost'
+var db = JSON.parse(process.env.VMC_SERVICES)[0];
+
+var sequelize = new Sequelize(db.name, db.username, db.password, {
+	host: db.hostname
 });
 
 var es_client = new elastical.Client();
