@@ -7,7 +7,7 @@ var path = require('path'),
 
 console.log("app starting: ", JSON.parse(process.env.VMC_SERVICES)[0]);
 
-var db = JSON.parse(process.env.VMC_SERVICES)[0];
+var db = JSON.parse(process.env.VMC_SERVICES)[0].options;
 
 var sequelize = new Sequelize(db.name, db.username, db.password, {
 	host: db.hostname
