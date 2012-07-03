@@ -8,7 +8,8 @@ module.exports = {
 		}, 
 		es: {
 			index: 'xtag', 
-			host: 'localhost'
+			host: 'localhost',
+			port: '9200'
 		}
 	}, 
 	production: {
@@ -19,8 +20,9 @@ module.exports = {
 			password: 'pES0T0eLb759n'
 		},
 		es: {
-			index: '2e51c202e6b1f579', 
-			host: 'http://www.indexdepot.com/elasticsearch/'
+			index: 'elasticsearch/2e51c202e6b1f579/', 
+			port: '80',
+			host: 'www.indexdepot.com'
 		}
 	}
 }

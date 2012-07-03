@@ -8,11 +8,11 @@ var path = require('path'),
 
 var config = new Settings(require('./config'));
 
-console.log("App starting: ", process.env.VMC_SERVICES, " db:",config.db.host, " es:", config.es.host);
+console.log("App starting: ", process.env, " db:",config.db.host, " es:", config.es.host);
 
 var sequelize = new Sequelize(config.db.database, config.db.user, config.db.password, { host: config.db.host });
 
-var es_client = new elastical.Client(config.es.host);
+var es_client = new elastical.Client(config.es.host, { port: config.es.port });
 
 var XTagRepo = sequelize.import(__dirname + '/models/xtagrepo');
 var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
