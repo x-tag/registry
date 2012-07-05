@@ -48,7 +48,6 @@ var githubSchema = {
 			required: true,
 			type: 'string'
 		}
-
 	}
 }
 
