@@ -417,21 +417,21 @@ div.max-width > dl > dd:last-child p:last-child {
 			overflow: hidden;
 		}
 		
-			h3.tag-name {
+			div.tag-header h3 {
 				float: left;
 				margin-bottom: 2px;
 				margin-right: 10px;
 			}
 				
-				h3.tag-name a {
+				div.tag-header h3 a {
 					text-decoration: none;
 				}
 				
-				h3.tag-name a:hover {
+				div.tag-header h3 a:hover {
 					text-decoration: underline;
 				}
 				
-				h3.tag-name span {
+				div.tag-header h3 span {
 					position: relative;
 					top: -2px;
 					color: #888;
@@ -528,8 +528,8 @@ div.max-width > dl > dd:last-child p:last-child {
 		}
 			
 		li.browser {
-			margin-right: 3px;
-			padding-right: 6px;
+			margin-right: 4px;
+			padding-right: 3px;
 			border-right: 1px dotted #ddd;
 			font-size: 95%;
 			font-weight: bold;
