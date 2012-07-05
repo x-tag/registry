@@ -10,70 +10,17 @@ var config = new Settings(require('./config'));
 
 console.log("App starting: ", process.env, " db:",config.db.host, " es:", config.es.host);
 
-var sequelize = new Sequelize(config.db.database, config.db.user, config.db.password, { host: config.db.host });
+var sequelize = new Sequelize(config.db.database, 
+	config.db.user, 
+	config.db.password, { host: config.db.host });
 
-var es_client = new elastical.Client(config.es.host, { port: config.es.port });
+var es_client = new elastical.Client(config.es.host, 
+	{ port: config.es.port });
 
 var XTagRepo = sequelize.import(__dirname + '/models/xtagrepo');
 var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
 XTagRepo.hasMany(XTagElement);
-
-console.log("db-sync:", sequelize.sync());
-
-var githubSchema = {
-	type: 'object',
-	properties: {
-		'repository':{
-			required: true,
-			type: 'object',
-			properties: {
-				'url': { type: 'string', required: true },
-				'name': { type: 'string', required: true },
-				'description': { type: 'string', required: true },
-				'owner': {
-					type: 'object',
-					properties: {
-						'email':  { type: 'string', required: true },
-						'name':  { type: 'string', required: true },
-					}
-				}
-			}
-		},
-		'after': {
-			required: true,
-			type: 'string',
-			length: 40
-		},
-		'ref': {
-			required: true,
-			type: 'string'
-		}
-	}
-}
-
-var xtagJsonSchema = {
-	type: 'object',
-	properties: {
-		'name': { type: 'string', required: true, minLength: 3, maxLength: 255},
-		'tagName': { type: 'string', required: true, minLength: 3, maxLength: 255},
-		'description': { type: 'string' },
-		'version': { 
-			type: 'string',
-			required: true,
-			pattern: '^\\d+\.\\d+\.\\d+$'
-		},
-		'images': {
-			type: 'array'
-		},
-		'categories': {
-			type: 'array'
-		},
-		'demo':{
-			type: 'string',
-		}
-
-	}
-}
+sequelize.sync();
 
 app.use(express.logger());
 app.use(express.bodyParser());
@@ -81,7 +28,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.post('/customtag', function(req, res){
 	var gitHubData = JSON.parse(req.body.payload || '{}');
-	exgf.validate(gitHubData, githubSchema, function(err){
+	exgf.validate(gitHubData, require('./schemas').github, function(err){
 		if (err){
 			console.log("deal breaker:", gitHubData);
 			return res.send(400);
@@ -224,7 +171,7 @@ var findControls = function(ghData){
 			});
 		} 
 
-		exgf.validate(xtagJson, xtagJsonSchema, function(err){
+		exgf.validate(xtagJson, require('./schemas').xtagJson, function(err){
 			if (err) {
 				if (!xtagJson.xtags){						
 					console.log("invalid xtag.json", err, "\n-------\n",xtagJson, "\n-------\n");

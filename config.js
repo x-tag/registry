@@ -18,11 +18,11 @@ module.exports = {
 			database: 'ddad73ff9e8c34d47ae0f3043382681de', 
 			user: 'uNCtYqJA0ONam', 
 			password: 'pES0T0eLb759n'
-		},
+		},	
 		es: {
-			index: 'elasticsearch/2e51c202e6b1f579/', 
-			port: '80',
-			host: 'www.indexdepot.com'
+			index: 'xtag',			
+			host: 'elasticsearch1.vm.labs.scl3.mozilla.com',
+			port: '9200'
 		}
 	}
 }
