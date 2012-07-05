@@ -8,11 +8,11 @@ body
 }
 
 a {
-
+	color: #226AB3;
 }
 
 a:visited {
-
+	color: #634AB3;
 }
 
 h1, h2, h3, h4 , dt, .font, #logo {
@@ -359,7 +359,7 @@ div.max-width > dl > dd:last-child p:last-child {
 
 #result_list {
 	background: #fff;
-    padding: 8px 11px 10px;
+    padding: 8px 11px 0;
 	border: 1px solid;
 	border-color: #bbb #ccc #ddd;
 	border-radius: 4px;
@@ -380,10 +380,8 @@ div.max-width > dl > dd:last-child p:last-child {
 	
 	#result_list > li:last-child {
 		margin-bottom: 0;
-		padding-bottom: 0;
 		border-bottom: none;
 	}
-	
 		
 		a.tag-demo {
 			position: absolute;
@@ -419,14 +417,36 @@ div.max-width > dl > dd:last-child p:last-child {
 			overflow: hidden;
 		}
 		
-			h3.tag-name {
+			div.tag-header h3 {
 				float: left;
 				margin-bottom: 2px;
 				margin-right: 10px;
 			}
+				
+				div.tag-header h3 a {
+					text-decoration: none;
+				}
+				
+				div.tag-header h3 a:hover {
+					text-decoration: underline;
+				}
+				
+				div.tag-header h3 span {
+					position: relative;
+					top: -2px;
+					color: #888;
+					font-size: 60%;
+					font-style: italic;
+					font-family: Segoe UI, Trebuchet MS, Helvetica, Arial;
+				}
+				
+				span.tag-author:before, span.tag-author:after {
+					content: '\2022';
+					margin: 0 6px;
+				}
 			
 			nav.tag-categories {
-				margin-top: 5px;
+				float: left;
 				overflow: hidden;
 			}
 			
@@ -434,8 +454,7 @@ div.max-width > dl > dd:last-child p:last-child {
 				display: block;
 				float: left;
 				position: relative;
-				margin-right: 2px;
-				margin-left: 12px;
+				margin: 5px 8px 8px;
 				padding: 2px 5px;
 				font-size: 70%;
 				background: #eee;
@@ -489,7 +508,13 @@ div.max-width > dl > dd:last-child p:last-child {
 				position: relative;
 				top: -1px;	
 			}
-		
+	
+	div.tag-version {
+		font-size: 65%;
+		margin-top: 4px;
+		padding: 0 1px 1px;
+	}
+	
 	p.tag-description {
 		
 	}
@@ -503,8 +528,8 @@ div.max-width > dl > dd:last-child p:last-child {
 		}
 			
 		li.browser {
-			margin-right: 3px;
-			padding-right: 6px;
+			margin-right: 4px;
+			padding-right: 3px;
 			border-right: 1px dotted #ddd;
 			font-size: 95%;
 			font-weight: bold;
@@ -543,7 +568,18 @@ div.max-width > dl > dd:last-child p:last-child {
 			li.browser.ie:before {
 				content: url(../images/ie-16.png);
 			}
+			
+			li.browser.android:before {
+				content: url(../images/android-16.png);
+			}
 
+			li.browser.ios:before {
+				top: 4px;
+				margin-left: 1px;
+				margin-right: 3px;
+				content: url(../images/ios-16.png);
+			}
+	
 #browser_logos {
 	display: table;
 	width: 100%;

@@ -60,7 +60,6 @@ var ContentBox = new Class({
 	},
 	
 	fadeComplete: function(){
-		console.log(this.wrap.getStyle('opacity'));
 		if (!this.wrap.getStyle('opacity')){
 			this.element.getChildren().hide();
 			this.fireEvent('fadeOut');

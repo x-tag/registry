@@ -48,49 +48,7 @@
 	</section>
 
 	<section id="results">
-		<ul id="result_list">
-			<li>
-				<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>
-				
-				<div class="tag-header">
-					<h3 class="tag-name">SuperTag</h3>
-					<nav class="tag-categories">
-						<a><b>Structural</b></a>
-						<a><b>Media</b></a>
-						<a><b>Input</b></a>
-					</nav>
-				</div>
-				
-				<p class="tag-description">This is one of the most super tags known to man.</p>
-				
-				<ul class="tag-compatibility">
-					<li class="browser firefox">5</li>
-					<li class="browser chrome">4</li>
-					<li class="browser opera">11</li>
-				</ul>
-				
-			</li>
-			
-			<li>
-				<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>
-				
-				<div class="tag-header">
-					<h3 class="tag-name">Slidebox</h3>
-					<nav class="tag-categories">
-						<a><b>Structural</b></a>
-					</nav>
-				</div>
-				
-				<p class="tag-description">The tag slides crap around, nuff said.</p>
-				
-				<ul class="tag-compatibility">
-					<li class="browser firefox">5</li>
-					<li class="browser chrome">4</li>
-					<li class="browser opera">11</li>
-					<li class="browser ie">10</li>
-				</ul>
-			</li>
-		</ul>
+		<ul id="result_list"></ul>
 	</section>
 
 </div>
@@ -98,18 +56,117 @@
 </body>
 
 <script type="text/javascript" src="js/mootools-core-1.4.5.js"></script>
-<script type="text/javascript" src="js/Extend.Native.js"></script>
+<script type="text/javascript" src="js/Extend.Core.js"></script>
 <script type="text/javascript" src="js/Extend.DOM.js"></script>
 <script type="text/javascript" src="js/mootools-more-1.4.0.1.js"></script>
+<script type="text/javascript" src="js/Extend.More.js"></script>
+<script type="text/javascript" src="js/Template.js"></script>
 <script type="text/javascript" src="js/ContentBox.js"></script>
 
 <script type="text/javascript">
 
 (function(){
 	
-	advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	var lastSearch = {};
+	var mockResults = [
+			{
+				"id": 21,
+				"name": "Flipbox",
+				"tag_name": "x-flipbox",
+				"url": "http:/github.com/pennyfx/x-tag/tree/xtag-v0.0.6/elements/flipbox",
+				"category": [
+					"structural",
+					"media",
+					"input"
+				],
+				"images": [
+					"test.com/images/screen1.png"
+				],
+				"compatibility": {
+					"firefox": 5,
+					"chrome": 4,
+					"opera": 11,
+					"android": 2.1,
+					"ios": 4
+				},
+				"demo_url": null,
+				"version": "0.0.1",
+				"description": "This tag is a flipbox.",
+				"repo": "http://github.com/pennyfx/x-tag",
+				"repo_name": "x-tag-test",
+				"author": "pennyfx"
+			}
+		];
+	
+	TagResult = new Class({
+		
+		Extends: Template,
+		
+		Template: {
+			name: 'TagResult',
+			html: '<li>' +
+				'<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>' +
+				'<div class="tag-header">' +
+					'<h3>' +
+						'<a class="tag-name" href="{repo}">{name}</a>' +
+						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}">{author}</a></span>' +
+						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
+					'</h3>' +
+					'<nav class="tag-categories"></nav>' +
+				'</div>' +
+				'<p class="tag-description">{description}</p>' +
+				'<ul class="tag-compatibility"></ul>' +
+				'<ul class="tag-version-list"></ul>' +
+			'</li>'
+		},
+		
+		createElement: function(data) {
+			this.parent(data);
+			
+			var categoryList = this.element.getElement('nav.tag-categories');
+			data.category.each(function(category){
+				new Element('a', {
+					html: '<b>' + category + '</b>'
+				}).inject(categoryList);
+			});
+			
+			var compatibilityList = this.element.getElement('ul.tag-compatibility');
+			Object.each(data.compatibility, function(value, key){
+				new Element('li', {
+					'class': 'browser ' + key,
+					text: value
+				}).inject(compatibilityList);
+			});
+			
+			return this;
+		}
+		
+	});
 	
 	window.addEvents({
+		'click:relay(#search_button)': function(){
+			var search = {
+				query: $('search_input').value
+			};
+			
+			if (Object.equals(search, lastSearch)) return this;
+			$('result_list').empty();
+			lastSearch = search;
+			new Request.JSON({
+				url: '/search',
+				data: search,
+				onComplete: function(response){
+					mockResults.each(function(result){
+						new TagResult().createElement(result).element.inject('result_list');
+					});
+					mockResults[0].repo_name = new Date().getTime();
+					mockResults.each(function(result){
+						new TagResult().createElement(result).element.inject('result_list');
+					});
+				}
+			}).get();
+		},
 		'click:relay(#sorts button)': function(){
 			this.getPrevious().checked = 'checked';
 		},
