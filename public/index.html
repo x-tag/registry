@@ -157,11 +157,7 @@
 				url: '/search',
 				data: search,
 				onComplete: function(response){
-					mockResults.each(function(result){
-						new TagResult().createElement(result).element.inject('result_list');
-					});
-					mockResults[0].repo_name = new Date().getTime();
-					mockResults.each(function(result){
+					response.data.each(function(result){
 						new TagResult().createElement(result).element.inject('result_list');
 					});
 				}
