@@ -135,7 +135,11 @@ app.get('/search', function(req, res){
 	});
 });
 
+app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 
+/*
+	TODO: move these methods out of here
+*/
 var addUpdateRepo = function(ghData, callback){	
 
 	XTagRepo.find({ where: {repo: ghData.repository.url}}).success(function(repo){		
@@ -333,4 +337,3 @@ var fetchXtagJson = function(url, callback){
 	});
 }
 
-app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
