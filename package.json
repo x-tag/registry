@@ -9,6 +9,7 @@
     "express": "2.5.5",
     "sequelize": "1.4.1",
     "amanda": "0.4.2",
-    "elastical": "0.0.8"
+    "elastical": "0.0.8", 
+    "validator" : "0.4.9"
   }
 }
