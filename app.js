@@ -4,6 +4,7 @@ var path = require('path'),
 	exgf = require('amanda'),
 	elastical = require('elastical'),	
 	Sequelize = require('sequelize'),
+	sanitize = require('validator').sanitize,
 	Settings = require('settings');
 
 var config = new Settings(require('./config'));
@@ -22,12 +23,13 @@ var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
 XTagRepo.hasMany(XTagElement);
 sequelize.sync();
 
+app.disable('view cache');
 app.use(express.logger());
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 
 app.post('/customtag', function(req, res){
-	var gitHubData = JSON.parse(req.body.payload || '{}');
+	var gitHubData = JSON.parse(sanitize(req.body.payload).xss() || '{}');
 	exgf.validate(gitHubData, require('./schemas').github, function(err){
 		if (err){
 			console.log("deal breaker:", gitHubData);
@@ -86,6 +88,13 @@ app.get('/search', function(req, res){
 		}
 	}
 
+	if (!req.query.query && !req.query.category){
+		query.size = 100;
+		query.sort = [
+				{ "created_at": { "order": "desc" } }
+			]
+	}
+
 	es_client.search(query, function(err, es_result, raw){
 		console.log("ES search response", err, es_result, raw);
 		if (es_result && es_result.hits && es_result.hits.length){
@@ -97,13 +106,15 @@ app.get('/search', function(req, res){
 				"WHERE e.id IN (" + ids.join(',')  + ")";		
 			sequelize.query(query, {}, {raw: true}).success(function(results){
 				if (results && results.length){
-					res.json({ data: ids.map(function(id){
+					res.json({ data: es_result.hits.map(function(hit){
 						// reorder to es sort
+						var id = hit['_id'];
 						for (var i = 0; i < results.length; i++ ){
 							if (id == results[i].id){
 								results[i].compatibility = JSON.parse(results[i].compatibility);
 								results[i].category = results[i].category.split(',');
 								results[i].images = results[i].images.split(',');
+								results[i].versions = hit['_source'].versions;
 								return results[i];
 							}
 						}
@@ -202,51 +213,77 @@ var processXtagJson = function(repoData, xtagJson){
 	console.log("processing control\n-------\n", xtagJson, "\n-------\n");
 	// create XTagElements
 	// check to see if Element already exists
-	// query by version, tagName && XTagRepoId
-	XTagElement.find({ where: { 
-		version: xtagJson.version, 
+	// query by tagName && XTagRepoId
+	XTagElement.findAll({ where: {
 		tag_name: xtagJson.tagName,
-		XTagRepoId: repoData.repoId
-	}}).success(function(tag){
-		if (!tag){
-			XTagElement.create({
-				name: xtagJson.name,
-				tag_name: xtagJson.tagName, 
-				description: xtagJson.description,
-				category: (xtagJson.categories || []).join(','),
-				images: (xtagJson.images || []).join(','),
-				compatibility: JSON.stringify(xtagJson.compatibility),
-				demo_url: xtagJson.demo,
-				url: xtagJson.controlLocation,
-				version: xtagJson.version,
-				revision: repoData.after,
-				ref: repoData.ref,
-				raw: JSON.stringify(xtagJson),
-				XTagRepoId: repoData.repoId
-			}).success(function(tag){
-				console.log("saved control", xtagJson.name);
-				//index into ES
-				es_client.index(config.es.index, 'element', {
-					name: tag.name, 
-					tag_name: tag.tag_name,
-					description: tag.description, 
-					categories: xtagJson.categories, 
-					compatibility: xtagJson.compatibility, 
-					created_at: tag.createdAt,
-					all: tag.name + " " + tag.tag_name + " " + tag.description
-				}, 
-				{ 
-					id: tag.id.toString(), refresh:true 
-				}, 
-				function(err, res){
-					console.log("ES response", err, res);
+		XTagRepoId: repoData.repoId,		
+	}, order: 'id ASC'}).success(function(tags){
+		console.log("XTagGElement.Find Result",tags);
+		// remove all previous versions from ES
+		var alreadyExists = false;
+		var previousVersions = [];
+		(tags||[]).forEach(function(t){
+			previousVersions.push({ version: t.version, url: t.url });
+			if (t.version != xtagJson.version && t.is_current){
+				t.is_current = false;
+				t.save().success(function(t){
+					es_client.delete(config.es.index, 'element', t.id, function(err, res){
+						console.log("ES Delete:", t.id, "  ERR:", err, "  RES:",res);
+					});
 				});
-			}).error(function(err){
-				console.log("error saving control", err);
-			});
-		} else{
-			console.log("control already exists");
+			} else if (t.version == xtagJson.version){
+				alreadyExists = true;
+			}
+		});
+
+		if (alreadyExists){
+			return console.log("control already exists");
 		}
+
+		XTagElement.create({
+			name: xtagJson.name,
+			tag_name: xtagJson.tagName,
+			description: xtagJson.description,
+			category: (xtagJson.categories || []).join(','),
+			images: (xtagJson.images || []).join(','),
+			compatibility: JSON.stringify(xtagJson.compatibility),
+			demo_url: xtagJson.demo,
+			url: xtagJson.controlLocation,
+			version: xtagJson.version,
+			revision: repoData.after,
+			ref: repoData.ref,
+			raw: JSON.stringify(xtagJson),
+			XTagRepoId: repoData.repoId,
+			is_current: true,
+		}).success(function(tag){
+			console.log("saved control", xtagJson.name, tag.values);
+			//index into ES
+			es_client.index(config.es.index, 'element', {
+				name: tag.name,
+				tag_name: tag.tag_name,
+				description: tag.description,
+				categories: xtagJson.categories,
+				compatibility: xtagJson.compatibility,
+				created_at: tag.createdAt,
+				demo_url: tag.demo_url,
+				url: tag.url,
+				version: tag.version,
+				revision: tag.revision,
+				repo_name: repoData.repository.name,
+				author: repoData.repository.owner.name,
+				versions: previousVersions,
+				all: tag.name + " " + tag.tag_name + " " + tag.description
+			}, 
+			{ 
+				id: tag.id.toString(), refresh:true 
+			}, 
+			function(err, res){
+				console.log("ES response", err, res);
+			});
+		}).error(function(err){
+			console.log("error saving control", err);
+		});
+		
 	}).error(function(err){
 		console.log("error finding xtagelement", err);
 	});
@@ -278,7 +315,7 @@ var fetchXtagJson = function(url, callback){
 			});
 			res.on('end', function(){
 				try {
-					var xtagJson = JSON.parse(data);
+					var xtagJson = JSON.parse(sanitize(data).xss());
 					xtagJson.xtagJsonRawPath = url;
 					callback(null, xtagJson);
 				} catch(e) { 

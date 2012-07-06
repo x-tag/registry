@@ -13,6 +13,7 @@ module.exports = function(sequelize, DataTypes) {
 		revision: { type: DataTypes.STRING },
 		ref: { type: DataTypes.STRING },
 		raw: { type: DataTypes.TEXT },
+		is_current: { type: DataTypes.BOOLEAN }
 	});
 
 };
