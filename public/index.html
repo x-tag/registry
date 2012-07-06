@@ -24,13 +24,16 @@
 	
 	<section id="controls">
 		<ul id="search_controls">
-			<li id="search_query"><input id="search_input" type="text" /><button id="advanced_button"></button><button id="search_button">Search</button></li>
+			<li id="search_query"><input id="search_input" type="text" /><button id="search_button">Search</button><button id="advanced_button"></button></li>
 		</ul>
 		
 		<div id="advanced_controls">
 			<div>
 				<div id="sorts">
 					<input type="radio" name="browse" checked="checked" />
+					<button>Popular</button>
+					
+					<input type="radio" name="browse" />
 					<button>Category</button>
 					
 					<input type="radio" name="browse" />
@@ -47,9 +50,9 @@
 		</div>
 	</section>
 
-	<section id="results">
-		<ul id="result_list"></ul>
-	</section>
+	<dl id="results">
+	
+	</dl>
 
 </div>
 
@@ -68,6 +71,11 @@
 (function(){
 	
 	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	var resultBox = new ContentBox('results', {
+		element: {
+			style: 'opacity: 1 !important;'
+		}
+	});
 	var lastSearch = {};
 	var mockResults = [
 			{
@@ -105,20 +113,20 @@
 		
 		Template: {
 			name: 'TagResult',
-			html: '<li>' +
+			html: '<dd>' +
 				'<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>' +
 				'<div class="tag-header">' +
 					'<h3>' +
 						'<a class="tag-name" href="{repo}">{name}</a>' +
 						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}">{author}</a></span>' +
-						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
+						'<span class="tag-version">latest <a href="#{url}">{version}&#9662;</a></span>' +
 					'</h3>' +
 					'<nav class="tag-categories"></nav>' +
 				'</div>' +
 				'<p class="tag-description">{description}</p>' +
 				'<ul class="tag-compatibility"></ul>' +
 				'<ul class="tag-version-list"></ul>' +
-			'</li>'
+			'</dd>'
 		},
 		
 		createElement: function(data) {
@@ -144,25 +152,38 @@
 		
 	});
 	
-	window.addEvents({
-		'click:relay(#search_button)': function(){
-			var search = {
-				query: $('search_input').value
-			};
-			
-			if (Object.equals(search, lastSearch)) return this;
-			$('result_list').empty();
-			lastSearch = search;
-			new Request.JSON({
-				url: '/search',
-				data: search,
-				onComplete: function(response){
-					response.data.each(function(result){
-						new TagResult().createElement(result).element.inject('result_list');
+	var searchRequest = function(){
+		var search = {
+			query: $('search_input').value
+		};
+		
+		if (Object.equals(search, lastSearch)) return this;
+		resultBox.collapse().fx.resize.addEvent('complete:once', function(){
+			resultBox.element.empty();
+		});
+		lastSearch = search;
+		new Request.JSON({
+			url: '/search',
+			data: search,
+			onComplete: function(response){
+				//response.data.each(function(result){
+				//	new TagResult().createElement(result).element.inject('results');
+				//});
+				var results = [];
+				(5).times(function(){
+					mockResults.each(function(result){
+						results.push(new TagResult().createElement(result).element);
 					});
-				}
-			}).get();
-		},
+				});
+				
+				resultBox.adopt(results);
+			}
+		}).get();
+	};
+	
+	window.addEvents({
+		'keydown:relay(#search_input):keys(enter)': searchRequest,
+		'click:relay(#search_button)': searchRequest,
 		'click:relay(#sorts button)': function(){
 			this.getPrevious().checked = 'checked';
 		},

@@ -24,6 +24,7 @@ var ContentBox = new Class({
 	},
 
 	initialize: function(element, options){
+		var box = this;
 		this.setOptions(options);
 		this.element = $(element).store('ContentBox', this);
 		this.wrap = ($(this.options.wrap) || new Element('div'))
@@ -37,41 +38,46 @@ var ContentBox = new Class({
 		this.element.setStyle('margin', 'auto');
 		if (!this.options.wrap) this.wrap.wraps(this.element);
 		
+		this.minHeight = this.getMinHeight();
+		
 		this.fx = {
 			fade: new Fx.Tween(this.wrap, this.options.fade),
 			resize: new Fx.Tween(this.wrap, this.options.resize)
 		}
 
 		this.fx.fade.addEvents({
-			start: this.fadeStart.bind(this),
-			complete: this.fadeComplete.bind(this)
+			start: function(){
+				box.fireEvent('fadeStart');
+			},
+			complete: function(){
+				box.fireEvent('fade' + !box.wrap.getStyle('opacity') ? 'Out' : 'In');
+			}
 		});
 
 		this.fx.resize.addEvents({
 			complete: function(){
-				if (this.element.getStyle('height') != '0px') this.element.setStyle('height', 'auto');
+				if (this.element.getStyle('height').toInt() != box.minHeight) {
+					this.element.setStyle('height', 'auto');
+				}
+				else box.element.getChildren().hide();
 			}
 		});
 
-	},
-	
-	fadeStart: function(){
-		this.fireEvent('fadeStart');
-	},
-	
-	fadeComplete: function(){
-		if (!this.wrap.getStyle('opacity')){
-			this.element.getChildren().hide();
-			this.fireEvent('fadeOut');
-		}
-		else this.fireEvent('fadeIn');
 	},
 
 	setHeight: function(){
 		this.wrap.setStyle('height', this.wrap.getSize().y);
 		return this;
 	},
-
+	
+	getMinHeight: function(){
+		var height = this.element.getStyle('minHeight').toInt();
+		if (height) Object.each(this.element.getStyles('border-top-width', 'border-bottom-width', 'padding-top', 'padding-bottom'), function(value){
+			height += value.toInt() || 0;
+		});
+		return height;
+	},
+	
 	show: function(limit){
 		this.setHeight();
 		var limit = limit || this.options.limit;
@@ -93,7 +99,7 @@ var ContentBox = new Class({
 	collapse: function(){
 		this.setHeight();
 		this.fx.fade.start(0);
-		this.fx.resize.start(0);
+		this.fx.resize.start(this.minHeight);
 		this.fireEvent('collapse');
 		return this;
 	},
