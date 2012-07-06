@@ -92,27 +92,31 @@ app.get('/search', function(req, res){
 			var ids = es_result.hits.map(function(h){ return h['_id']; });
 			var query = "SELECT e.id, e.name, e.tag_name, e.url, e.category, " +
 				"e.images, e.compatibility, e.demo_url, e.version, " + 
-				"e.description, r.repo, r.title as repo_name, r.author FROM xtagelements e " +
-				"JOIN xtagrepoes r ON e.`XTagRepoId` = r.id " +
+				"e.description, r.repo, r.title as repo_name, r.author FROM XTagElements e " +
+				"JOIN XTagRepoes r ON e.`XTagRepoId` = r.id " +
 				"WHERE e.id IN (" + ids.join(',')  + ")";		
 			sequelize.query(query, {}, {raw: true}).success(function(results){
-
-				res.json({ data: ids.map(function(id){
-					// reorder to es sort
-					for (var i = 0; i < results.length; i++ ){
-						if (id == results[i].id){
-							results[i].compatibility = JSON.parse(results[i].compatibility);
-							results[i].category = results[i].category.split(',');
-							results[i].images = results[i].images.split(',');
-							return results[i];
+				if (results && results.length){
+					res.json({ data: ids.map(function(id){
+						// reorder to es sort
+						for (var i = 0; i < results.length; i++ ){
+							if (id == results[i].id){
+								results[i].compatibility = JSON.parse(results[i].compatibility);
+								results[i].category = results[i].category.split(',');
+								results[i].images = results[i].images.split(',');
+								return results[i];
+							}
 						}
-					}
-				})}, 200);
+					})}, 200);
+				} else {
+					console.log("error finding IDs in db", ids);
+					res.json({ data: [], }, 200);
+				}	
 
 			}).failure(function(err){
-				res.json(err, 400);
+				res.json({ error:err }, 400);
 			});
-		} else{
+		} else {
 			res.json({ data: []}, 200);
 		}
 	});
@@ -121,7 +125,7 @@ app.get('/search', function(req, res){
 
 var addUpdateRepo = function(ghData, callback){	
 
-	XTagRepo.find({where: {repo: ghData.repository.url}}).success(function(repo){		
+	XTagRepo.find({ where: {repo: ghData.repository.url}}).success(function(repo){		
 		if (repo){
 			repo.updateAttributes({ 
 				title: ghData.repository.name,
@@ -134,15 +138,15 @@ var addUpdateRepo = function(ghData, callback){
 				callback(null, repo.id);
 			});
 		} else {
-			repo = XTagRepo.create({
+			XTagRepo.create({
 				repo: ghData.repository.url,
 				title: ghData.repository.name, 
 				description: ghData.repository.description,
 				author: ghData.repository.owner.name,
 				email: ghData.repository.owner.email,		
 			}).error(function(err){				
-				callback("error creating repo: " + ghData.repository.url + ", " + err, null);				
-			}).success(function(){
+				callback("error creating rerepopo: " + ghData.repository.url + ", " + err, null);				
+			}).success(function(repo){
 				console.log("repo " + ghData.repository.url + " created");
 				callback(null, repo.id);
 			});
