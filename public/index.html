@@ -160,19 +160,20 @@
 		if (Object.equals(search, lastSearch)) return this;
 		resultBox.collapse().fx.resize.addEvent('complete:once', function(){
 			resultBox.element.empty();
+		
+			lastSearch = search;
+			new Request.JSON({
+				url: '/search',
+				data: search,
+				onComplete: function(response){
+					var results = [];
+					response.data.each(function(result){
+						results.push(new TagResult().createElement(result).element);
+					});
+					resultBox.adopt(results);
+				}
+			}).get();
 		});
-		lastSearch = search;
-		new Request.JSON({
-			url: '/search',
-			data: search,
-			onComplete: function(response){
-				var results = [];
-				response.data.each(function(result){
-					results.push(new TagResult().createElement(result).element);
-				});
-				resultBox.adopt(results);
-			}
-		}).get();
 	};
 	
 	window.addEvents({

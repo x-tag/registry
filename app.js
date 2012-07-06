@@ -50,7 +50,7 @@ app.post('/customtag', function(req, res){
 				console.log("addUpdateRepo error:", err);
 			} else {
 				gitHubData.repoId = repoId;
-				gitHubData.branchUrl = path.join(gitHubData.repository.url, "tree", gitHubData.ref.split('/')[2]);
+				gitHubData.branchUrl = gitHubData.repository.url + "/" + path.join("tree", gitHubData.ref.split('/')[2]);
 				findControls(gitHubData);
 			} 
 		});
@@ -182,7 +182,7 @@ var findControls = function(ghData){
 			xtagJson.xtags.forEach(function(tagUrl){
 				var tmpUrl = path.join(baseRepoUrl, tagUrl);
 				fetchXtagJson(tmpUrl, function(err, xtagJson){
-					if (xtagJson) xtagJson.controlLocation = path.join(ghData.branchUrl, tagUrl);
+					if (xtagJson) xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
 					onComplete(err, xtagJson);
 				});
 			});
