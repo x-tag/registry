@@ -12,13 +12,12 @@ var config = new Settings(require('./config'));
 console.log("App starting: ", process.env, " db:",config.db.host, " es:", config.es.host);
 
 var sequelize = new Sequelize(config.db.database, 
-	config.db.user, 
-	config.db.password, { host: config.db.host });
+	config.db.user, config.db.password, { host: config.db.host });
 
 var es_client = new elastical.Client(config.es.host, 
 	{ port: config.es.port });
 
-var XTagRepo = sequelize.import(__dirname + '/models/xtagrepo');
+var XTagRepo 	= sequelize.import(__dirname + '/models/xtagrepo');
 var XTagElement = sequelize.import(__dirname + '/models/xtagelement')
 XTagRepo.hasMany(XTagElement);
 sequelize.sync();
@@ -58,7 +57,6 @@ app.post('/customtag', function(req, res){
 	});
 });
 
-
 app.get('/search', function(req, res){
 	console.log("searching",req.query);
 	var query = {
@@ -97,13 +95,16 @@ app.get('/search', function(req, res){
 
 	es_client.search(query, function(err, es_result, raw){
 		console.log("ES search response", err, es_result, raw);
+
 		if (es_result && es_result.hits && es_result.hits.length){
+			
 			var ids = es_result.hits.map(function(h){ return h['_id']; });
 			var query = "SELECT e.id, e.name, e.tag_name, e.url, e.category, " +
 				"e.images, e.compatibility, e.demo_url, e.version, " + 
 				"e.description, r.repo, r.title as repo_name, r.author FROM XTagElements e " +
 				"JOIN XTagRepoes r ON e.`XTagRepoId` = r.id " +
-				"WHERE e.id IN (" + ids.join(',')  + ")";		
+				"WHERE e.id IN (" + ids.join(',')  + ")";
+
 			sequelize.query(query, {}, {raw: true}).success(function(results){
 				if (results && results.length){
 					res.json({ data: es_result.hits.map(function(hit){
@@ -125,8 +126,9 @@ app.get('/search', function(req, res){
 				}	
 
 			}).failure(function(err){
-				res.json({ error:err }, 400);
+				res.json({ error:err, data:[]}, 400);
 			});
+
 		} else {
 			res.json({ data: []}, 200);
 		}
@@ -214,11 +216,12 @@ var processXtagJson = function(repoData, xtagJson){
 	// create XTagElements
 	// check to see if Element already exists
 	// query by tagName && XTagRepoId
-	XTagElement.findAll({ where: {
-		tag_name: xtagJson.tagName,
-		XTagRepoId: repoData.repoId,		
-	}, order: 'id ASC'}).success(function(tags){
-		console.log("XTagGElement.Find Result",tags);
+	XTagElement.findAll({ 
+		where: {
+			tag_name: xtagJson.tagName,
+			XTagRepoId: repoData.repoId,
+		}, order: 'id ASC'}).success(function(tags){
+
 		// remove all previous versions from ES
 		var alreadyExists = false;
 		var previousVersions = [];
