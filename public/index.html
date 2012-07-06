@@ -166,16 +166,10 @@
 			url: '/search',
 			data: search,
 			onComplete: function(response){
-				//response.data.each(function(result){
-				//	new TagResult().createElement(result).element.inject('results');
-				//});
 				var results = [];
-				(5).times(function(){
-					mockResults.each(function(result){
-						results.push(new TagResult().createElement(result).element);
-					});
+				response.data.each(function(result){
+					results.push(new TagResult().createElement(result).element);
 				});
-				
 				resultBox.adopt(results);
 			}
 		}).get();
