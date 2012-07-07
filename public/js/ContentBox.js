@@ -41,7 +41,7 @@ var ContentBox = new Class({
 		this.minHeight = this.getMinHeight();
 		
 		this.fx = {
-			fade: new Fx.Tween(this.wrap, this.options.fade),
+			fade: new Fx.Tween(this.element, this.options.fade),
 			resize: new Fx.Tween(this.wrap, this.options.resize)
 		}
 
