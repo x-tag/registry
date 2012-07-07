@@ -158,21 +158,32 @@
 		};
 		
 		if (Object.equals(search, lastSearch)) return this;
+		lastSearch = search;
 		resultBox.collapse().fx.resize.addEvent('complete:once', function(){
 			resultBox.element.empty();
+			new Request.JSON({
+				url: '/search',
+				data: search,
+				onComplete: function(response){
+					
+					var results = [];
+					
+					//response.data.each(function(result){
+					//	results.push(new TagResult().createElement(result).element);
+					//});
+					
+					(5).times(function(){
+						mockResults.each(function(result){
+							results.push(new TagResult().createElement(result).element);
+						});
+					});
+					
+					resultBox.adopt(results);
+					
+					
+				}
+			}).get();
 		});
-		lastSearch = search;
-		new Request.JSON({
-			url: '/search',
-			data: search,
-			onComplete: function(response){
-				var results = [];
-				response.data.each(function(result){
-					results.push(new TagResult().createElement(result).element);
-				});
-				resultBox.adopt(results);
-			}
-		}).get();
 	};
 	
 	window.addEvents({

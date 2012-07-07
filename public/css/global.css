@@ -359,15 +359,20 @@ div.max-width > dl > dd:last-child p:last-child {
 		
 #tags > div.content-box {
 	opacity: 1 !important;
+	background: #fff url(../images/spinner-black-32.gif) no-repeat center center;
+	border: 1px solid;
+	border-color: #bbb #ccc #ddd;
+	border-radius: 4px;
+	-o-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 }
 
 #results {
-	min-height: 40px;
-	background: #fff;
+	min-height: 55px;
     padding: 8px 11px 0;
-	border: 1px solid;
-	border-color: #bbb #ccc #ddd;
-	opacity: 1 !important;
+	background: #fff;
 	border-radius: 4px;
 	-o-border-radius: 4px;
 	-ms-border-radius: 4px;
