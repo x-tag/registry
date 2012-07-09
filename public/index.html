@@ -162,6 +162,7 @@
 				url: '/search',
 				data: search,
 				onComplete: function(response){
+					
 					var request = this,
 						results = [];
 					
@@ -173,10 +174,9 @@
 					
 					resultBox.adopt(results);
 					
-					
 				},
 				onCategorySearch: function(){
-					
+				
 				}
 			}).get();
 		});
