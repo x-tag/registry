@@ -1,4 +1,5 @@
 var path = require('path'),
+	_ = require('underscore'),
 	express = require('express'),
 	app = express.createServer(),
 	exgf = require('amanda'),
@@ -85,8 +86,19 @@ app.get('/search', function(req, res){
 			"terms": { "categories": req.query.category.split(',') }
 		}
 	}
+	if (req.query.compatibility){
+		query.filter = {};
+		query.filter.and = [];
+		_.each(req.query.compatibility, function(item, key){
+			var range = { "range" : {} };
+			range["range"]["compatibility." + key] = {
+				"from": Number(item)
+			}
+			query.filter.and.push(range);
+		});
+	}
 
-	if (!req.query.query && !req.query.category){
+	if (!req.query.query){
 		query.size = 100;
 		query.sort = [
 				{ "created_at": { "order": "desc" } }
