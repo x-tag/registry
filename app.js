@@ -42,7 +42,7 @@ app.post('/customtag', function(req, res){
 			return res.send(200);
 		}
 
-		res.send(200); // respond early to gihub
+		res.send(200); // respond early to github
 
 		console.log("Processing webhook data from:", gitHubData.repository.url);
 
@@ -81,14 +81,16 @@ app.get('/search', function(req, res){
 			}
 		}
 	}
-	if (req.query.category){
-		query.filter = {
-			"terms": { "categories": req.query.category.split(',') }
-		}
+
+	if (req.query.category || req.query.compatibility){
+		query.filter = { 'and' : []};
 	}
-	if (req.query.compatibility){
-		query.filter = {};
-		query.filter.and = [];
+	if (req.query.category){		
+		query.filter.and.push({
+			"terms": { "categories": req.query.category.split(',') }
+		});
+	}
+	if (req.query.compatibility){		
 		_.each(req.query.compatibility, function(item, key){
 			var range = { "range" : {} };
 			range["range"]["compatibility." + key] = {
