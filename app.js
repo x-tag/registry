@@ -135,12 +135,12 @@ app.get('/search', function(req, res){
 						}
 					})}, 200);
 				} else {
-					console.log("error finding IDs in db", ids);
-					res.json({ data: [], }, 200);
+					console.log("error finding IDs in DB", ids);
+					res.json({ data: [], error: "error finding IDs in DB"}, 500);
 				}	
 
 			}).failure(function(err){
-				res.json({ error:err, data:[]}, 400);
+				res.json({ error:err, data:[]}, 500);
 			});
 
 		} else {
