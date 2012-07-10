@@ -30,16 +30,13 @@
 		<div id="advanced_controls">
 			<div>
 				<div id="sorts">
-					<input type="radio" name="browse" checked="checked" />
+					<input type="radio" value="popular" name="browse" checked="checked" />
 					<button>Popular</button>
 					
-					<input type="radio" name="browse" />
+					<input type="radio" value="category" name="browse" />
 					<button>Category</button>
 					
-					<input type="radio" name="browse" />
-					<button>Hashtag</button>
-					
-					<input type="radio" name="browse" />
+					<input type="radio" value="compatibility" name="browse" />
 					<button>Compatibility</button>
 				</div>
 				
@@ -165,13 +162,21 @@
 				url: '/search',
 				data: search,
 				onComplete: function(response){
-
-					var results = [];
+					
+					var request = this,
+						results = [];
+					
 					response.data.each(function(result){
-						results.push(new TagResult().createElement(result).element);
+						var tag = new TagResult().createElement(result);
+						results.push(tag.element);
+						request.fireEvent($('sorts').getElement('[checked="checked"]').value + 'Search', [response, tag])
 					});
+					
 					resultBox.adopt(results);
-
+					
+				},
+				onCategorySearch: function(){
+				
 				}
 			}).get();
 		});
