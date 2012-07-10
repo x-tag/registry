@@ -29,6 +29,7 @@ app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 
 app.post('/customtag', function(req, res){
+	console.log("DEBUG:", req.body.payload);
 	var gitHubData = JSON.parse(sanitize(req.body.payload).xss() || '{}');
 	exgf.validate(gitHubData, require('./schemas').github, function(err){
 		if (err){
