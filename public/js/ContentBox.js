@@ -12,13 +12,14 @@ var ContentBox = new Class({
 			margin: true,
 			opacity: true
 		},
+		fx: {
+			duration: 250,
+		},
 		fade: {
 			property: 'opacity',
-			duration: 200
 		},
 		resize: {
 			property: 'height',
-			duration: 250,
 			transition: 'quad:out'
 		} 
 	},
@@ -38,11 +39,11 @@ var ContentBox = new Class({
 		this.element.setStyle('margin', 'auto');
 		if (!this.options.wrap) this.wrap.wraps(this.element);
 		
-		this.minHeight = this.getMinHeight();
+		this.setMinHeight();
 		
 		this.fx = {
-			fade: new Fx.Tween(this.element, this.options.fade),
-			resize: new Fx.Tween(this.wrap, this.options.resize)
+			fade: new Fx.Tween(this.element, Object.merge({}, this.options.fade, this.options.fx)),
+			resize: new Fx.Tween(this.wrap, Object.merge({}, this.options.resize, this.options.fx))
 		}
 
 		this.fx.fade.addEvents({
@@ -50,16 +51,10 @@ var ContentBox = new Class({
 				box.fireEvent('fadeStart');
 			},
 			complete: function(){
-				box.fireEvent('fade' + !box.wrap.getStyle('opacity') ? 'Out' : 'In');
-			}
-		});
-
-		this.fx.resize.addEvents({
-			complete: function(){
-				if (this.element.getStyle('height').toInt() != box.minHeight) {
-					this.element.setStyle('height', 'auto');
-				}
-				else box.element.getChildren().hide();
+				var opacity = this.element.getStyle('opacity');
+				if (opacity) box.wrap.setStyle('height', 'auto');
+				else this.element.getChildren().hide();
+				box.fireEvent('fade' + (opacity ? 'In' : 'Out'));
 			}
 		});
 
@@ -70,12 +65,14 @@ var ContentBox = new Class({
 		return this;
 	},
 	
-	getMinHeight: function(){
-		var height = this.element.getStyle('minHeight').toInt();
-		if (height) Object.each(this.element.getStyles('border-top-width', 'border-bottom-width', 'padding-top', 'padding-bottom'), function(value){
-			height += value.toInt() || 0;
-		});
-		return height;
+	setMinHeight: function(){
+		if (this.element.getStyle('minHeight')) {
+			var children = this.element.getChildren(),
+				minHeight = this.element.empty().getSize().y;
+			this.element.adopt(children);
+		}
+		this.minHeight = minHeight || 0;
+		return this;
 	},
 	
 	show: function(limit){
@@ -83,22 +80,22 @@ var ContentBox = new Class({
 		var limit = limit || this.options.limit;
 		this.elements = !limit ? this.element.getChildren() : typeOf(limit) == 'string' ?  this.element.getElements(limit) : $$(limit);
 		this.elements.show();
-		this.fx.resize.start(this.element.getScrollSize().y);
 		this.fx.fade.start(1);
+		this.fx.resize.start(this.element.getScrollSize().y);
 		this.fireEvent('show');
 		return this;
 	},
 
 	hide: function(fn){
 		this.setHeight();
-		(fn) ? this.fx.fade.clearChain().cancel().start(0).chain(fn.bind(this)) : this.fx.fade.start(0);
+		this.fx.fade.start(0);
+		if (fn) this.fx.fade.addEvent('complete:once', fn.bind(this));
 		this.fireEvent('hide');
 		return this;
 	},
 	
-	collapse: function(){
-		this.setHeight();
-		this.fx.fade.start(0);
+	collapse: function(fn){
+		this.hide(fn);
 		this.fx.resize.start(this.minHeight);
 		this.fireEvent('collapse');
 		return this;
