@@ -29,20 +29,31 @@
 		
 		<div id="advanced_controls">
 			<div>
-				<div id="sorts">
-					<input type="radio" value="popular" name="browse" checked="checked" />
-					<button>Popular</button>
+				<dl id="groups">
+					<dt>Group By:</dt>
+					<dd>
+						<input type="radio" value="default" name="browse" checked="checked" />
+						<button>Default</button>
 					
-					<input type="radio" value="category" name="browse" />
-					<button>Category</button>
+						<input type="radio" value="category" name="browse" />
+						<button>Category</button>
 					
-					<input type="radio" value="compatibility" name="browse" />
-					<button>Compatibility</button>
-				</div>
+						<input type="radio" value="author" name="browse" />
+						<button>Author</button>
+					</dd>
+				</dl>
 				
-				<div id="browse_facets">
-					
-				</div>
+				<dl id="filters">
+					<dt>Compatibility</dt>
+					<dd id="compatiblity">
+						<div id="firefox_compatibility" class="slider"></div>
+						<div id="chrome_compatibility" class="slider"></div>
+						<div id="ie_compatibility" class="slider"></div>
+						<div id="opera_compatibility" class="slider"></div>
+						<div id="android_compatibility" class="slider"></div>
+						<div id="ios_compatibility" class="slider"></div>
+					</dd>
+				</dl>
 			</div>
 		</div>
 	</section>
@@ -67,50 +78,13 @@
 
 (function(){
 	
-	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
-	var resultBox = new ContentBox('results', {
-		element: {
-			style: 'opacity: 1 !important;'
-		}
-	});
-	var lastSearch = {};
-	var mockResults = [
-			{
-				"id": 21,
-				"name": "Flipbox",
-				"tag_name": "x-flipbox",
-				"url": "http:/github.com/pennyfx/x-tag/tree/xtag-v0.0.6/elements/flipbox",
-				"category": [
-					"structural",
-					"media",
-					"input"
-				],
-				"images": [
-					"test.com/images/screen1.png"
-				],
-				"compatibility": {
-					"firefox": 5,
-					"chrome": 4,
-					"opera": 11,
-					"android": 2.1,
-					"ios": 4
-				},
-				"demo_url": null,
-				"version": "0.0.1",
-				"description": "This tag is a flipbox.",
-				"repo": "http://github.com/pennyfx/x-tag",
-				"repo_name": "x-tag-test",
-				"author": "pennyfx"
-			}
-		];
-	
 	TagResult = new Class({
 		
 		Extends: Template,
 		
 		Template: {
 			name: 'TagResult',
-			html: '<dd>' +
+			html: '<dd class="{resultClass}">' +
 				'<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>' +
 				'<div class="tag-header">' +
 					'<h3>' +
@@ -149,44 +123,105 @@
 		
 	});
 	
-	var searchRequest = function(){
-		var search = {
-			query: $('search_input').value
-		};
+	
+	TagSearch = new Class({
+	
+		Extends: ContentBox,
 		
-		if (Object.equals(search, lastSearch)) return this;
-		lastSearch = search;
-		resultBox.collapse().fx.resize.addEvent('complete:once', function(){
-			resultBox.element.empty();
-			new Request.JSON({
+		Binds: ['search'],
+		
+		Plugins: {
+			searchRequest: Request.JSON
+		},
+		
+		options: {
+			searchRequest: {
 				url: '/search',
-				data: search,
-				onComplete: function(response){
-					
-					var request = this,
-						results = [];
-					
-					response.data.each(function(result){
-						var tag = new TagResult().createElement(result);
-						results.push(tag.element);
-						request.fireEvent($('sorts').getElement('[checked="checked"]').value + 'Search', [response, tag])
-					});
-					
-					resultBox.adopt(results);
-					
+				onSuccess: function(response){
+					this.data = response.data;
+					this.base['groupBy' + $('groups').getElement('input:checked').value.capitalize()]();
 				},
-				onCategorySearch: function(){
-				
-				}
-			}).get();
-		});
-	};
+			}
+		},
+		
+		search: function(){
+			var self = this,
+				search = { query: $('search_input').value };
+			if (Object.equals(search, this.lastSearch)) return this;
+			
+			this.lastSearch = search;
+			this.collapse(function(){
+				self.element.empty();
+				self.searchRequest.get(search);
+			});
+			return this;
+		},
+		
+		blink: function(fn){
+			this.collapse(function(){
+				fn.call(this);
+				this.show();
+			});
+			return this;
+		},
+		
+		groupByDefault: function(){
+			this.blink(function(){
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					new TagResult().createElement(result).element.inject(this.element);
+				}, this);
+			});
+		},
+		
+		groupByCategory: function(){
+			this.blink(function(){
+				var self = this,
+					categories = {};
+					
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					result.category.each(function(category){
+						result.resultClass = 'result-category-' + category;
+						new TagResult().createElement(result).element.inject(categories[category] = categories[category] || new Element('dt').inject(self.element), 'after');
+					});
+					Object.each(categories, function(element, category){
+						element.set('html', category.capitalize() + ' <span>(' + $$('.result-category-' + category).length + ')</span>');
+					});
+				});
+			});
+		},
+		
+		groupByAuthor: function(){
+			this.blink(function(){
+				var self = this,
+					authors = {};
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					result.resultClass = 'result-author-' + result.author;
+					new TagResult().createElement(result).element.inject(authors[result.author] = authors[result.author] || new Element('dt').inject(self.element), 'after');
+				});
+				Object.each(authors, function(element, author){
+					element.set('html', '<a href="https://github.com/' + author + '">' + author + '</a> <span>(' + $$('.result-author-' + author).length + ')</span>');
+				});
+			});
+		}
+		
+	});
+	
+	
+	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	RegistrySearch = new TagSearch('results').search();
 	
 	window.addEvents({
-		'keydown:relay(#search_input):keys(enter)': searchRequest,
-		'click:relay(#search_button)': searchRequest,
-		'click:relay(#sorts button)': function(){
-			this.getPrevious().checked = 'checked';
+		'keydown:relay(#search_input):keys(enter)': RegistrySearch.search,
+		'click:relay(#search_button)': RegistrySearch.search,
+		'click:relay(#groups button)': function(){
+			var radio = this.getPrevious();
+			if (!radio.checked || RegistryKeyboard.shiftDown){
+				radio.checked = true;
+				RegistrySearch['groupBy' + radio.value.capitalize()]();
+			}
 		},
 		'click:relay(#advanced_button)': function(){
 			var shown = $('advanced_controls').getStyle('height') == 'auto';
@@ -195,7 +230,17 @@
 		}
 	});
 	
-	
+	RegistryKeyboard = new Keyboard({
+		defaultEventType: 'keyup',
+		events: {
+			'keydown:shift': function(){
+				this.shiftDown = true;
+			},
+			'shift': function(){
+				this.shiftDown = false;
+			}
+		}
+	}).activate();
 
 })();
 

@@ -50,7 +50,6 @@
 		},
 		
 		createElement: function(data){
-			console.log(data);
 			this.data = Object.merge({}, this.options.template.data, $(data) ? {} : data);
 			this.element = $(data) || this.extendElement(Elements.from(this.Template.html.substitute(this.data))[0], this.data);
 			this.element.store(this.Template.name, this);

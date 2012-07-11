@@ -9,6 +9,11 @@ body
 
 a {
 	color: #226AB3;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 a:visited {
@@ -30,7 +35,7 @@ h2 {
 }
 
 h3 {
-	font-size: 135%;
+	font-size: 120%;
 }
 
 p {
@@ -109,7 +114,7 @@ button, .button {
 	cursor: pointer;
 }
 
-button:active, button.pressed, .button.pressed, #sorts input[type="radio"]:checked + button {
+button:active, button.pressed, .button.pressed, #groups input[type="radio"]:checked + button {
 	background: #3A6EAF;
 	border: 1px solid #226AB3;
 	border-top: 1px solid #003474;
@@ -313,25 +318,44 @@ div.max-width > dl > dd:last-child p:last-child {
 		overflow: hidden;
 	}
 	
-	#sorts {
-		margin-bottom: 10px;
+	#advanced_controls dl {
+		margin: 0 10px 10px;
 	}
 	
-	#sorts input[type="radio"] {
+	#advanced_controls dt {
+		position: relative;
+		margin-bottom: 10px;
+		padding-bottom: 4px;
+		border-bottom: 1px solid #f3f3f3;
+		color: #999;
+		text-shadow: 0 1px 0 #fff;
+	}
+	
+		#advanced_controls dt:after {
+			display: block;
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+			width: 100%;
+			content: " ";
+			border-bottom: 1px solid #d3d3d3;
+		}
+	
+	#groups input[type="radio"] {
 		display: none !important;
 	}
 
-	#sorts button {
+	#groups button {
 		position: relative;
 		margin-left: 14px;
 		padding-left: 23px;
 	}
 
-		#sorts input:first-child + button {
+		#groups input:first-child + button {
 			margin-left: 0;
 		}
 
-	#sorts input[type="radio"] + button:before {
+	#groups input[type="radio"] + button:before {
 		content: " ";
 		display: block;
 		position: absolute;
@@ -348,7 +372,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		-webkit-border-radius: 12px;
 	}
 
-		#sorts input[type="radio"]:checked + button:before {
+		#groups input[type="radio"]:checked + button:before {
 			background: #42BA52;
 			background: linear-gradient(top, #42BA52, #129621);
 			background: -o-linear-gradient(top, #42BA52, #129621);
@@ -371,7 +395,7 @@ div.max-width > dl > dd:last-child p:last-child {
 
 #results {
 	min-height: 55px;
-    padding: 8px 11px 0;
+    padding: 0 8px 4px;
 	background: #fff;
 	border-radius: 4px;
 	-o-border-radius: 4px;
@@ -379,14 +403,38 @@ div.max-width > dl > dd:last-child p:last-child {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 }
-
+	
+	#results > dt {
+		font-size: 135%;
+		background: linear-gradient(top, #F3F3F3, #E6E6E6);
+		background: -ms-linear-gradient(top, #F3F3F3, #E6E6E6);
+		background: -moz-linear-gradient(top, #F3F3F3, #E6E6E6);
+		background: -webkit-linear-gradient(top, #F3F3F3, #E6E6E6);
+		border: 1px solid;
+		border-color: #E6E6E6 #dadada #d0d0d0;
+		margin: 10px 0 4px;
+		padding: 2px 6px;
+		text-shadow: 0 1px 0 #fff;
+		border-radius: 3px;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+	}
+	
+	#results > dt span {
+		color: #888;
+	}
+	
 	#results > dd {
 		position: relative;
-		margin-bottom: 10px;
-		padding-bottom: 12px;
-		padding-right: 50px;
-		border-bottom: 1px dashed #ddd;
+		margin: 2px 8px 0;
+		padding: 12px 50px 12px 0;
+		border-top: 1px dashed #ddd;
 		overflow: hidden;
+	}
+	
+	#results > dt + dd, #results > dd:first-child {
+		padding-top: 6px;
+		border: none;
 	}
 	
 	#results > *:last-child {
@@ -420,7 +468,6 @@ div.max-width > dl > dd:last-child p:last-child {
 			}
 			
 			a.tag-demo:hover {
-				text-decoration: underline;
 				opacity: 1.0;
 			}
 			
@@ -434,19 +481,11 @@ div.max-width > dl > dd:last-child p:last-child {
 				margin-right: 10px;
 			}
 				
-				div.tag-header h3 a {
-					text-decoration: none;
-				}
-				
-				div.tag-header h3 a:hover {
-					text-decoration: underline;
-				}
-				
 				div.tag-header h3 span {
 					position: relative;
 					top: -2px;
 					color: #888;
-					font-size: 60%;
+					font-size: 70%;
 					font-style: italic;
 					font-family: Segoe UI, Trebuchet MS, Helvetica, Arial;
 				}
@@ -465,7 +504,7 @@ div.max-width > dl > dd:last-child p:last-child {
 				display: block;
 				float: left;
 				position: relative;
-				margin: 5px 8px 8px;
+				margin: 3px 8px 8px;
 				padding: 2px 5px;
 				font-size: 70%;
 				background: #eee;
