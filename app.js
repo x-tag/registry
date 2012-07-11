@@ -47,14 +47,15 @@ app.post('/customtag', function(req, res){
 
 		console.log("Processing webhook data from:", gitHubData.repository.url);
 
-		addUpdateRepo(gitHubData, function(err, repoId){
+		addUpdateRepo(gitHubData, function(err, repo){
 			if (err) {
 				console.log("addUpdateRepo error:", err);
 			} else {
-				gitHubData.repoId = repoId;
+				gitHubData.repoId = repo.id;
+				gitHubData.forked_from = repo.forked_from;
 				gitHubData.branchUrl = gitHubData.repository.url + "/" + path.join("tree", gitHubData.ref.split('/')[2]);
 				findControls(gitHubData);
-			} 
+			}
 		});
 	});
 });
@@ -157,7 +158,7 @@ app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 */
 var addUpdateRepo = function(ghData, callback){	
 
-	XTagRepo.find({ where: {repo: ghData.repository.url}}).success(function(repo){		
+	XTagRepo.find({ where: {repo: ghData.repository.url }}).success(function(repo){		
 		if (repo){
 			repo.updateAttributes({ 
 				title: ghData.repository.name,
@@ -167,24 +168,67 @@ var addUpdateRepo = function(ghData, callback){
 				callback("error updating repo: " + ghData.repository.url + ", " + err, null);
 			}).success(function(){
 				console.log("repo " + ghData.repository.url + " updated");
-				callback(null, repo.id);
+				callback(null, repo);
 			});
 		} else {
-			XTagRepo.create({
-				repo: ghData.repository.url,
-				title: ghData.repository.name, 
-				description: ghData.repository.description,
-				author: ghData.repository.owner.name,
-				email: ghData.repository.owner.email,		
-			}).error(function(err){				
-				callback("error creating rerepopo: " + ghData.repository.url + ", " + err, null);				
-			}).success(function(repo){
-				console.log("repo " + ghData.repository.url + " created");
-				callback(null, repo.id);
-			});
+
+			var createRepo = function(forked_from){
+				XTagRepo.create({
+					repo: ghData.repository.url,
+					title: ghData.repository.name, 
+					description: ghData.repository.description,
+					author: ghData.repository.owner.name,
+					email: ghData.repository.owner.email,
+					forked: ghData.repository.fork, 
+					forked_from: forked_from,
+				}).error(function(err){
+					callback("error creating rerepopo: " + ghData.repository.url + ", " + err, null);
+				}).success(function(repo){
+					console.log("repo " + ghData.repository.url + " created");
+					callback(null, repo);
+				});
+			}
+
+			if (ghData.repository.fork){
+				fetchForkedFrom(ghData.repository.url, createRepo);
+			} else {
+				createRepo(null);
+			}
 		}
 	});
 
+}
+
+var fetchForkedFrom = function(repoUrl, callback){
+	var host = 'api.github.com';	
+	var http = require('https');
+	http.get({
+		host: host,
+		path: 'repos/' + repoUrl.replace('https://github.com/','')
+	}, function(res){
+		res.setEncoding('utf8');
+		if (res.statusCode == 200){
+			var data = '';
+			res.on('data', function(chuck){
+				data += chuck;
+			});
+			res.on('end', function(){
+				try {
+					var repo = JSON.parse(sanitize(data).xss());					
+					callback(repo.parent.svn_url);
+				} catch(e) { 
+					console.log("error parsing github data: " + e + "\n" + data);
+					callback(null);
+				}
+			});
+		} else {
+			console.log("request returned:" + res.statusCode, host, repoUrl);
+			callback(null);
+		}
+	}).on('error', function(err){
+		console.log("error making request:", host, repoUrl);
+		callback(null);
+	});
 }
 
 var findControls = function(ghData){
@@ -226,7 +270,6 @@ var findControls = function(ghData){
 	} catch(e){
 		console.log("error in fetchXtagJson", e);
 	}
-
 }
 
 var processXtagJson = function(repoData, xtagJson){
@@ -294,6 +337,8 @@ var processXtagJson = function(repoData, xtagJson){
 				repo_name: repoData.repository.name,
 				author: repoData.repository.owner.name,
 				versions: previousVersions,
+				forked: repoData.repository.forked,
+				forked_from: repoData.repository.forked_from,
 				all: tag.name + " " + tag.tag_name + " " + tag.description
 			}, 
 			{ 
@@ -351,4 +396,3 @@ var fetchXtagJson = function(url, callback){
 		callback(err,null);
 	});
 }
-
