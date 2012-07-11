@@ -21,6 +21,9 @@
 
 <div id="tags" class="max-width">
 	
+	<section id="instructions">
+		<!-- Arron, put the instructions here -->
+	</section>
 	
 	<section id="controls">
 		<ul id="search_controls">
@@ -44,6 +47,14 @@
 				</dl>
 				
 				<dl id="filters">
+					<dt>Filters</dt>
+					<dd id="compatiblity">
+						<input id="include_forks" type="checkbox" />
+						<button>Include forks</button>
+						
+						<input id="official_tags" type="checkbox" />
+						<button>Only Show Official Tags</button>
+					</dd>
 					<dt>Compatibility</dt>
 					<dd id="compatiblity">
 						<div id="firefox_compatibility" class="slider"></div>
@@ -85,7 +96,7 @@
 		Template: {
 			name: 'TagResult',
 			html: '<dd class="{resultClass}">' +
-				'<a class="tag-demo" target="_blank" href="http://jsfiddle.net/8aDzz/4/"></a>' +
+				'{demo_link}' +
 				'<div class="tag-header">' +
 					'<h3>' +
 						'<a class="tag-name" target="_blank" href="{url}">{name}</a>' +
@@ -101,6 +112,10 @@
 		},
 		
 		createElement: function(data) {
+			if (data.demo_url) {
+				data.demo_link = '<a class="tag-demo" target="' + data.demo_url + '"></a>';
+			}
+			
 			this.parent(data);
 			
 			var categoryList = this.element.getElement('nav.tag-categories');
@@ -123,7 +138,6 @@
 		
 	});
 	
-	
 	TagSearch = new Class({
 	
 		Extends: ContentBox,
@@ -140,19 +154,28 @@
 				onSuccess: function(response){
 					this.data = response.data;
 					this.base['groupBy' + $('groups').getElement('input:checked').value.capitalize()]();
-				},
+				}
 			}
+		},
+		
+		getQuery: function(){
+			return {
+				query: $('search_input').value,
+				forks: $('include_forks').checked,
+				author: $('official_tags').checked ? 'mozilla' : null
+			};
 		},
 		
 		search: function(){
 			var self = this,
-				search = { query: $('search_input').value };
-			if (Object.equals(search, this.lastSearch)) return this;
-			
-			this.lastSearch = search;
+				query = this.getQuery();
+			console.log(query, this.lastQuery);
+			console.log(Object.equals(query, this.lastQuery))
+			if (Object.equals(query, this.lastQuery)) return this;
+			this.lastQuery = query;
 			this.collapse(function(){
 				self.element.empty();
-				self.searchRequest.get(search);
+				self.searchRequest.get(query);
 			});
 			return this;
 		},
@@ -216,17 +239,25 @@
 	window.addEvents({
 		'keydown:relay(#search_input):keys(enter)': RegistrySearch.search,
 		'click:relay(#search_button)': RegistrySearch.search,
-		'click:relay(#groups button)': function(){
-			var radio = this.getPrevious();
-			if (!radio.checked || RegistryKeyboard.shiftDown){
-				radio.checked = true;
-				RegistrySearch['groupBy' + radio.value.capitalize()]();
+		'click:relay(#advanced_controls button)': function(){
+			var input = this.getPrevious();
+			
+			if (input.type == 'radio' && !input.checked){
+				input.checked = true;
+				RegistrySearch['groupBy' + input.value.capitalize()]();
+			}
+			else if (input.type == 'checkbox'){
+				input.checked = !input.checked;
 			}
 		},
 		'click:relay(#advanced_button)': function(){
 			var shown = $('advanced_controls').getStyle('height') == 'auto';
 			this[shown ? 'removeClass' : 'addClass']('pressed');
 			advancedBox[shown ? 'collapse' : 'show']();
+		},
+		'click:relay(#filters button)': function(){
+			console.log('click');
+			RegistrySearch.search();
 		}
 	});
 	
