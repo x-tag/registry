@@ -34,7 +34,7 @@ Open your browser to localhost:3000 and voila!
 X-tag registry uses github as its source for tags.  All you have to do is add a POST-COMMIT hook in your repository and add a xtag.json file to your repo and we will do the rest.
 
 Visit: 
-``` https://github.com/[YOU]/[YOUR TAG REPO]/admin/hooks ``` 
+``` https://github.com/[USERNAME]/[YOUR TAG REPO]/admin/hooks ``` 
 
 Add a WebHook Url to:  https://xtag-registry.vcap.mozillalabs.com/customtag
 

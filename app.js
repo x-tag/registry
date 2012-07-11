@@ -83,8 +83,7 @@ app.get('/search', function(req, res){
 				]
 			}
 		}
-	}
-	
+	}	
 	if (req.query.category){		
 		query.filter.and.push({
 			"terms": { "categories": req.query.category.split(',') }
@@ -108,6 +107,11 @@ app.get('/search', function(req, res){
 			"term": { "forked": "false" }
 		});
 	}
+	if (req.query.author){
+		query.filter.and.push({
+			"term": { "author": req.query.author }
+		});
+	}
 	if (!req.query.query){
 		query.size = 100;
 		query.sort = [
@@ -128,7 +132,8 @@ app.get('/search', function(req, res){
 				"JOIN XTagRepoes r ON e.`XTagRepoId` = r.id " +
 				"WHERE e.id IN (" + ids.join(',')  + ")";
 
-			sequelize.query(query, {}, {raw: true}).success(function(results){
+			var query = sequelize.query(query, {}, {raw: true});
+			query.success(function(results){
 				if (results && results.length){
 					res.json({ data: es_result.hits.map(function(hit){
 						// reorder to es sort
@@ -149,7 +154,8 @@ app.get('/search', function(req, res){
 					res.json({ data: [], error: "error finding IDs in DB"}, 500);
 				}	
 
-			}).failure(function(err){
+			});
+			query.failure(function(err){
 				res.json({ error:err, data:[]}, 500);
 			});
 
@@ -312,6 +318,8 @@ var processXtagJson = function(repoData, xtagJson){
 		if (alreadyExists){
 			return console.log("control already exists");
 		}
+
+		var categories = ["structural", "media", "input", "navigation", "behavioral"];
 
 		XTagElement.create({
 			name: xtagJson.name,
