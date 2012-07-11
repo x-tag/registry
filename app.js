@@ -64,7 +64,8 @@ app.get('/search', function(req, res){
 	console.log("searching",req.query);
 	var query = {
 		index: config.es.index,
-		type: 'element'
+		type: 'element',
+		filter: { 'and' : []}
 	};
 	if (req.query.query){
 		query.query = {
@@ -83,10 +84,7 @@ app.get('/search', function(req, res){
 			}
 		}
 	}
-
-	if (req.query.category || req.query.compatibility){
-		query.filter = { 'and' : []};
-	}
+	
 	if (req.query.category){		
 		query.filter.and.push({
 			"terms": { "categories": req.query.category.split(',') }
@@ -101,7 +99,15 @@ app.get('/search', function(req, res){
 			query.filter.and.push(range);
 		});
 	}
-
+	if (req.query.forked && req.query.forked == 'true'){
+		query.filter.and.push({
+			"term": { "forked": "true" }
+		});
+	} else {
+		query.filter.and.push({
+			"term": { "forked": "false" }
+		});
+	}
 	if (!req.query.query){
 		query.size = 100;
 		query.sort = [
@@ -117,7 +123,8 @@ app.get('/search', function(req, res){
 			var ids = es_result.hits.map(function(h){ return h['_id']; });
 			var query = "SELECT e.id, e.name, e.tag_name, e.url, e.category, " +
 				"e.images, e.compatibility, e.demo_url, e.version, " + 
-				"e.description, r.repo, r.title as repo_name, r.author FROM XTagElements e " +
+				"e.description, r.repo, r.title as repo_name, r.author, " +
+				"r.forked, r.forked_from FROM XTagElements e " +
 				"JOIN XTagRepoes r ON e.`XTagRepoId` = r.id " +
 				"WHERE e.id IN (" + ids.join(',')  + ")";
 
@@ -132,6 +139,7 @@ app.get('/search', function(req, res){
 								results[i].category = results[i].category.split(',');
 								results[i].images = results[i].images.split(',');
 								results[i].versions = hit['_source'].versions;
+								results[i].forked = results[i].forked ? true : false;
 								return results[i];
 							}
 						}
@@ -337,7 +345,7 @@ var processXtagJson = function(repoData, xtagJson){
 				repo_name: repoData.repository.name,
 				author: repoData.repository.owner.name,
 				versions: previousVersions,
-				forked: repoData.repository.forked,
+				forked: repoData.repository.forked ? "true" : "false",
 				forked_from: repoData.repository.forked_from,
 				all: tag.name + " " + tag.tag_name + " " + tag.description
 			}, 

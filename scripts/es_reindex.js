@@ -14,7 +14,7 @@ var query = "SELECT e.name, e.tag_name, e.description, e.url, e.category, " +
 	"e.images, e.compatibility, e.demo_url, e.version, e.revision, " +
 	"e.ref, e.id, e.createdAt, e.is_current, r.id as repoId, " +
 	"r.description as repoDescription, r.title as repoTitle, " +
-	"r.updatedAt as repoUpdated, r.id as repoId, r.author " +
+	"r.updatedAt as repoUpdated, r.id as repoId, r.author, r.forked, r.forked_from " +
 	"FROM XTagElements e JOIN XTagRepoes r ON e.XTagRepoId = r.id " +
 	"ORDER BY r.id, e.tag_name, e.is_current, e.version DESC";
 
@@ -51,6 +51,8 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				repo_name: item.repoTitle,
 				author: item.author,
 				versions: previousVersions[key],
+				forked: item.forked ? "true" : "false",
+				forked_from: item.forked_from,
 				all: item.name + " " + item.tag_name + " " + item.description
 			}, 
 			{ 
@@ -60,5 +62,7 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				console.log("ES response", err, res);
 			});
 	});
+}).error(function(err){
+	console.log(err);
 });
 //todo: pull from db, push into ES
