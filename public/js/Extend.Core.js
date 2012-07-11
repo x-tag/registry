@@ -46,12 +46,12 @@
 					second = Array.from(second);
 				case 'object': every = Object.every;
 				case 'array': case 'object': case 'arguments':
-					if (first.length != second.length) return false;
+					if (Object.getLength(first) != Object.getLength(second)) return false;
 					return every(first, function(value, i){
 						return (i in second) && Object.equals(value, second[i]);
 					});
+				default: return first === second;
 			}
-			return true;
 		},
 		
 		bindMap: function(object, bind){

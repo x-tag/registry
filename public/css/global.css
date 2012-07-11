@@ -131,6 +131,50 @@ button code {
 	background: #fff;
 }
 
+input[type="radio"], input[type="checkbox"] {
+	display: none !important;
+}
+
+	input[type="radio"] + button, input[type="checkbox"] + button {
+		position: relative;
+		margin-left: 14px;
+		padding-left: 23px;
+	}
+
+	input[type="radio"] + button:before, input[type="checkbox"] + button:before {
+		content: " ";
+		display: block;
+		position: absolute;
+		top: 5px;
+		left: 6px;
+		height: 8px;
+		width: 8px;
+		border: 4px solid #fff;
+		background: #fff;
+		border-radius: 12px;
+		-o-border-radius: 12px;
+		-ms-border-radius: 12px;
+		-moz-border-radius: 12px;
+		-webkit-border-radius: 12px;
+	}
+	
+		input[type="checkbox"] + button:before {
+			border-radius: 0;
+			-o-border-radius: 0;
+			-ms-border-radius: 0;
+			-moz-border-radius: 0;
+			-webkit-border-radius: 0;
+		}
+
+	input[type="radio"]:checked + button:before, input[type="checkbox"]:checked + button:before {
+		background: #42BA52;
+		background: linear-gradient(top, #42BA52, #129621);
+		background: -o-linear-gradient(top, #42BA52, #129621);
+		background: -ms-linear-gradient(top, #42BA52, #129621);
+		background: -moz-linear-gradient(top, #42BA52, #129621);
+		background: -webkit-linear-gradient(top, #42BA52, #129621);
+	}
+
 body > header {
 	position: fixed;
 	top: 0;
@@ -248,6 +292,11 @@ div.max-width > dl > dd:last-child p:last-child {
 	margin-bottom: 0px;
 }
 
+#instructions {
+	opacity: 0;
+	height: 0;
+}
+
 #controls {
 	margin-bottom: 14px;
 	border-bottom: 2px dashed #fafafa;
@@ -327,7 +376,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		margin-bottom: 10px;
 		padding-bottom: 4px;
 		border-bottom: 1px solid #f3f3f3;
-		color: #999;
+		color: #777;
 		text-shadow: 0 1px 0 #fff;
 	}
 	
@@ -341,45 +390,13 @@ div.max-width > dl > dd:last-child p:last-child {
 			border-bottom: 1px solid #d3d3d3;
 		}
 	
-	#groups input[type="radio"] {
-		display: none !important;
+	#advanced_controls dd {
+		margin-bottom: 10px;
 	}
-
-	#groups button {
-		position: relative;
-		margin-left: 14px;
-		padding-left: 23px;
+	
+	#advanced_controls input:first-child + button {
+		margin-left: 0;
 	}
-
-		#groups input:first-child + button {
-			margin-left: 0;
-		}
-
-	#groups input[type="radio"] + button:before {
-		content: " ";
-		display: block;
-		position: absolute;
-		top: 5px;
-		left: 6px;
-		height: 8px;
-		width: 8px;
-		border: 4px solid #fff;
-		background: #fff;
-		border-radius: 12px;
-		-o-border-radius: 12px;
-		-ms-border-radius: 12px;
-		-moz-border-radius: 12px;
-		-webkit-border-radius: 12px;
-	}
-
-		#groups input[type="radio"]:checked + button:before {
-			background: #42BA52;
-			background: linear-gradient(top, #42BA52, #129621);
-			background: -o-linear-gradient(top, #42BA52, #129621);
-			background: -ms-linear-gradient(top, #42BA52, #129621);
-			background: -moz-linear-gradient(top, #42BA52, #129621);
-			background: -webkit-linear-gradient(top, #42BA52, #129621);
-		}
 		
 #tags > div.content-box {
 	opacity: 1 !important;
@@ -412,7 +429,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		background: -webkit-linear-gradient(top, #F3F3F3, #E6E6E6);
 		border: 1px solid;
 		border-color: #E6E6E6 #dadada #d0d0d0;
-		margin: 10px 0 4px;
+		margin: 10px 0 0;
 		padding: 2px 6px;
 		text-shadow: 0 1px 0 #fff;
 		border-radius: 3px;
@@ -426,8 +443,8 @@ div.max-width > dl > dd:last-child p:last-child {
 	
 	#results > dd {
 		position: relative;
-		margin: 2px 8px 0;
-		padding: 12px 50px 12px 0;
+		margin: 4px 8px 0;
+		padding: 12px 50px 10px 0;
 		border-top: 1px dashed #ddd;
 		overflow: hidden;
 	}
