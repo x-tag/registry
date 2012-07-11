@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes) {
 		title: 	{ type: DataTypes.STRING, allowNull: false },
 		description: { type: DataTypes.TEXT },
 		author: { type: DataTypes.STRING },
-		email: 	{ type: DataTypes.STRING, validate: { isEmail: true }},, 
+		email: 	{ type: DataTypes.STRING, validate: { isEmail: true }}, 
 		forked: { type: DataTypes.BOOLEAN,  allowNull: false, defaultValue: false }, 
 		forked_from: { type: DataTypes.STRING }
 	});
