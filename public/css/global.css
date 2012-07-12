@@ -326,12 +326,9 @@ div.max-width > dl > dd:last-child p:last-child {
 }
 
 #toggleInstructions{
-	color: white;
 	float: right;
 	margin-right: 10px;
-	margin-top: -32px;
-	font-size: 14pt;
-	cursor: pointer;
+	margin-top: -38px;
 	position: relative;
 	z-index: 5;
 }
@@ -462,6 +459,20 @@ div.max-width > dl > dd:last-child p:last-child {
 	-ms-border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
+}
+
+#tags > div.content-box.no-results {
+	background-image: none;
+}
+
+#tags > div.content-box.no-results:before {
+	display: block;
+    line-height: 57px;
+    text-align: center;
+	font-style: italic;
+	font-weight: bold;
+	color: #999;
+	content: "No tags found, sad face.";
 }
 
 #results {

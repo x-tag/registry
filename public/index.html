@@ -18,7 +18,7 @@
 <header>
 	<span id="logo">&lt;<span>x</span>&gt;</span>
 	<h1>Tag Registry</h1>
-	<a href="" id="toggleInstructions">Add your tags</a>
+	<button id="toggleInstructions">Contribute Tags</button>
 </header>
 
 <div id="tags" class="max-width">
@@ -61,7 +61,8 @@
 	  "compatibility": {	
 	    "firefox": 5,
 	    "chrome": 4,
-	    "opera": 12,
+		"ie": 9,
+	    "opera": 11,
 	    "android": 2.1,
 	    "ios": 4
 	  },
@@ -219,7 +220,8 @@
 				url: '/search',
 				onSuccess: function(response){
 					this.data = response.data;
-					this.base['groupBy' + $('groups').getElement('input:checked').value.capitalize()]();
+					if (this.data.length) this.base['groupBy' + $('groups').getElement('input:checked').value.capitalize()]();
+					else this.base.wrap.addClass('no-results');
 				}
 			}
 		},
@@ -227,7 +229,7 @@
 		getQuery: function(){
 			return {
 				query: $('search_input').value,
-				forks: $('include_forks').checked,
+				forked: $('include_forks').checked,
 				'compatibility[ie]': $('ie9_compat').checked ? 9 : null,
 				author: $('official_tags').checked ? 'mozilla' : null
 			};
@@ -238,6 +240,7 @@
 				query = this.getQuery();
 			if (Object.equals(query, this.lastQuery)) return this;
 			this.lastQuery = query;
+			this.wrap.removeClass('no-results');
 			this.collapse(function(){
 				self.element.empty();
 				self.searchRequest.get(query);
@@ -325,8 +328,7 @@
 		'click:relay(#filters button)': function(){
 			RegistrySearch.search();
 		}, 
-		'click:relay(#toggleInstructions)': function(e){
-			e.preventDefault();
+		'click:relay(#toggleInstructions)': function(){
 			var shown = $('instructions').getStyle('height') == 'auto';			
 			instructions[shown ? 'collapse' : 'show']();
 		}
