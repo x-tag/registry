@@ -99,9 +99,7 @@ app.get('/search', function(req, res){
 		});
 	}
 	if (req.query.forked && req.query.forked == 'true'){
-		query.filter.and.push({
-			"term": { "forked": "true" }
-		});
+		// no filter?
 	} else {
 		query.filter.and.push({
 			"term": { "forked": "false" }
