@@ -56,8 +56,8 @@ code {
 
 pre code {
 	padding: 0 1em 1em;
-	background: #fafafa;
-	border: 1px solid #eee;
+	background: #fff;
+	border: solid 1px #ddd;
 }
 
 p code {
@@ -295,6 +295,17 @@ div.max-width > dl > dd:last-child p:last-child {
 #instructions {
 	opacity: 0;
 	height: 0;
+}
+
+#toggleInstructions{
+	color: white;
+	float: right;
+	margin-right: 10px;
+	margin-top: -32px;
+	font-size: 14pt;
+	cursor: pointer;
+	position: relative;
+	z-index: 5;
 }
 
 #controls {

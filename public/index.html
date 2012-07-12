@@ -10,6 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="css/reset.css" />
 		<link rel="stylesheet" type="text/css" href="css/global.css"/>
 		<link href='http://fonts.googleapis.com/css?family=Days+One|Righteous' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="highlight/styles/vs.css" />
 	</head>
 
 <body>
@@ -17,12 +18,82 @@
 <header>
 	<span id="logo">&lt;<span>x</span>&gt;</span>
 	<h1>Tag Registry</h1>
+	<a href="" id="toggleInstructions">Add your tags</a>
 </header>
 
 <div id="tags" class="max-width">
 	
 	<section id="instructions">
-		<!-- Arron, put the instructions here -->
+		<div>
+		<h4>Do you want to share your own tags in this registry?</h4>
+		
+		<p>
+			1. Use github.com and create a public repository.
+		</p>
+
+		<p>
+			2. Add a xtag.json file to the root of your project. 
+		</p>
+		<pre><code>
+	{	
+	  // Name of the tag
+	  "name": "Flipbox",
+
+	  // The tag name to be used in HTML
+	  "tagName": "x-flipbox",
+
+	  // Current version of the tag
+	  "version": "0.0.1",
+
+	  // Please provide a complete description of your tag and its features
+	  "description": "The flipbox tag allows you to flip a content element",
+
+	  // If you have images of your control, then provide links here
+	  "images": ["test.com/images/screen1.png"],	
+
+	  // select the most appropriate categories from:
+	  // "structural", "media", "input", "navigation", "behavioral"
+	  "categories": ["structural"],
+
+	  // Try to make your tags as cross browser as possible. If there are
+	  // issues with lower versions then you may define it here by setting
+	  // the lowest version it works on for each browser.
+	  "compatibility": {	
+	    "firefox": 5,
+	    "chrome": 4,
+	    "opera": 12,
+	    "android": 2.1,
+	    "ios": 4
+	  },
+
+	  // If you have multiple tags in your github repository then 
+	  // use this xtags property to tell us where they are and also
+	  // provide a xtag.json in each controls folder.
+	  "xtags":[
+	  	"path/to/other/controls"
+	  ]
+	}
+			</code></pre>
+
+			<p>
+				3. Add a <a href="https://help.github.com/articles/post-receive-hooks">github POST-commit hook</a> to https://xtag-registry.vcap.mozillalabs.com/customtag
+			</p>
+			<p>4.Tag your repo and push the tag to github</p>
+			<pre><code>
+	# create a tag 
+	git tag xtag-v0.0.1 
+
+	# push it
+	git push --tags
+			</code></pre>
+			<br/>
+			<p>
+				We will be notified as soon as you push your tag to github and it should only take a few minutes to crawl you controls and update the registry.
+			</p>
+
+			<br />
+			<br />
+			</div>
 	</section>
 	
 	<section id="controls">
@@ -84,6 +155,7 @@
 <script type="text/javascript" src="js/Extend.More.js"></script>
 <script type="text/javascript" src="js/Template.js"></script>
 <script type="text/javascript" src="js/ContentBox.js"></script>
+<script type="text/javascript" src="highlight/highlight.pack.js"></script>
 
 <script type="text/javascript">
 
@@ -234,6 +306,8 @@
 	
 	
 	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	var instructions = new ContentBox($('instructions').getFirst(), { wrap: $('instructions') });
+
 	RegistrySearch = new TagSearch('results').search();
 	
 	window.addEvents({
@@ -258,6 +332,11 @@
 		'click:relay(#filters button)': function(){
 			console.log('click');
 			RegistrySearch.search();
+		}, 
+		'click:relay(#toggleInstructions)': function(e){
+			e.preventDefault();
+			var shown = $('instructions').getStyle('height') == 'auto';			
+			instructions[shown ? 'collapse' : 'show']();
 		}
 	});
 	
@@ -272,6 +351,9 @@
 			}
 		}
 	}).activate();
+
+	hljs.tabReplace = '    ';
+	hljs.initHighlightingOnLoad();
 
 })();
 
