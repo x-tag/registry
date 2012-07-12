@@ -48,21 +48,15 @@
 				
 				<dl id="filters">
 					<dt>Filters</dt>
-					<dd id="compatiblity">
+					<dd>
 						<input id="include_forks" type="checkbox" />
 						<button>Include forks</button>
 						
 						<input id="official_tags" type="checkbox" />
 						<button>Only Show Official Tags</button>
-					</dd>
-					<dt>Compatibility</dt>
-					<dd id="compatiblity">
-						<div id="firefox_compatibility" class="slider"></div>
-						<div id="chrome_compatibility" class="slider"></div>
-						<div id="ie_compatibility" class="slider"></div>
-						<div id="opera_compatibility" class="slider"></div>
-						<div id="android_compatibility" class="slider"></div>
-						<div id="ios_compatibility" class="slider"></div>
+						
+						<input id="ie9_compat" type="checkbox" />
+						<button>Only IE9 Compatible</button>
 					</dd>
 				</dl>
 			</div>
@@ -162,6 +156,7 @@
 			return {
 				query: $('search_input').value,
 				forks: $('include_forks').checked,
+				'compatibility[ie]': $('ie9_compat').checked ? 9 : null,
 				author: $('official_tags').checked ? 'mozilla' : null
 			};
 		},
@@ -169,8 +164,6 @@
 		search: function(){
 			var self = this,
 				query = this.getQuery();
-			console.log(query, this.lastQuery);
-			console.log(Object.equals(query, this.lastQuery))
 			if (Object.equals(query, this.lastQuery)) return this;
 			this.lastQuery = query;
 			this.collapse(function(){
@@ -234,7 +227,7 @@
 	
 	
 	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
-	RegistrySearch = new TagSearch('results').search();
+		RegistrySearch = new TagSearch('results').search();
 	
 	window.addEvents({
 		'keydown:relay(#search_input):keys(enter)': RegistrySearch.search,
@@ -256,7 +249,6 @@
 			advancedBox[shown ? 'collapse' : 'show']();
 		},
 		'click:relay(#filters button)': function(){
-			console.log('click');
 			RegistrySearch.search();
 		}
 	});
