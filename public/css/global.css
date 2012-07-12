@@ -346,10 +346,11 @@ div.max-width > dl > dd:last-child p:last-child {
 	}
 
 #search_query {
-	padding-right: 116px;
+	padding-right: 118px;
 }
 
-	#search_query input{
+	#search_query input {
+		float: left;
 		width: 100%;
 		padding: 2px 3px;
 		font-size: 120%;
@@ -375,15 +376,13 @@ div.max-width > dl > dd:last-child p:last-child {
 	}
 	
 	#search_button {
-		position: relative;
-		top: -2px;
 		margin-left: 6px;
 		margin-right: -92px;
 	}
 	
 	#advanced_button {
 		float: right;
-		margin-right: -118px;
+		margin-right: -111px;
 		padding: 4px 3px;
 	}
 	
