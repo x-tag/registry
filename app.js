@@ -93,7 +93,7 @@ app.get('/search', function(req, res){
 		_.each(req.query.compatibility, function(item, key){
 			var range = { "range" : {} };
 			range["range"]["compatibility." + key] = {
-				"from": Number(item)
+				"lte": Number(item),
 			}
 			query.filter.and.push(range);
 		});
