@@ -7,7 +7,8 @@ module.exports = function(sequelize, DataTypes) {
 		author: { type: DataTypes.STRING },
 		email: 	{ type: DataTypes.STRING, validate: { isEmail: true }}, 
 		forked: { type: DataTypes.BOOLEAN,  allowNull: false, defaultValue: false }, 
-		forked_from: { type: DataTypes.STRING }
+		forked_from: { type: DataTypes.STRING },
+		issues: { type: DataTypes.STRING }
 	});
 
 }

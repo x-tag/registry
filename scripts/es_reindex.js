@@ -53,6 +53,7 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				versions: previousVersions[key],
 				forked: item.forked ? "true" : "false",
 				forked_from: item.forked_from,
+				issues: JSON.parse(item.issues),
 				all: item.name + " " + item.tag_name + " " + item.description
 			}, 
 			{ 
@@ -65,4 +66,3 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 }).error(function(err){
 	console.log(err);
 });
-//todo: pull from db, push into ES

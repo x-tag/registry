@@ -31,7 +31,7 @@ app.use(express.static(__dirname + '/public'));
 app.post('/customtag', function(req, res){
 	console.log("DEBUG:", req.body.payload);
 	var gitHubData = JSON.parse(sanitize(req.body.payload).xss() || '{}');
-	exgf.validate(gitHubData, require('./schemas').github, function(err){
+	exgf.validate(gitHubData, require('./lib/schemas').github, function(err){
 		if (err){
 			console.log("deal breaker:", gitHubData);
 			return res.send(400);
@@ -263,7 +263,7 @@ var findControls = function(ghData){
 			});
 		} 
 
-		exgf.validate(xtagJson, require('./schemas').xtagJson, function(err){
+		exgf.validate(xtagJson, require('./lib/schemas').xtagJson, function(err){
 			if (err) {
 				if (!xtagJson.xtags){						
 					console.log("invalid xtag.json", err, "\n-------\n",xtagJson, "\n-------\n");
