@@ -77,7 +77,7 @@ app.get('/search', function(req, res){
 						"text": { "description": { "query": req.query.query, "boost": 2.0 }}
 					},
 					{ 
-						"text": { "all": { "query": req.query.query, "boost": 1.5 }}
+						"text": { "all": { "query": req.query.query, "boost": 1.0 }}
 					},
 				]
 			}
@@ -115,6 +115,11 @@ app.get('/search', function(req, res){
 				{ "created_at": { "order": "desc" } }
 			]
 	}
+	if (!req.query.showDisabled){
+		query.filter.and.push({
+			"term": { "visible": "true" }
+		});
+	}
 
 	require('./lib/search').findTags(query, function(err, tags){
 		if (err){
@@ -125,5 +130,6 @@ app.get('/search', function(req, res){
 		}
 	});
 });
+
 
 app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);

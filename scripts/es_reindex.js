@@ -14,7 +14,8 @@ var query = "SELECT e.name, e.tag_name, e.description, e.url, e.category, " +
 	"e.images, e.compatibility, e.demo_url, e.version, e.revision, " +
 	"e.ref, e.id, e.createdAt, e.is_current, r.id as repoId, " +
 	"r.description as repoDescription, r.title as repoTitle, " +
-	"r.updatedAt as repoUpdated, r.id as repoId, r.author, r.forked, r.forked_from " +
+	"r.updatedAt as repoUpdated, r.id as repoId, r.author, " + 
+	"r.forked, r.forked_from, e.visible " +
 	"FROM XTagElements e JOIN XTagRepoes r ON e.XTagRepoId = r.id " +
 	"ORDER BY r.id, e.tag_name, e.is_current, e.version DESC";
 
@@ -40,7 +41,7 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 		es_client.index(config.es.index, 'element', {
 				name: item.name,
 				tag_name: item.tag_name,
-				description: item.description + " haha",
+				description: item.description,
 				categories: item.category.split(','),
 				compatibility: JSON.parse(item.compatibility),
 				created_at: item.createdAt.toISOString(),
@@ -53,6 +54,7 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				versions: previousVersions[key],
 				forked: item.forked ? "true" : "false",
 				forked_from: item.forked_from,
+				visible: item.visible ? "true" : "false",
 				all: item.name + " " + item.tag_name + " " + item.description
 			}, 
 			{ 

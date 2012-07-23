@@ -24,7 +24,8 @@ module.exports = function(sequelize, DataTypes) {
 		revision: { type: DataTypes.STRING },
 		ref: { type: DataTypes.STRING },
 		raw: { type: DataTypes.TEXT },
-		is_current: { type: DataTypes.BOOLEAN }
+		is_current: { type: DataTypes.BOOLEAN }, 
+		visible: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
 	});
 
 	// Crawls repository and finds x-tag elements (xtag.json) files
@@ -148,11 +149,12 @@ var processXtagJson = function(repoData, xtagJson){
 				versions: previousVersions,
 				forked: repoData.repository.fork ? "true" : "false",
 				forked_from: repoData.repository.forked_from,
+				visible: tag.visible ? "true" : "false",
 				all: tag.name + " " + tag.tag_name + " " + tag.description
-			}, 
+			},
 			{ 
 				id: tag.id.toString(), refresh:true 
-			}, 
+			},
 			function(err, res){
 				console.log("ES response", err, res);
 			});
@@ -180,13 +182,8 @@ var fetchXtagJson = function(ghUrl, callback){
 		if (err){
 			callback("[fetchXtagJson]" + err, null);
 		} else {
-
 			try {
 				var buffer = new Buffer(xtagJsonRaw.content, 'base64');
-				console.log(buffer);
-				var str = buffer.toString('utf8');
-				console.log("str", str);
-				console.log("parse", JSON.parse(str));
 				var xtagJson = JSON.parse(buffer.toString('utf8'));
 				callback(null, xtagJson);	
 			} catch(e){
