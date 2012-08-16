@@ -29,8 +29,9 @@ module.exports = function(sequelize, DataTypes) {
 	});
 
 	// Crawls repository and finds x-tag elements (xtag.json) files
-	XTagElement.findElements = function(ghData, callback){
-
+	XTagElement.findElements = function(req, callback){
+		req.emit('log', 'Finding elements for repo: ' + req.data.github.repository.url);
+		var ghData = req.data.github;
 		var split = ghData.repository.url.replace('http://github.com/','').split('/');
 		var ghUrl = {
 			repo: split[1],
@@ -41,14 +42,15 @@ module.exports = function(sequelize, DataTypes) {
 		var onComplete = function(err, xtagJson){
 			if (err){
 				console.log("error fetching xtag.json:", err);
-				//contact user?
+				req.emit('log', 'Error fetching xtag.json:' + err);
+				req.emit('log', 'Quiting...');
 				return;
 			}
 
 			if (xtagJson.xtags){
 				xtagJson.xtags.forEach(function(tagUrl){
 					ghUrl.directory = tagUrl;
-					fetchXtagJson(ghUrl, function(err, xtagJson){
+					fetchXtagJson(req, ghUrl, function(err, xtagJson){
 						if (xtagJson) xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
 						onComplete(err, xtagJson);
 					});
@@ -57,21 +59,24 @@ module.exports = function(sequelize, DataTypes) {
 
 			exgf.validate(xtagJson, require('../lib/schemas').xtagJson, function(err){
 				if (err) {
-					if (!xtagJson.xtags){						
-						console.log("invalid xtag.json", err, "\n-------\n",xtagJson, "\n-------\n");
+					if (!xtagJson.xtags){
+						var errMsg = "Invalid xtag.json " + err + "\n-------\n" + JSON.stringify(xtagJson) + "\n-------\n";
+						console.log(errMsg);
+						req.emit('log', errMsg);
 					}
 					return;
 				}
-				processXtagJson(ghData, xtagJson);
+				processXtagJson(req, ghData, xtagJson);
 			});
 		}
 
 		try {
-			fetchXtagJson(ghUrl, function(err, xtagJson){
+			fetchXtagJson(req, ghUrl, function(err, xtagJson){
 				if (xtagJson) xtagJson.controlLocation = ghData.branchUrl;
 				onComplete(err, xtagJson);
 			});
 		} catch(e){
+			req.emit('log', 'Error in fetchXtagJson: ' + e);
 			console.log("error in fetchXtagJson", e);
 		}
 
@@ -82,9 +87,11 @@ module.exports = function(sequelize, DataTypes) {
 
 
 
-var processXtagJson = function(repoData, xtagJson){
+var processXtagJson = function(req, repoData, xtagJson){
 	
-	console.log("processing control\n-------\n", xtagJson, "\n-------\n");
+	var msg = "processing control\n-------\n" + JSON.stringify(xtagJson) + "\n-------\n";
+	console.log(msg);
+	req.emit('log', msg);
 	
 	XTagElement.findAll({ 
 		where: {
@@ -110,6 +117,7 @@ var processXtagJson = function(repoData, xtagJson){
 		});
 
 		if (alreadyExists){
+			req.emit('log', 'Control [' + xtagJson.tagName + '] already exists and has not been changed. Skipping...');
 			return console.log("control already exists");
 		}
 
@@ -132,6 +140,7 @@ var processXtagJson = function(repoData, xtagJson){
 			is_current: true,
 		}).success(function(tag){
 			console.log("saved control", xtagJson.name, tag.values);
+			req.emit('log', 'Saved control: ' + xtagJson.name + ' version: ' + xtagJson.version + ' ref: ' + repoData.ref);
 			//index into ES
 			es_client.index(config.es.index, 'element', {
 				name: tag.name,
@@ -159,35 +168,40 @@ var processXtagJson = function(repoData, xtagJson){
 				console.log("ES response", err, res);
 			});
 		}).error(function(err){
+			req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
 			console.log("error saving control", err);
 		});
 		
 	}).error(function(err){
+		req.emit('log', 'There was an error finding ['+xtagJson.tagName+']:' + err);
 		console.log("error finding xtagelement", err);
 	});
 	
 }
 
 
-var fetchXtagJson = function(ghUrl, callback){
+var fetchXtagJson = function(req, ghUrl, callback){
 
 	var rpath = path.join('repos', ghUrl.author, 
 		ghUrl.repo, 'contents', ghUrl.directory, 'xtag.json?ref=' + ghUrl.tag);
-
+	req.emit('log', 'Fetching xtag.json: ' + rpath);
 	request.getJson({
 		host: 'api.github.com', 
 		path: rpath,
 		https: true
 	}, function(err, xtagJsonRaw){
 		if (err){
+			req.emit('log', 'Error fetching xtag.json @ ' + rpath + " , error:" + err);
 			callback("[fetchXtagJson]" + err, null);
 		} else {
 			try {
 				var buffer = new Buffer(xtagJsonRaw.content, 'base64');
 				var xtagJson = JSON.parse(buffer.toString('utf8'));
+				req.emit('log', 'Found xtag.json: ' + rpath);
 				callback(null, xtagJson);	
 			} catch(e){
 				console.log("error parsing xtagJsonRaw.content",e, xtagJsonRaw);
+				req.emit('log', 'Error parsing xtagJson.content.  error: ' + e + ", raw: " + xtagJsonRaw);
 				callback("[fetchXtagJson.parse.content] "+e, null);
 			}
 		}
