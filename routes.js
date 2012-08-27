@@ -1,4 +1,4 @@
-module.exports = function Routes(app){
+module.exports = function Routes(app, db){
 
 	console.log("init routes");
 
@@ -8,9 +8,9 @@ module.exports = function Routes(app){
 		logger = require('./lib/logger'), 
 		path = require('path');
 
-	var XTagElement = global.db.import(__dirname + '/models/xtagelement');
-	var XTagRepo = global.db.import(__dirname + '/models/xtagrepo');
-	var XTagImportLog = global.db.import(__dirname + '/models/xtagimportlog');
+	var XTagElement = db.import(__dirname + '/models/xtagelement');
+	var XTagRepo = db.import(__dirname + '/models/xtagrepo');
+	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
 
 	app.use('/customtag', logger.postCommitLogger);
 
@@ -31,6 +31,11 @@ module.exports = function Routes(app){
 			}
 		});
 
+	});
+
+	app.get('/', function(req, res){
+		console.log("index");
+		res.render('search', {});
 	});
 
 	app.get('/search', function(req, res){
@@ -106,10 +111,10 @@ module.exports = function Routes(app){
 	});
 	
 	app.get('/logs/:user', function(req, res){
-		console.log("df", req.param('user'));
+		//return res.render('userlog', {logs: []});
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
-		.success(function(logs){
-			res.json({ log: logs}, 200);
+		.success(function(logs){		
+			res.render('userlog', {logs: logs});
 		});
 	});
 }

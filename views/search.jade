@@ -1,0 +1,40 @@
+extends layout
+
+block content
+	section#controls
+		ul#search_controls
+			li#search_query
+				input(id="search_input", type="text")
+				button(id="search_button") Search
+				button(id="advanced_button")
+		#advanced_controls
+			div
+				dl#groups
+					dt Group By:
+					dd
+						input(type="radio", value="default", name="browse", checked="checked")
+						button Default
+					
+						input(type="radio", value="category", name="browse")
+						button Category
+					
+						input(type="radio", value="author", name="browse")
+						button Author
+				
+				dl#filters
+					dt Filters:
+					dd
+						input(id="include_forks", type="checkbox")
+						button Include forks
+						
+						input(id="official_tags", type="checkbox")
+						button Only Show Official Tags
+						
+						input( id="ie9_compat", type="checkbox")
+						button Only IE9 Compatible
+
+	dl#results
+
+append scripts
+
+	

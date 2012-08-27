@@ -1,0 +1,203 @@
+(function(){
+	
+	TagResult = new Class({
+		
+		Extends: Template,
+		
+		Template: {
+			name: 'TagResult',
+			html: '<dd class="{resultClass}">' +
+				'{demo_link}' +
+				'<div class="tag-header">' +
+					'<h3>' +
+						'<a class="tag-name" target="_blank" href="{url}">{name}</a>' +
+						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}">{author}</a></span>' +
+						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
+					'</h3>' +
+					'<nav class="tag-categories"></nav>' +
+				'</div>' +
+				'<p class="tag-description">{description}</p>' +
+				'<ul class="tag-compatibility"></ul>' +
+				'<ul class="tag-version-list"></ul>' +
+			'</dd>'
+		},
+		
+		createElement: function(data) {
+			if (data.demo_url) {
+				data.demo_link = '<a class="tag-demo" target="' + data.demo_url + '"></a>';
+			}
+			
+			this.parent(data);
+			
+			var categoryList = this.element.getElement('nav.tag-categories');
+			data.category.each(function(category){
+				new Element('a', {
+					html: '<b>' + category + '</b>'
+				}).inject(categoryList);
+			});
+			
+			var compatibilityList = this.element.getElement('ul.tag-compatibility');
+			Object.each(data.compatibility, function(value, key){
+				new Element('li', {
+					'class': 'browser ' + key,
+					text: value
+				}).inject(compatibilityList);
+			});
+
+			var versionList = this.element.getElement('ul.tag-version-list');
+			data.versions.each(function(value){
+				new Element('li', {
+					html: '<a href="' + value.url + '">' + value.version + '</a>',
+				}).inject(versionList);
+			});
+			
+			return this;
+		}
+		
+	});
+	
+	TagSearch = new Class({
+	
+		Extends: ContentBox,
+		
+		Binds: ['search'],
+		
+		Plugins: {
+			searchRequest: Request.JSON
+		},
+		
+		options: {
+			searchRequest: {
+				url: '/search',
+				onSuccess: function(response){
+					this.data = response.data;
+					if (this.data.length) this.base['groupBy' + $('groups').getElement('input:checked').value.capitalize()]();
+					else this.base.wrap.addClass('no-results');
+				}
+			}
+		},
+		
+		getQuery: function(){
+			return {
+				query: $('search_input').value,
+				forked: $('include_forks').checked,
+				'compatibility[ie]': $('ie9_compat').checked ? 9 : null,
+				author: $('official_tags').checked ? 'mozilla' : null
+			};
+		},
+		
+		search: function(){
+			var self = this,
+				query = this.getQuery();
+			if (Object.equals(query, this.lastQuery)) return this;
+			this.lastQuery = query;
+			this.wrap.removeClass('no-results');
+			this.collapse(function(){
+				self.element.empty();
+				self.searchRequest.get(query);
+			});
+			return this;
+		},
+		
+		blink: function(fn){
+			this.collapse(function(){
+				fn.call(this);
+				this.show();
+			});
+			return this;
+		},
+		
+		groupByDefault: function(){
+			this.blink(function(){
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					new TagResult().createElement(result).element.inject(this.element);
+				}, this);
+			});
+		},
+		
+		groupByCategory: function(){
+			this.blink(function(){
+				var self = this,
+					categories = {};
+					
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					result.category.each(function(category){
+						result.resultClass = 'result-category-' + category;
+						new TagResult().createElement(result).element.inject(categories[category] = categories[category] || new Element('dt').inject(self.element), 'after');
+					});
+					Object.each(categories, function(element, category){
+						element.set('html', category.capitalize() + ' <span>(' + $$('.result-category-' + category).length + ')</span>');
+					});
+				});
+			});
+		},
+		
+		groupByAuthor: function(){
+			this.blink(function(){
+				var self = this,
+					authors = {};
+				this.element.empty();
+				this.searchRequest.data.each(function(result){
+					result.resultClass = 'result-author-' + result.author;
+					new TagResult().createElement(result).element.inject(authors[result.author] = authors[result.author] || new Element('dt').inject(self.element), 'after');
+				});
+				Object.each(authors, function(element, author){
+					element.set('html', '<a href="https://github.com/' + author + '">' + author + '</a> <span>(' + $$('.result-author-' + author).length + ')</span>');
+				});
+			});
+		}
+		
+	});
+	
+	
+	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
+	var instructions = new ContentBox($('instructions').getFirst(), { wrap: $('instructions') });
+
+	RegistrySearch = new TagSearch('results').search();
+	
+	window.addEvents({
+		'keydown:relay(#search_input):keys(enter)': RegistrySearch.search,
+		'click:relay(#search_button)': RegistrySearch.search,
+		'click:relay(#advanced_controls button)': function(){
+			var input = this.getPrevious();
+			
+			if (input.type == 'radio' && !input.checked){
+				input.checked = true;
+				RegistrySearch['groupBy' + input.value.capitalize()]();
+			}
+			else if (input.type == 'checkbox'){
+				input.checked = !input.checked;
+			}
+		},
+		'click:relay(#advanced_button)': function(){
+			var shown = $('advanced_controls').getStyle('height') == 'auto';
+			this[shown ? 'removeClass' : 'addClass']('pressed');
+			advancedBox[shown ? 'collapse' : 'show']();
+		},
+		'click:relay(#filters button)': function(){
+			RegistrySearch.search();
+		}, 
+		'click:relay(#toggleInstructions)': function(){
+			var shown = $('instructions').getStyle('height') == 'auto';			
+			instructions[shown ? 'collapse' : 'show']();
+		}
+	});
+	
+	RegistryKeyboard = new Keyboard({
+		defaultEventType: 'keyup',
+		events: {
+			'keydown:shift': function(){
+				this.shiftDown = true;
+			},
+			'shift': function(){
+				this.shiftDown = false;
+			}
+		}
+	}).activate();
+
+	hljs.tabReplace = '    ';
+	hljs.initHighlightingOnLoad();
+
+})();

@@ -1,5 +1,16 @@
-var app = require('./app'), 
-	db = require('./database'),
-	routes = require('./routes')(app);
+module.exports = function Server(){
 
-app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
+	var express = require('express'),
+		app = express.createServer();
+
+	app.disable('view cache');
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	app.set('view options', { layout: false });
+	app.use(express.logger());
+	app.use(express.bodyParser());
+	app.use(app.router);
+	app.use(express.static(__dirname + '/public'));	
+	return app;
+
+}();

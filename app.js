@@ -1,12 +1,5 @@
-module.exports = function App(){
+var app = require('./server'), 
+	db = require('./database'),
+	routes = require('./routes')(app, db);
 
-	var express = require('express'),
-		app = express.createServer();
-
-	app.disable('view cache');
-	app.use(express.logger());
-	app.use(express.bodyParser());
-	app.use(express.static(__dirname + '/public'));	
-	return app;
-
-}();
+app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
