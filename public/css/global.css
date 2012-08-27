@@ -1,7 +1,6 @@
 
 body
 {
-	padding-top: 80px;
 	font-family: Segoe UI, Trebuchet MS, Helvetica, Arial;
 	font-size: 14px;
 	background: url(../images/spatter.jpg);
@@ -204,7 +203,7 @@ div.slider {
 		}
 
 body > header {
-	position: fixed;
+	
 	top: 0;
 	left: 0;
 	height: 46px;
@@ -217,8 +216,7 @@ body > header {
 	-ms-box-shadow: 0 1px 4px -2px #000;
 	-moz-box-shadow: 0 1px 4px -2px #000;
 	-webkit-box-shadow: 0 1px 4px -2px #000;
-	opacity: 0.95;
-	z-index: 2;
+	opacity: 0.95;	
 }
 
 body > header > iframe, body > header > a {
@@ -334,6 +332,7 @@ div.max-width > dl > dd:last-child p:last-child {
 }
 
 #controls {
+	margin-top: 80px;
 	margin-bottom: 14px;
 	border-bottom: 2px dashed #fafafa;
 }
