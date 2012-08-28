@@ -219,6 +219,23 @@ body > header {
 	opacity: 0.95;	
 }
 
+body > header > nav{
+	float:right;
+	margin-top: 8px;
+	margin-right: 10px;
+	padding:0;
+}
+body > header > nav > a {
+	color: ghostwhite;
+	font-weight: bold;
+	text-decoration: none;
+	margin-right:8px;
+	cursor: pointer;
+}
+body > header > nav > a:visited{
+	color: ghostwhite;
+}
+
 body > header > iframe, body > header > a {
 	float: right;
 	margin-top: 13px;
@@ -240,8 +257,9 @@ header {
 }
 
 header h1 {
-	position: relative;
-	left: -6px;
+	
+	float:left;
+	margin-left: 8px;
 	line-height: 46px;
 	color: #6191CB;
 	text-shadow: 0 1px 0 #3E659B, 0 -1px 0 rgba(0, 52, 116, 0.7);
@@ -324,11 +342,7 @@ div.max-width > dl > dd:last-child p:last-child {
 }
 
 #toggleInstructions{
-	float: right;
-	margin-right: 10px;
-	margin-top: -38px;
-	position: relative;
-	z-index: 5;
+	
 }
 
 #controls {

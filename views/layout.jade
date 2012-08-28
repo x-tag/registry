@@ -12,7 +12,10 @@ html(lang='en')
 		header
 			span#logo &lt;<span>x</span>&gt;
 			h1 Tag Registry
-			button(id="toggleInstructions") Contribute Tags
+			nav
+				a(href="http://x-tags.org") About x-tags
+				button(id="toggleInstructions") Contribute Tags
+			
 		
 		div(id="tags", class="max-width")
 			section#instructions
@@ -33,6 +36,9 @@ html(lang='en')
 							|  // Current version of the tag
 							|  "version": "0.0.1",
 
+							|  // Author(s) of element
+							|  "author": "Coder McCoderson",
+
 							|  // Please provide a complete description of your tag and its features
 							|  "description": "The flipbox tag allows you to flip a content element",
 
@@ -49,7 +55,7 @@ html(lang='en')
 							|  "compatibility": {	
 							|    "firefox": 5,
 							|    "chrome": 4,
-							|	"ie": 9,
+							|	 "ie": 9,
 							|    "opera": 11,
 							|    "android": 2.1,
 							|    "ios": 4
@@ -64,7 +70,7 @@ html(lang='en')
 							|}
 						
 					br
-					p 3. Add a <a href="https://help.github.com/articles/post-receive-hooks">github POST-commit hook</a> to https://xtag-registry.vcap.mozillalabs.com/customtag			
+					p 3. Add a <a href="https://help.github.com/articles/post-receive-hooks">github POST-commit hook</a> to http://registry.x-tags.org/customtag			
 					p4.Tag your repo and push the tag to github
 					pre
 						code
@@ -76,6 +82,8 @@ html(lang='en')
 						
 					br
 					p We will be notified as soon as you push your tag to github and it should only take a few minutes to crawl your controls and update the registry.
+					br
+					p If your tags don't show up in the registry, then chances are something went wrong.  You can check the import logs at http://registry.x-tags.org/logs/[your-github-username] to help debug the issue.
 					br
 					br
 		
