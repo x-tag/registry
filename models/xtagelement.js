@@ -89,7 +89,7 @@ module.exports = function(sequelize, DataTypes) {
 
 var processXtagJson = function(req, repoData, xtagJson){
 	
-	var msg = "processing control\n-------\n" + JSON.stringify(xtagJson) + "\n-------\n";
+	var msg = "Processing control\n-------\n" + JSON.stringify(xtagJson) + "\n-------\n";
 	console.log(msg);
 	req.emit('log', msg);
 	

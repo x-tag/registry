@@ -588,6 +588,11 @@ div.max-width > dl > dd:last-child p:last-child {
 					content: '\2022';
 					margin: 0 6px;
 				}
+
+				span.tag-forked:after {
+					content: '\2022';
+					margin: 0 6px;
+				}
 			
 			nav.tag-categories {
 				float: left;
@@ -661,6 +666,37 @@ div.max-width > dl > dd:last-child p:last-child {
 	
 	p.tag-description {
 		
+	}
+
+	nav.tag-issues {
+		float: right;
+		color: #888888;
+		font-family: Segoe UI,Trebuchet MS,Helvetica,Arial;
+		font-style: italic;
+		font-size: 85%;
+		position: relative;
+		top: 3px;
+	}
+
+	nav.tag-issues a {
+		font-style: normal;
+		color: white;
+		border-radius: 3px;
+		background-color: rgb(204, 204, 204);
+		padding: 0px 3px;
+		margin-right: 4px;
+	}
+
+	nav.tag-issues a.bug {
+    	background-color: rgb(252, 41, 41);
+	}
+
+	nav.tag-issues a.enhancement {
+		background-color: rgb(132, 182, 235);
+	}
+
+	nav.tag-issues a.pull_request {
+		background-color: #4183C4;
 	}
 		
 	ul.tag-compatibility {

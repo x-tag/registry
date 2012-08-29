@@ -1,19 +1,19 @@
 { "payload": "{
     \"before\": \"5aef35982fb2d34e9d9d4502f6ede1072793222d\",
     \"repository\": {
-      \"url\": \"http://github.com/csuwldcat/moz-x-tags\",
-      \"name\": \"x-tag-test\",
+      \"url\": \"http://github.com/pennyfx/xtag-elements\",
+      \"name\": \"xtag-elements\",
       \"description\": \"Youre lookin at it.\",
       \"watchers\": 5,
       \"forks\": 2,
-      \"fork\": false,
+      \"fork\": true,
       \"private\": 1,
       \"owner\": {
-        \"email\": \"test@test.org\",
-        \"name\": \"csuwldcat\"
+        \"email\": \"aschaar@gmail.com\",
+        \"name\": \"pennyfx\"
       }
     },   
     \"after\": \"5e4e6b77c1615f5a0fbaecb3ca0605e8eb0a37e5\",
-    \"ref\": \"refs/tags/xtag-v0.0.3\"
+    \"ref\": \"refs/tags/xtag-v0.0.8\"
   }"
 }

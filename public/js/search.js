@@ -12,9 +12,11 @@
 					'<h3>' +
 						'<a class="tag-name" target="_blank" href="{url}">{name}</a>' +
 						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}">{author}</a></span>' +
+						'{forked_link}' +
 						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
 					'</h3>' +
 					'<nav class="tag-categories"></nav>' +
+					'{issues_link}' +
 				'</div>' +
 				'<p class="tag-description">{description}</p>' +
 				'<ul class="tag-compatibility"></ul>' +
@@ -25,6 +27,21 @@
 		createElement: function(data) {
 			if (data.demo_url) {
 				data.demo_link = '<a class="tag-demo" target="' + data.demo_url + '"></a>';
+			}
+			if (data.forked){
+				var originalAuthor = data.forked_from.split('/')[3];
+				data.forked_link = '<span class="tag-forked">fork of <a target="_blank" href="'+ data.forked_from +'">'+originalAuthor+'</a></span>';
+			}
+			if (data.issues && data.issues.issues.count){
+				data.issues_link = '<nav class="tag-issues">issues ';
+				['bug', 'enhancement', 'pull_request'].forEach(function(issue_type){
+					if (!data.issues[issue_type] || !data.issues[issue_type].count) return;
+					var count = data.issues[issue_type] ? data.issues[issue_type].count : 0;
+					data.issues_link += '<a target="_blank" title="' + issue_type +
+					'" class="'+issue_type+'" href="' + data.repo + '/issues">' +
+					count + '</a>';
+				});
+				data.issues_link += '</nav>'
 			}
 			
 			this.parent(data);

@@ -5,7 +5,8 @@ module.exports = function Routes(app, db){
 	var mw = require('./lib/middleware'),
 		Settings = require('settings'),
 		config = new Settings(require('./config')), 
-		logger = require('./lib/logger'), 
+		logger = require('./lib/logger'),
+		_ = require('underscore'),
 		path = require('path');
 
 	var XTagElement = db.import(__dirname + '/models/xtagelement');
