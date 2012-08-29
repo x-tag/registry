@@ -33,14 +33,21 @@
 				data.forked_link = '<span class="tag-forked">fork of <a target="_blank" href="'+ data.forked_from +'">'+originalAuthor+'</a></span>';
 			}
 			if (data.issues && data.issues.issues.count){
+				var totalIssues = data.issues.issues.count;
 				data.issues_link = '<nav class="tag-issues">issues ';
 				['bug', 'enhancement', 'pull_request'].forEach(function(issue_type){
 					if (!data.issues[issue_type] || !data.issues[issue_type].count) return;
+					totalIssues -= count;
 					var count = data.issues[issue_type] ? data.issues[issue_type].count : 0;
 					data.issues_link += '<a target="_blank" title="' + issue_type +
 					'" class="'+issue_type+'" href="' + data.repo + '/issues">' +
 					count + '</a>';
 				});
+				if (totalIssues>0){
+					data.issues_link += '<a target="_blank" title="other"' +
+					'" class="other_issue" href="' + data.repo + '/issues">' +
+					totalIssues + '</a>';
+				}
 				data.issues_link += '</nav>'
 			}
 			
