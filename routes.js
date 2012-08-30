@@ -4,8 +4,7 @@ module.exports = function Routes(app, db){
 
 	var mw = require('./lib/middleware'),
 		Settings = require('settings'),
-		config = new Settings(require('./config')), 
-		logger = require('./lib/logger'),
+		config = new Settings(require('./config')),
 		_ = require('underscore'),
 		path = require('path');
 
@@ -13,12 +12,11 @@ module.exports = function Routes(app, db){
 	var XTagRepo = db.import(__dirname + '/models/xtagrepo');
 	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
 
-	app.use('/customtag', logger.postCommitLogger);
-
 	app.post('/customtag', mw.validateGitHubData, function(req, res){
-		req.emit('log','github post-commit hook data passed validation');
+		req.emit('log','=== Github post-commit hook data passed validation ===');
 		res.send(200); // respond early to github
 
+		req.emit('log','Processing webhook data from:', req.data.github.repository.url);
 		console.log("Processing webhook data from:", req.data.github.repository.url);
 
 		XTagRepo.addUpdateRepo(req, function(err, repo){
@@ -35,12 +33,10 @@ module.exports = function Routes(app, db){
 	});
 
 	app.get('/', function(req, res){
-		console.log("index");
 		res.render('search', {});
 	});
 
 	app.get('/search', function(req, res){
-		console.log("searching",req.query);		
 		var query = {
 			index: config.es.index,
 			type: 'element',
@@ -104,6 +100,7 @@ module.exports = function Routes(app, db){
 		require('./lib/search').findTags(query, function(err, tags){
 			if (err){
 				console.log("[/search/]"+err);
+				req.emit('log', JSON.stringify(err));
 				res.json({ data: [], error: err }, 500);
 			} else {
 				res.json({ data: tags}, 200);
@@ -112,7 +109,6 @@ module.exports = function Routes(app, db){
 	});
 	
 	app.get('/logs/:user', function(req, res){
-		//return res.render('userlog', {logs: []});
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
 		.success(function(logs){		
 			res.render('userlog', {logs: logs});

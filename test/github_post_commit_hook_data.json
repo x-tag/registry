@@ -1,8 +1,8 @@
 { "payload": "{
     \"before\": \"5aef35982fb2d34e9d9d4502f6ede1072793222d\",
     \"repository\": {
-      \"url\": \"http://github.com/pennyfx/xtag-elements\",
-      \"name\": \"xtag-elements\",
+      \"url\": \"https://github.com/pennyfx/x-tag-elements\",
+      \"name\": \"x-tag-elements\",
       \"description\": \"Youre lookin at it.\",
       \"watchers\": 5,
       \"forks\": 2,
@@ -14,6 +14,6 @@
       }
     },   
     \"after\": \"5e4e6b77c1615f5a0fbaecb3ca0605e8eb0a37e5\",
-    \"ref\": \"refs/tags/xtag-v0.0.8\"
+    \"ref\": \"refs/tags/xtag-v0.0.12\"
   }"
 }

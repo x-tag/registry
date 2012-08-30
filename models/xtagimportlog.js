@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
 		XTagImportLog.create({
 			user: name, 
 			entry: entry
-		}).success(function(){ console.log("Saved Import log:", name); })
+		}).success(function(){ })
 		.error(function(err){ console.log("Error saving ImportLog:", name, "\nError:", err); });
 	}
 	return XTagImportLog;

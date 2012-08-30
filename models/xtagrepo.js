@@ -31,7 +31,7 @@ module.exports = function(sequelize, DataTypes) {
 				});
 			} else {
 				req.emit('log', 'Repo doesn\'t exist, creating new one');
-				var createRepo = function(forked_from){
+				function createRepo(forked_from){					
 					XTagRepo.create({
 						repo: ghData.repository.url,
 						title: ghData.repository.name, 
@@ -55,9 +55,8 @@ module.exports = function(sequelize, DataTypes) {
 					var split = ghData.repository.url.split('/'),
 						userName = split[split.length-2],
 						repoName = split[split.length-1];
-
 					github.getRepo(userName, repoName, function(err, data){
-						createRepo(data ? data.parent.html_url : null);
+						createRepo(data && data.parent && data.parent.html_url ? data.parent.html_url : null);
 					});
 					
 				} else {
@@ -65,8 +64,6 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			}
 		});
-	}
-
+	};
 	return XTagRepo;
-
-}
+};

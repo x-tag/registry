@@ -1,7 +1,8 @@
 module.exports = function Server(){
 
 	var express = require('express'),
-		app = express.createServer();
+		app = express.createServer(),
+		logger = require('./lib/logger');
 
 	app.disable('view cache');
 	app.set('views', __dirname + '/views');
@@ -9,6 +10,7 @@ module.exports = function Server(){
 	app.set('view options', { layout: false });
 	app.use(express.logger());
 	app.use(express.bodyParser());
+	app.use(logger.reqLogListener);
 	app.use(app.router);
 	app.use(express.static(__dirname + '/public'));	
 	return app;
