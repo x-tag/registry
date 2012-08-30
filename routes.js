@@ -13,7 +13,9 @@ module.exports = function Routes(app, db){
 	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
 
 	app.post('/customtag', mw.validateGitHubData, function(req, res){
+		req.emit('log','======================================================');
 		req.emit('log','=== Github post-commit hook data passed validation ===');
+		req.emit('log','======================================================');
 		res.send(200); // respond early to github
 
 		req.emit('log','Processing webhook data from:', req.data.github.repository.url);

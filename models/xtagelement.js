@@ -236,7 +236,7 @@ module.exports = function(sequelize, DataTypes) {
 					req.emit('log', 'Found xtag.json: ' + rpath);
 					callback(null, xtagJson);	
 				} catch(e){
-					req.emit('log', 'Error parsing xtagJson.content for [', rpath, '] content:', buffer);
+					req.emit('log', 'Error parsing xtagJson.content for [', rpath, '] content:', buffer.toString('utf8'));
 					callback("[fetchXtagJson.parse.content] "+e, null);
 				}
 			}
