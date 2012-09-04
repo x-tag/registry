@@ -11,7 +11,7 @@
 				'<div class="tag-header">' +
 					'<h3>' +
 						'<a class="tag-name" target="_blank" href="{url}">{name}</a>' +
-						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}">{author}</a></span>' +
+						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}/{repo_name}">{author}</a></span>' +
 						'{forked_link}' +
 						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
 					'</h3>' +
