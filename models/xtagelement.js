@@ -39,7 +39,7 @@ module.exports = function(sequelize, DataTypes) {
 			directory: null,
 			tag: ghData.ref.split('/')[2]
 		};
-		console.log()
+		
 		var crawlXtagJson = function(err, xtagJson){
 			if (err){
 				req.emit('log', 'Error fetching xtag.json:', xtagJson, "error:", err, " Returning");
