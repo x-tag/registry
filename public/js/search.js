@@ -68,12 +68,12 @@
 				}).inject(compatibilityList);
 			});
 
-			var versionList = this.element.getElement('ul.tag-version-list');
+			/*var versionList = this.element.getElement('ul.tag-version-list');
 			data.versions.each(function(value){
 				new Element('li', {
 					html: '<a href="' + value.url + '">' + value.version + '</a>',
 				}).inject(versionList);
-			});
+			});*/
 			
 			return this;
 		}
