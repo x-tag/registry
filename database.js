@@ -8,8 +8,10 @@ module.exports = function Database(){
 
 	var XTagRepo 	= sequelize.import(__dirname + '/models/xtagrepo');
 	var XTagElement = sequelize.import(__dirname + '/models/xtagelement');
+	var XTagDemoAsset = sequelize.import(__dirname + '/models/xtagdemoasset');
 	var XTagImportLog = sequelize.import(__dirname + '/models/xtagimportlog');
 	XTagRepo.hasMany(XTagElement);
+	XTagElement.hasMany(XTagDemoAsset);
 	sequelize.sync();
 	
 	console.log("init db");
