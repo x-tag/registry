@@ -109,10 +109,53 @@ module.exports = function Routes(app, db){
 			}
 		});
 	});
+
+	app.get('/:user/:repo/:tagname/demo/:path?', function(req, res) {
+		// :TODO: unless sequelize has some really good lazy query-formation that already does it...
+		// :TODO: these 3 queries ought to be replaced with a single query using joins
+		XTagRepo.find({
+			where: { author: req.param('user'), title: req.param('repo') }
+		}).success(function(repo) {
+
+			repo.getXTagElements({
+				where: { tag_name: req.param('tagname') },
+				order: 'id DESC',
+				limit: 1
+			}).success(function(tags) {
+				var tag = tags[0];
+				if (!tag) { return res.send('Element Not Found', null, 404); }
+
+				var query = (req.param('path')) ?
+					{ path: req.param('path') } :
+					{ is_demo_html: true };
+
+				tag.getXTagDemoAssets({
+					where: query,
+					limit: 1
+				}).success(function(assets) {
+					var asset = assets[0];
+					if (!asset) { return res.send('Asset Not Found', null, 404); }
+
+					// best-guess content-type from the file extension
+					var content_type = require('mimetype').lookup(path.basename(asset.path));
+					var content = new Buffer(asset.content, 'base64');
+					if (/^text|^application/.test(content_type)) {
+						content = content.toString();
+					}
+
+					if (asset.is_demo_html) {
+						res.render('demo', { demo: content });
+					} else {
+						res.send(content, { 'Content-Type': content_type });
+					}
+				});
+			});
+		});
+	});
 	
 	app.get('/logs/:user', function(req, res){
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
-		.success(function(logs){		
+		.success(function(logs) {
 			res.render('userlog', {logs: logs});
 		});
 	});

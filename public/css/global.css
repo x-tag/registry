@@ -796,3 +796,17 @@ div.max-width > dl > dd:last-child p:last-child {
 #doc_list dd:last-child {
 	border-bottom: none;
 }
+
+#tags > div.demo-box {
+	opacity: 1 !important;
+	background: #fff;
+	border: 1px solid;
+	border-color: #bbb #ccc #ddd;
+	border-radius: 4px;
+	-o-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	overflow: hidden;
+	padding: 10px;
+}
