@@ -156,7 +156,7 @@ input[type="radio"], input[type="checkbox"] {
 		-moz-border-radius: 12px;
 		-webkit-border-radius: 12px;
 	}
-	
+
 		input[type="checkbox"] + button:before {
 			border-radius: 0;
 			-o-border-radius: 0;
@@ -203,7 +203,7 @@ div.slider {
 		}
 
 body > header {
-	
+
 	top: 0;
 	left: 0;
 	height: 46px;
@@ -216,7 +216,7 @@ body > header {
 	-ms-box-shadow: 0 1px 4px -2px #000;
 	-moz-box-shadow: 0 1px 4px -2px #000;
 	-webkit-box-shadow: 0 1px 4px -2px #000;
-	opacity: 0.95;	
+	opacity: 0.95;
 }
 
 body > header > nav{
@@ -257,7 +257,7 @@ header {
 }
 
 header h1 {
-	
+
 	float:left;
 	margin-left: 8px;
 	line-height: 46px;
@@ -342,7 +342,7 @@ div.max-width > dl > dd:last-child p:last-child {
 }
 
 #toggleInstructions{
-	
+
 }
 
 #controls {
@@ -379,7 +379,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		-moz-box-shadow: 0 1px 3px -2px #666 inset;
 		-webkit-box-shadow: 0 1px 3px -2px #666 inset;
 	}
-	
+
 	#search_query input:focus{
 		box-shadow: 0 1px 5px -2px #226AB3 inset;
 		-o-box-shadow: 0 1px 5px -2px #226AB3 inset;
@@ -387,18 +387,18 @@ div.max-width > dl > dd:last-child p:last-child {
 		-moz-box-shadow: 0 1px 5px -2px #226AB3 inset;
 		-webkit-box-shadow: 0 1px 5px -2px #226AB3 inset;
 	}
-	
+
 	#search_button {
 		margin-left: 6px;
 		margin-right: -92px;
 	}
-	
+
 	#advanced_button {
 		float: right;
 		margin-right: -111px;
 		padding: 4px 3px;
 	}
-	
+
 	#advanced_button:before {
 		content: url(../images/gear-white.png);
 		display: block;
@@ -409,16 +409,16 @@ div.max-width > dl > dd:last-child p:last-child {
 	height: 0;
 	overflow: hidden;
 }
-	
+
 	#advanced_controls > div {
 		margin-top: 8px;
 		overflow: hidden;
 	}
-	
+
 	#advanced_controls dl {
 		margin: 0 10px 10px;
 	}
-	
+
 	#advanced_controls dt {
 		position: relative;
 		margin-bottom: 10px;
@@ -427,7 +427,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		color: #777;
 		text-shadow: 0 1px 0 #fff;
 	}
-	
+
 		#advanced_controls dt:after {
 			display: block;
 			position: absolute;
@@ -437,21 +437,21 @@ div.max-width > dl > dd:last-child p:last-child {
 			content: " ";
 			border-bottom: 1px solid #d3d3d3;
 		}
-	
+
 	#advanced_controls dd {
 		margin-bottom: 10px;
 	}
-	
+
 	#advanced_controls input:first-child + button {
 		margin-left: 0;
 	}
-	
+
 	#compatibility div.slider {
 		position: relative;
 		width: 250px;
 		margin: 25px 0;
 	}
-	
+
 	#compatibility div.slider:before {
 		display: block;
 		position: absolute;
@@ -460,7 +460,7 @@ div.max-width > dl > dd:last-child p:last-child {
 		content: attr(data-browser);
 	}
 
-	
+
 #tags > div.content-box {
 	opacity: 1 !important;
 	background: #fff url(../images/spinner-black-32.gif) no-repeat center center;
@@ -497,7 +497,7 @@ div.max-width > dl > dd:last-child p:last-child {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 }
-	
+
 	#results > dt {
 		font-size: 135%;
 		background: linear-gradient(top, #F3F3F3, #E6E6E6);
@@ -513,11 +513,11 @@ div.max-width > dl > dd:last-child p:last-child {
 		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
 	}
-	
+
 	#results > dt span {
 		color: #888;
 	}
-	
+
 	#results > dd {
 		position: relative;
 		margin: 4px 8px 0;
@@ -525,17 +525,17 @@ div.max-width > dl > dd:last-child p:last-child {
 		border-top: 1px dashed #ddd;
 		overflow: hidden;
 	}
-	
+
 	#results > dt + dd, #results > dd:first-child {
 		padding-top: 6px;
 		border: none;
 	}
-	
+
 	#results > *:last-child {
 		margin-bottom: 0;
 		border-bottom: none;
 	}
-		
+
 		a.tag-demo {
 			position: absolute;
 			top: 50%;
@@ -551,30 +551,30 @@ div.max-width > dl > dd:last-child p:last-child {
 			letter-spacing: 1px;
 			opacity: 0.7;
 		}
-			
+
 			a.tag-demo:before {
 				display: block;
 				content: url(../images/screen-pointer.png);
 			}
-			
+
 			a.tag-demo:after {
 				content: "DEMO";
 			}
-			
+
 			a.tag-demo:hover {
 				opacity: 1.0;
 			}
-			
+
 		div.tag-header {
 			overflow: hidden;
 		}
-		
+
 			div.tag-header h3 {
 				float: left;
 				margin-bottom: 2px;
 				margin-right: 10px;
 			}
-				
+
 				div.tag-header h3 span {
 					position: relative;
 					top: -2px;
@@ -583,7 +583,7 @@ div.max-width > dl > dd:last-child p:last-child {
 					font-style: italic;
 					font-family: Segoe UI, Trebuchet MS, Helvetica, Arial;
 				}
-				
+
 				span.tag-author:before, span.tag-author:after {
 					content: '\2022';
 					margin: 0 6px;
@@ -593,12 +593,12 @@ div.max-width > dl > dd:last-child p:last-child {
 					content: '\2022';
 					margin: 0 6px;
 				}
-			
+
 			nav.tag-categories {
 				float: left;
 				overflow: hidden;
 			}
-			
+
 			nav.tag-categories a {
 				display: block;
 				float: left;
@@ -611,13 +611,13 @@ div.max-width > dl > dd:last-child p:last-child {
 				text-shadow: 0 1px 0 #fff;
 				cursor: pointer;
 			}
-			
+
 				nav.tag-categories a:hover {
 					color: #fff;
 					background: #6795CC;
 					text-shadow: 0 1px 0 #3E649A;
 				}
-			
+
 			nav.tag-categories a:before {
 				content: "";
 				display: block;
@@ -630,17 +630,17 @@ div.max-width > dl > dd:last-child p:last-child {
 				border-right: 8px solid #eee;
 				border-top: 8px dotted transparent;
 			}
-				
+
 				nav.tag-categories a:hover:before {
 					border-bottom: 8px solid transparent;
 					border-right: 8px solid #6795CC;
 					border-top: 8px solid transparent;
 				}
-			
+
 			nav.tag-categories a:after {
 				content: "";
 				display: block;
-				position: absolute;		
+				position: absolute;
 				left: -3px;
 				top: 6px;
 				height: 4px;
@@ -652,20 +652,20 @@ div.max-width > dl > dd:last-child p:last-child {
 				-moz-border-radius: 4px;
 				-webkit-border-radius: 4px;
 			}
-			
+
 			nav.tag-categories b {
 				position: relative;
-				top: -1px;	
+				top: -1px;
 			}
-	
+
 	div.tag-version {
 		font-size: 65%;
 		margin-top: 4px;
 		padding: 0 1px 1px;
 	}
-	
+
 	p.tag-description {
-		
+
 	}
 
 	nav.tag-issues {
@@ -688,7 +688,7 @@ div.max-width > dl > dd:last-child p:last-child {
 	}
 
 	nav.tag-issues a.bug {
-    	background-color: rgb(252, 41, 41);
+	background-color: rgb(252, 41, 41);
 	}
 
 	nav.tag-issues a.enhancement {
@@ -698,15 +698,15 @@ div.max-width > dl > dd:last-child p:last-child {
 	nav.tag-issues a.pull_request {
 		background-color: #4183C4;
 	}
-		
+
 	ul.tag-compatibility {
-		
+
 	}
 
 		ul.tag-compatibility li {
 			display: inline;
 		}
-			
+
 		li.browser {
 			margin-right: 4px;
 			padding-right: 3px;
@@ -714,21 +714,21 @@ div.max-width > dl > dd:last-child p:last-child {
 			font-size: 95%;
 			font-weight: bold;
 		}
-		
+
 			li.browser:last-child {
 				border: none;
 			}
-			
+
 			li.browser:before {
 				position: relative;
 				top: 2px;
 				margin-right: 4px;
 			}
-			
+
 			li.browser:after {
 				content: '+';
 			}
-			
+
 			li.browser.firefox:before {
 				content: url(../images/firefox-16.png);
 			}
@@ -748,7 +748,7 @@ div.max-width > dl > dd:last-child p:last-child {
 			li.browser.ie:before {
 				content: url(../images/ie-16.png);
 			}
-			
+
 			li.browser.android:before {
 				content: url(../images/android-16.png);
 			}
@@ -759,7 +759,7 @@ div.max-width > dl > dd:last-child p:last-child {
 				margin-right: 3px;
 				content: url(../images/ios-16.png);
 			}
-	
+
 #browser_logos {
 	display: table;
 	width: 100%;
@@ -795,4 +795,18 @@ div.max-width > dl > dd:last-child p:last-child {
 
 #doc_list dd:last-child {
 	border-bottom: none;
+}
+
+#tags > div.demo-box {
+	opacity: 1 !important;
+	background: #fff;
+	border: 1px solid;
+	border-color: #bbb #ccc #ddd;
+	border-radius: 4px;
+	-o-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	overflow: hidden;
+	padding: 10px;
 }
