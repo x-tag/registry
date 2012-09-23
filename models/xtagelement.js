@@ -8,7 +8,6 @@ var path = require('path'),
 		{ port: config.es.port }), 
 	XTagElement = null;
 
-
 module.exports = function(sequelize, DataTypes) {
 
 	XTagElement = sequelize.define('XTagElement', {	
@@ -63,7 +62,7 @@ module.exports = function(sequelize, DataTypes) {
 					}
 					return;
 				}
-				processXtagJson(req, ghData, xtagJson);
+				processXtagJson(req, ghData, ghUrl, xtagJson);
 			});
 		}
 
@@ -77,7 +76,7 @@ module.exports = function(sequelize, DataTypes) {
 		}
 	}
 
-	function processXtagJson(req, repoData, xtagJson){
+	function processXtagJson(req, repoData, repoUrl, xtagJson){
 
 		req.emit('log', "Processing control:", xtagJson);
 
@@ -163,6 +162,12 @@ module.exports = function(sequelize, DataTypes) {
 							console.log("ES response", err, res, element);
 						}
 					);
+
+					// get demo assets
+					if (tag.demo_url) {
+						var XTagDemoAsset = sequelize.import(__dirname + '/xtagdemoasset');
+						XTagDemoAsset.findAssets(req, repoUrl, tag);
+					}
 				}).error(function(err){
 					req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
 				});
