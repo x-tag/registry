@@ -110,27 +110,32 @@ module.exports = function Routes(app, db){
 		});
 	});
 
-	app.get('/:user/:repo/:tagname/demo/:path?', function(req, res) {
-		// :TODO: unless sequelize has some really good lazy query-formation that already does it...
+	app.get('/:user/:repo/:tagname/:version/demo/:path?', function(req, res) {
+		// :TODO: unless sequelize has lazy query-building that already does it...
 		// :TODO: these 3 queries ought to be replaced with a single query using joins
 		XTagRepo.find({
 			where: { author: req.param('user'), title: req.param('repo') }
 		}).success(function(repo) {
 
+			var tag_query = { tag_name: req.param('tagname') };
+			if (req.param('version') != 'latest') {
+				tag_query.version = req.param('version');
+			}
+
 			repo.getXTagElements({
-				where: { tag_name: req.param('tagname') },
+				where: tag_query,
 				order: 'id DESC',
 				limit: 1
 			}).success(function(tags) {
 				var tag = tags[0];
 				if (!tag) { return res.send('Element Not Found', null, 404); }
 
-				var query = (req.param('path')) ?
+				var asset_query = (req.param('path')) ?
 					{ path: req.param('path') } :
 					{ is_demo_html: true };
 
 				tag.getXTagDemoAssets({
-					where: query,
+					where: asset_query,
 					limit: 1
 				}).success(function(assets) {
 					var asset = assets[0];
@@ -144,7 +149,7 @@ module.exports = function Routes(app, db){
 					}
 
 					if (asset.is_demo_html) {
-						res.render('demo', { demo: content });
+						res.render('demo', { demo: content, base_url: req.path+'/' });
 					} else {
 						res.send(content, { 'Content-Type': content_type });
 					}
