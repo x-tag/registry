@@ -147,9 +147,16 @@ module.exports = function Routes(app, db){
 					if (/^text|^application/.test(content_type)) {
 						content = content.toString();
 					}
+				
+					tag.category = tag.category.split(',');
 
 					if (asset.is_demo_html) {
-						res.render('demo', { demo: content, base_url: req.path+'/' });
+						res.render('demo', {
+							demo: content,
+							tag_info: JSON.stringify(tag),
+							author: repo.author,
+							base_url: req.path+'/'
+						});
 					} else {
 						res.send(content, { 'Content-Type': content_type });
 					}
