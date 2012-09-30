@@ -797,16 +797,63 @@ div.max-width > dl > dd:last-child p:last-child {
 	border-bottom: none;
 }
 
-#tags > div.demo-box {
-	opacity: 1 !important;
+div.demo-box {
+	margin-top:40px;
+}
+
+div.demo-box > h3 {
+	float: left;
+	margin-bottom: 10px;
+	padding: 4px 9px;
+	font-size: 135%;
+	color: #fff;
+	text-decoration: none;
+	background: url("../images/header-bk.png");
+	border-radius: 5px;
+	border: 1px solid #226AB3;
+	border-bottom: 1px solid #003474;
+	box-shadow: 0px 1px 3px -2px #000;
+	-ms-box-shadow: 0px 1px 3px -2px #000;
+	-moz-box-shadow: 0px 1px 3px -2px #000;
+	-webkit-box-shadow: 0px 1px 3px -2px #000;
+}
+
+div.demo-box > dl {
+	margin-bottom: 40px;
+	padding: 12px 10px;
 	background: #fff;
 	border: 1px solid;
 	border-color: #bbb #ccc #ddd;
 	border-radius: 4px;
-	-o-border-radius: 4px;
-	-ms-border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
-	overflow: hidden;
-	padding: 10px;
+	clear: both;
+}
+
+div.demo-box > dl dt {
+	font-size: 120%;
+	background: linear-gradient(top, #F3F3F3, #E6E6E6);
+	background: -ms-linear-gradient(top, #F3F3F3, #E6E6E6);
+	background: -moz-linear-gradient(top, #F3F3F3, #E6E6E6);
+	background: -webkit-linear-gradient(top, #F3F3F3, #E6E6E6);
+	border: 1px solid;
+	border-color: #E6E6E6 #dadada #d0d0d0;
+	margin-bottom: 8px;
+	padding: 2px 6px;
+	text-shadow: 0 1px 0 #fff;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+div.demo-box > dl dd {
+	margin: 0 10px 20px;
+}
+
+div.demo-box > dl dd.info {
+	border-top: 1px dashed #ddd;
+	padding-top: 10px;
+	margin-bottom: 10px;
+	font-style: italic;
+	color: #888;
 }
