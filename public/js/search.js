@@ -26,7 +26,7 @@
 		
 		createElement: function(data) {
 			if (data.demo_url) {
-				data.demo_link = '<a class="tag-demo" target="' + data.demo_url + '"></a>';
+				data.demo_link = '<a class="tag-demo" href="/' + data.author + '/' + data.repo_name + '/' + data.tag_name + '/latest/demo"></a>';
 			}
 			if (data.forked){
 				var originalAuthor = data.forked_from.split('/')[3];
@@ -48,7 +48,7 @@
 					'" class="other_issue" href="' + data.repo + '/issues">' +
 					totalIssues + '</a>';
 				}
-				data.issues_link += '</nav>'
+				data.issues_link += '</nav>';
 			}
 			
 			this.parent(data);
