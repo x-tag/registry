@@ -849,11 +849,3 @@ div.demo-box > dl dt {
 div.demo-box > dl dd {
 	margin: 0 10px 20px;
 }
-
-div.demo-box > dl dd.info {
-	border-top: 1px dashed #ddd;
-	padding-top: 10px;
-	margin-bottom: 10px;
-	font-style: italic;
-	color: #888;
-}

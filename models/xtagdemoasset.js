@@ -32,16 +32,12 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function addAssetFile(req, tag, file) {
-		// strip demo_url from path
-		var path = (file.path.indexOf(tag.demo_url) != -1) ? file.path.substr(tag.demo_url.length) : file.path;
-		if (path.charAt(0) == '/') { path = path.substr(1); }
-
 		XTagDemoAsset.create({
 			XTagElementId:tag.id,
-			path: path,
+			path: file.path,
 			content_encoding: file.encoding,
 			content: file.content,
-			is_demo_html: (path == 'demo.html')
+			is_demo_html: (/demo\.html$/.test(file.path))
 		}).error(function(err){
 			req.emit('log', 'There was an issue saving demo asset [' + file.path + ']: ' + err);
 		});
