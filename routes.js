@@ -110,16 +110,24 @@ module.exports = function Routes(app, db){
 		});
 	});
 
-	app.get('/:user/:repo/:tagname/:version/demo/:path?', function(req, res) {
+	// '/:user/:repo/:tagname/:version/demo/:path'
+	app.get(/\/([\w\-]*)\/([\w\-]*)\/([\w\-]*)\/([\w\-]*)\/demo\/?(.*)/, function(req, res) {
+		var asset_path = req.params[4];
+		if (path.basename(asset_path) == 'x-tag.js') {
+			// x-tag.js is automatically included in the demo page
+			res.send('', { 'Content-Type': 'application/javascript' });
+			return;
+		}
+
 		// :TODO: unless sequelize has lazy query-building that already does it...
 		// :TODO: these 3 queries ought to be replaced with a single query using joins
 		XTagRepo.find({
-			where: { author: req.param('user'), title: req.param('repo') }
+			where: { author: req.params[0], title: req.params[1] }
 		}).success(function(repo) {
 
-			var tag_query = { tag_name: req.param('tagname') };
-			if (req.param('version') != 'latest') {
-				tag_query.version = req.param('version');
+			var tag_query = { tag_name: req.params[2] };
+			if (req.params[3] != 'latest') {
+				tag_query.version = req.params[3];
 			}
 
 			repo.getXTagElements({
@@ -130,16 +138,13 @@ module.exports = function Routes(app, db){
 				var tag = tags[0];
 				if (!tag) { return res.send('Element Not Found', null, 404); }
 
-				var asset_query = (req.param('path')) ?
-					{ path: req.param('path') } :
-					{ is_demo_html: true };
-
+				var asset_query = (asset_path) ? { path: asset_path } : { is_demo_html: true };
 				tag.getXTagDemoAssets({
 					where: asset_query,
 					limit: 1
 				}).success(function(assets) {
 					var asset = assets[0];
-					if (!asset) { return res.send('Asset Not Found', null, 404); }
+					if (!asset) { return res.send('Asset not found at '+asset_path, null, 404); }
 
 					// best-guess content-type from the file extension
 					var content_type = require('mimetype').lookup(path.basename(asset.path));
@@ -155,7 +160,7 @@ module.exports = function Routes(app, db){
 							demo: content,
 							tag_info: JSON.stringify(tag),
 							author: repo.author,
-							base_url: req.path+'/'
+							base_url: path.join(req.path, tag.demo_url) + '/'
 						});
 					} else {
 						res.send(content, { 'Content-Type': content_type });
@@ -171,4 +176,4 @@ module.exports = function Routes(app, db){
 			res.render('userlog', {logs: logs});
 		});
 	});
-}
+};
