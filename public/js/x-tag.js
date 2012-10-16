@@ -1,13 +1,13 @@
 (function(){
-
+  
   var doc = document,
-	win = window,
-	head = doc.getElementsByTagName('head')[0];
+    win = window,
+    head = doc.getElementsByTagName('head')[0];
 
   var nodeInserted = function(element, query){
-    if (query && xtag.tagList.length && element.childNodes.length){
-      xtag.query(element, xtag.tagList).forEach(function(element){
-        nodeInserted(element)
+    if (query && xtag.tagList.length && element.childNodes.length){ 
+      xtag.query(element, xtag.tagList).forEach(function(element){ 
+        nodeInserted(element) 
       });
     }
     xtag.extendElement(element, true);
@@ -22,22 +22,22 @@
   *
   * * css: the CSS prefix
   * * dom: the DOM prefix
-  * * js: the Javascript prefix
+  * * js: the Javascript prefix 
   * * lowercase: a lower cased version of the browser prefix
   *
-  * An example of this object on Chromium is the following
+  * An example of this object on Chromium is the following 
   *
   * {
   * css: "-webkit-"
   * dom: "WebKit"
   * js: "Webkit"
   * keyframes: true
-  * lowercase: "webkit"
+  * lowercase: "webkit"  
   * }
   */
   var prefix = (function() {
     var styles = win.getComputedStyle(doc.documentElement, '');
-
+    
     var pre = (
         Array.prototype.slice
         .call(styles)
@@ -90,7 +90,7 @@
   */
   var keypseudo = {
     listener: function(pseudo, fn, args){
-      if (!!~pseudo.value.match(/(\d+)/g).indexOf(String(args[0].keyCode))
+      if (!!~pseudo.value.match(/(\d+)/g).indexOf(String(args[0].keyCode)) 
         == (pseudo.name == 'keypass')){
         args.splice(args.length, 0, this);
         fn.apply(this, args);
@@ -106,15 +106,15 @@
     mouseup: 'touchend',
     click: 'touchend'
   };
-
+  
   xtag = {
     tags: {},
     tagList: [],
     callbacks: {},
     prefix: prefix,
     anchor: doc.createElement('a'),
-    mutation: win.MutationObserver ||
-      win.WebKitMutationObserver ||
+    mutation: win.MutationObserver || 
+      win.WebKitMutationObserver || 
       win.MozMutationObserver,
     tagOptions: {
       content: '',
@@ -129,31 +129,31 @@
 
     eventMap: {
       animationstart: [
-        'animationstart',
-        'oAnimationStart',
-        'MSAnimationStart',
+        'animationstart', 
+        'oAnimationStart', 
+        'MSAnimationStart', 
         'webkitAnimationStart'
       ],
       transitionend: [
-        'transitionend',
-        'oTransitionEnd',
-        'MSTransitionEnd',
+        'transitionend', 
+        'oTransitionEnd', 
+        'MSTransitionEnd', 
         'webkitTransitionEnd'
-      ],
+      ], 
       tap: [ 'ontouchend' in doc ? 'touchend' : 'mouseup']
     },
     pseudos: {
       delegate: {
         listener: function(pseudo, fn, args){
           var target = xtag.query(this, pseudo.value).filter(function(node){
-            return node == args[0].target ||
+            return node == args[0].target || 
               node.contains ? node.contains(args[0].target) : false;
           })[0];
           args.splice(args.length, 0, this);
           return target ? fn.apply(target, args) : false;
         }
       },
-      preventable: {
+      preventable: { 
         listener: function(pseudo, fn, args){
           if (!args[0].defaultPrevented) fn.apply(this, args);
         }
@@ -180,7 +180,7 @@
             args.splice(args.length, 0, this);
             fn.apply(this, args);
           }
-        },
+        }, 
         onRemove: function(pseudo, fn){
           this.removeEventListener(touchMap[pseudo.key.split(':')[0]], fn);
         }
@@ -226,7 +226,7 @@
         }
       }
     },
-
+    
     /**
     * Returns a lowercased string containing the type of the object.
     *
@@ -236,7 +236,7 @@
     typeOf: function(obj) {
       return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
     },
-
+  
     /**
     * Converts the given object to an array.
     *
@@ -274,7 +274,7 @@
           .filter(function(item){ return item != "" });
         names.push(className);
         element.className = names.join(' ');
-      }
+      } 
       return element;
     },
 
@@ -303,10 +303,10 @@
     * @return {element}
     */
     toggleClass: function(element, className){
-      return !xtag.hasClass(element, className) ?
+      return !xtag.hasClass(element, className) ? 
         xtag.addClass(element,className) : xtag.removeClass(element, className);
     },
-
+    
     /**
     * Queries a set of child elements using a CSS selector.
     *
@@ -317,18 +317,18 @@
     query: function(element, selector){
       return xtag.toArray(element.querySelectorAll(selector));
     },
-
-    queryChildren: function(element, selector){
+    
+    queryChildren: function(element, selector){ 
       var result = null,
         id = 'x-' + new Date().getTime(),
         attr = '[xtag-temp-id="' + id + '"] > ',
-        selector = attr + (selector + '').replace(',', ',' + attr, 'g');
+        selector = attr + (selector + '').replace(',', ',' + attr, 'g');        
       element.setAttribute('xtag-temp-id', id);
       result = element.parentNode.querySelectorAll(selector);
       element.removeAttribute('xtag-temp-id');
       return xtag.toArray(result);
     },
-
+    
     /**
     * Function that can be used to define a property on an element.
     *
@@ -339,11 +339,11 @@
     * @param {string} value The value of the property.
     */
     defineProperty: function(element, property, accessor, value){
-      return doc.documentElement.__defineGetter__ ?
+      return doc.documentElement.__defineGetter__ ? 
         function(element, property, accessor, value){
-          element['__define' + accessor[0].toUpperCase() +
+          element['__define' + accessor[0].toUpperCase() + 
             'etter__'](property, value);
-        } :
+        } : 
         function(element, property, accessor, value){
           var obj = { configurable: true };
           obj[accessor] = value;
@@ -358,13 +358,13 @@
     * @param {object} obj The object to use as the prototype for the new
     * function.
     * @return {function}
-    */
+    */    
     clone: function(obj) {
       var F = function(){};
       F.prototype = obj;
       return new F();
     },
-
+    
     merge: function(source, k, v){
       if (xtag.typeOf(k) == 'string') return mergeOne(source, k, v);
       for (var i = 1, l = arguments.length; i < l; i++){
@@ -373,7 +373,7 @@
       }
       return source;
     },
-
+    
     wrap: function(original, fn){
       return function(){
         var args = xtag.toArray(arguments);
@@ -390,18 +390,18 @@
         element.style[duration] = '';
       });
     },
-
+    
     /**
     * Checks if the specified element is an x-tag element or a regular
     * element.
     *
     * @param {element} element The element to check.
     * @return {boolean}
-    */
+    */    
     tagCheck: function(element){
       return element.tagName ? xtag.tags[element.tagName.toLowerCase()] : false;
     },
-
+    
     /**
     * Returns an object containing the options of an element.
     *
@@ -412,7 +412,7 @@
     getOptions: function(element){
       return xtag.tagCheck(element) || xtag.tagOptions;
     },
-
+    
     /**
     * Registers a new x-tag object.
     *
@@ -422,11 +422,11 @@
     */
     register: function(tag, options){
       xtag.tagList.push(tag);
-      xtag.tags[tag] = xtag.merge({ tagName: tag }, xtag.tagOptions,
+      xtag.tags[tag] = xtag.merge({ tagName: tag }, xtag.tagOptions, 
         xtag.applyMixins(options || {}));
       if (xtag.domready) xtag.query(doc, tag).forEach(nodeInserted);
     },
-
+    
     /**
     * Extends an element by adding various x-tag related getters, setters
     * and other properties to it.
@@ -461,25 +461,25 @@
     * @param {function} method The method/function to bind to the element.
     */
     bindMethod: function(element, key, method){
-      element[key] = function(){
-        return method.apply(element, xtag.toArray(arguments))
+      element[key] = function(){ 
+        return method.apply(element, xtag.toArray(arguments)) 
       };
     },
-
+    
     applyMixins: function(options){
-      if (options.mixins){
+      if (options.mixins){ 
         options.mixins.forEach(function(name){
           var mixin = xtag.mixins[name];
           for (var z in mixin) {
             switch (xtag.typeOf(mixin[z])){
-              case 'function':
-                options[z] = options[z] ?
+              case 'function': 
+                options[z] = options[z] ? 
                   xtag.wrap(options[z], mixin[z]) : mixin[z];
                 break;
-              case 'object':
+              case 'object': 
                 options[z] = xtag.merge({}, mixin[z], options[z]);
                 break;
-              default:
+              default: 
                 options[z] = mixin[z];
             }
           }
@@ -487,12 +487,12 @@
       }
       return options;
     },
-
+    
     applyAccessor: function(element, key, accessor, fn){
-      xtag.defineProperty(element,
+      xtag.defineProperty(element, 
         key.split(':')[0], accessor, xtag.applyPseudos(element, key, fn));
-    },
-
+    }, 
+    
     applyPseudos: function(element, key, fn){
       var action = fn, onAdd = {};
       if (key.match(':')){
@@ -500,13 +500,13 @@
           var lastPseudo = action,
             pseudo = xtag.pseudos[name],
             split = {
-              key: key,
+              key: key, 
               name: name,
               value: value
             };
           if (pseudo.onAdd) onAdd[name] = split;
           action = function(){
-            return pseudo.listener.apply(element,
+            return pseudo.listener.apply(element, 
               [split, fn, xtag.toArray(arguments)]);
           }
         });
@@ -522,15 +522,15 @@
         key.replace(/:(\w*)(?:\(([^\)]*)\))?/g, function(match, name, value){
           var pseudo = xtag.pseudos[name];
           if (pseudo.onRemove) pseudo.onRemove.call(element, {
-              key: key,
+              key: key, 
               name: name,
               value: value
             }, fn);
-
+          
         });
       }
     },
-
+    
     request: function(element, options){
       xtag.clearRequest(element);
       var last = element.xtag.request || {};
@@ -539,7 +539,7 @@
         callbackKey = element.getAttribute('data-callback-key') ||
           'callback' + '=xtag.callbacks.';
       if (xtag.fireEvent(element, 'beforerequest') === false) return false;
-      if (last.url && !options.update &&
+      if (last.url && !options.update && 
         last.url.replace(new RegExp('\&?\(' + callbackKey + 'x[0-9]+)'), '') ==
           element.xtag.request.url){
         element.xtag.request = last;
@@ -562,7 +562,7 @@
           }
         });
         request.open(request.method , request.url, true);
-        request.setRequestHeader('Content-Type',
+        request.setRequestHeader('Content-Type', 
           'application/x-www-form-urlencoded');
         request.send();
       }
@@ -579,7 +579,7 @@
         }
         request.script = doc.createElement('script');
         request.script.type = 'text/javascript';
-        request.script.src = options.url = options.url +
+        request.script.src = options.url = options.url + 
           (~options.url.indexOf('?') ? '&' : '?') + callbackKey + callbackID;
         request.script.onerror = function(error){
           element.setAttribute('data-readystate', request.readyState = 4);
@@ -590,15 +590,15 @@
       }
       element.xtag.request = request;
     },
-
+    
     requestCallback: function(element, request){
       if (request != element.xtag.request) return xtag;
       element.setAttribute('data-readystate', request.readyState);
-      element.setAttribute('data-requeststatus', request.status);
+      element.setAttribute('data-requeststatus', request.status);         
       xtag.fireEvent(element, 'dataready', { request: request });
       if (element.dataready) element.dataready.call(element, request);
     },
-
+    
     clearRequest: function(element){
       var req = element.xtag.request;
       if (!req) return xtag;
@@ -607,37 +607,37 @@
       }
       else if (req.abort) req.abort();
     },
-
+  
     addEvent: function(element, type, fn){
       var eventKey = type.split(':')[0],
         eventMap = xtag.eventMap[eventKey] || [eventKey];
       var wrapped = xtag.applyPseudos(element, type, fn);
       eventMap.forEach(function(name){
-        element.addEventListener(name,
+        element.addEventListener(name, 
           wrapped, !!~['focus', 'blur'].indexOf(name));
       });
       return wrapped;
     },
-
+    
     addEvents: function(element, events){
       for (var z in events) xtag.addEvent(element, z, events[z]);
     },
-
-	removeEvent: function(element, type, fn){
+  
+  removeEvent: function(element, type, fn){
       var eventKey = type.split(':')[0],
-        eventMap = xtag.eventMap[eventKey] || [eventKey];
+        eventMap = xtag.eventMap[eventKey] || [eventKey];   
       eventMap.forEach(function(name){
         element.removeEventListener(name, fn);
       });
     },
-
-	fireEvent: function(element, type, data, options){
+  
+  fireEvent: function(element, type, data, options){
       var options = options || {},
-	    event = doc.createEvent('Event');
+      event = doc.createEvent('Event');
       event.initEvent(type, 'bubbles' in options ? options.bubbles : true, 'cancelable' in options ? options.cancelable : true);
       element.dispatchEvent(xtag.merge(event, data));
     },
-
+    
     observe: function(element, fn){
       if (xtag.mutation){
         var mutation = new xtag.mutation(function(mutations) {
@@ -662,7 +662,7 @@
       }, false);
     }
   };
-
+  
   var setAttribute = HTMLElement.prototype.setAttribute;
   (win.HTMLUnknownElement || HTMLElement).prototype.setAttribute = function(attr, value, setter){
     if (!setter && this.xtag && this.xtag.attributeSetters){
@@ -670,14 +670,14 @@
     }
     setAttribute.call(this, attr, value);
   };
-
+  
   var createElement = doc.createElement;
   doc.createElement = function(tag){
     var element = createElement.call(this, tag);
     if (xtag.tagCheck(element)) xtag.extendElement(element);
     return element;
   };
-
+  
   function init(){
     xtag.observe(doc.documentElement, nodeInserted);
     if (xtag.tagList.length){
@@ -696,7 +696,7 @@
       init();
     }, false);
   }
-
+  
   if (typeof define == 'function' && define.amd) define(xtag);
-
+  
 })();

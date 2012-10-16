@@ -152,7 +152,7 @@ module.exports = function Routes(app, db){
 					if (/^text|^application/.test(content_type)) {
 						content = content.toString();
 					}
-
+				
 					tag.category = tag.category.split(',');
 
 					if (asset.is_demo_html) {
