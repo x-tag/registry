@@ -1,6 +1,7 @@
 var path = require('path'),
 	exgf = require('amanda'),
 	request = require('../lib/http-request'),
+	Github = require('../lib/github'),
 	Settings = require('settings'),
 	config = new Settings(require('../config')),
 	elastical = require('elastical'),
@@ -221,16 +222,14 @@ module.exports = function(sequelize, DataTypes) {
 			ghUrl.repo, 'contents', ghUrl.directory, 'xtag.json?ref=' + ghUrl.tag);
 
 		req.emit('log', 'Fetching xtag.json: ', rpath);
-		request.getJson({
-			host: 'api.github.com', 
-			path: rpath,
-			https: true
-		}, function(err, xtagJsonRaw){
+		Github.makeRequest(rpath, function(err, xtagJsonRaw){
+
 			if (err){
 				req.emit('log', 'Error fetching xtag.json @ ' + rpath + " , error:" + err);
 				callback("[fetchXtagJson]" + err, null);
 			} else {
 				try {
+					xtagJsonRaw = JSON.parse(xtagJsonRaw);
 					var buffer = new Buffer(xtagJsonRaw.content, 'base64');
 					var xtagJson = JSON.parse(buffer.toString('utf8'));
 					req.emit('log', 'Found xtag.json: ' + rpath);

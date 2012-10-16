@@ -10,6 +10,11 @@ module.exports = {
 			index: 'xtag', 
 			host: 'localhost',
 			port: '9200'
+		},
+		github:{
+			username: '',
+			password: '',
+			host: ''
 		}
 	}, 
 	production: {
