@@ -6,9 +6,11 @@ module.exports = function Routes(app, db){
 		Settings = require('settings'),
 		config = new Settings(require('./config')),
 		_ = require('underscore'),
-		path = require('path');
-
+		path = require('path'), 
+		Sequelize = require('sequelize');
+		
 	var XTagElement = db.import(__dirname + '/models/xtagelement');
+	var XTagElementAsset = db.import(__dirname + '/models/xtagelementasset');
 	var XTagRepo = db.import(__dirname + '/models/xtagrepo');
 	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
 
@@ -110,64 +112,86 @@ module.exports = function Routes(app, db){
 		});
 	});
 
-	// '/:user/:repo/:tagname/:version/demo/:path'
-	app.get(/\/([\w\-]*)\/([\w\-]*)\/([\w\-]*)\/([\w\-]*)\/demo\/?(.*)/, function(req, res) {
-		var asset_path = req.params[4];
-		if (path.basename(asset_path) == 'x-tag.js') {
-			// x-tag.js is automatically included in the demo page
-			res.send('', { 'Content-Type': 'application/javascript' });
-			return;
-		}
+	
 
-		// :TODO: unless sequelize has lazy query-building that already does it...
-		// :TODO: these 3 queries ought to be replaced with a single query using joins
-		XTagRepo.find({
-			where: { author: req.params[0], title: req.params[1] }
-		}).success(function(repo) {
+	//'/:user/:repo/:tagname/:version'
+	/*app.get('/:user/:repo/:tagname', function(req, res){
+		res.render('tag_detail', {});
 
-			var tag_query = { tag_name: req.params[2] };
-			if (req.params[3] != 'latest') {
-				tag_query.version = req.params[3];
-			}
+	});*/
 
-			repo.getXTagElements({
-				where: tag_query,
-				order: 'id DESC',
-				limit: 1
-			}).success(function(tags) {
-				var tag = tags[0];
-				if (!tag) { return res.send('Element Not Found', null, 404); }
+///assets\/(\d+)\/(.*)/
+	app.get(/assets\/(\d+)\/(.*)/, function(req, res){
+		// return all other assets from this route
+		// find asset by req.params.tagId and req.params[1] 
 
-				var asset_query = (asset_path) ? { path: asset_path } : { is_demo_html: true };
-				tag.getXTagDemoAssets({
-					where: asset_query,
-					limit: 1
-				}).success(function(assets) {
-					var asset = assets[0];
-					if (!asset) { return res.send('Asset not found at '+asset_path, null, 404); }
+		//beware of sql injection 
+		//must sanitize
+		var query = 'SELECT a.* '+
+		'FROM XTagRepoes r '+
+		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
+		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
+		'WHERE a.XTagElementId=' + Number(req.params[0]) + 
+		' AND a.path="'+ req.params[1] +'" LIMIT 1';
 
-					// best-guess content-type from the file extension
-					var content_type = require('mimetype').lookup(path.basename(asset.path));
-					var content = new Buffer(asset.content, 'base64');
-					if (/^text|^application/.test(content_type)) {
+console.log("DEBUG:", query);
+
+		query = db.query(query, {}, {raw: true});
+		query.success(function(asset){
+			
+			if (asset.length){
+				asset = asset[0];
+				var content_type = require('mimetype').lookup(path.basename(asset.path));
+				var content = new Buffer(asset.content, 'base64');
+				if (/^text|^application/.test(content_type)) {
 						content = content.toString();
-					}
-				
-					tag.category = tag.category.split(',');
-
-					if (asset.is_demo_html) {
-						res.render('demo', {
-							demo: content,
-							tag_info: JSON.stringify(tag),
-							author: repo.author,
-							base_url: path.join(req.path, tag.demo_url) + '/'
-						});
-					} else {
-						res.send(content, { 'Content-Type': content_type });
-					}
-				});
-			});
+				}
+				res.send(content, { 'Content-Type': content_type });
+			}
+			else
+			{
+				res.render('404', {});
+			}
+			
+		}).failure(function(err){
+			res.json({err:err}, 500);
 		});
+
+	});
+
+	// we can do something very similar for the test runner aka  /test
+	
+	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?demo/, function(req, res) {
+	//app.get('/:user/:repo/:tagname/:version/demo', function(req, res) {
+		
+		//beware of sql injection 
+		//must sanitize
+		var query = 'SELECT a.* '+
+		'FROM XTagRepoes r '+
+		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
+		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
+		'WHERE r.author="' + req.params[0] + 
+		'" AND r.title="' + req.params[1] + 
+		'" AND e.tag_name="' + req.params[2] + 
+		'" AND a.path="demo/demo.html" LIMIT 1';
+
+		query = db.query(query, {}, {raw: true});
+		query.success(function(demoPage){
+			
+			if (demoPage.length){
+				demoPage = demoPage[0];
+				var content = new Buffer(demoPage.content, 'base64');
+				res.render('demo', { demo: content });
+			}
+			else
+			{
+				res.render('404', {});
+			}
+			
+		}).failure(function(err){
+			res.render('500', {err:err});
+		});
+
 	});
 	
 	app.get('/logs/:user', function(req, res){

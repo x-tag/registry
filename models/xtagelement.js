@@ -47,12 +47,12 @@ module.exports = function(sequelize, DataTypes) {
 			}
 
 			if (xtagJson.xtags){
-				xtagJson.xtags.forEach(function(tagUrl){
-					ghUrl.directory = tagUrl;
+				xtagJson.xtags.forEach(function(directory){
+					ghUrl.directory = directory;
 					fetchXtagJson(req, ghUrl, function(err, xtagJson){
 						if (xtagJson){
-							xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
-							xtagJson.directoryPath = tagUrl;
+							xtagJson.controlUrl = ghData.branchUrl + "/" + directory;
+							xtagJson.controlPath = directory;
 						} 
 						crawlXtagJson(err, xtagJson);
 					});
@@ -73,8 +73,8 @@ module.exports = function(sequelize, DataTypes) {
 		try {
 			fetchXtagJson(req, ghUrl, function(err, xtagJson){
 				if (xtagJson){
-					xtagJson.controlLocation = ghData.branchUrl;
-					xtagJson.directoryPath = "/";
+					xtagJson.controlUrl = ghData.branchUrl;
+					xtagJson.controlPath = "/";
 				} 
 				crawlXtagJson(err, xtagJson);
 			});
@@ -131,7 +131,7 @@ module.exports = function(sequelize, DataTypes) {
 					images: (xtagJson.images || []).join(','),
 					compatibility: JSON.stringify(xtagJson.compatibility),
 					demo_url: xtagJson.demo,
-					url: xtagJson.controlLocation,
+					url: xtagJson.controlUrl,
 					version: xtagJson.version,
 					revision: repoData.after,
 					ref: repoData.ref,
@@ -171,9 +171,13 @@ module.exports = function(sequelize, DataTypes) {
 
 					// get demo assets
 					req.emit('log', 'Fetching Assets');
-					var XTagDemoAsset = sequelize.import(__dirname + '/xtagdemoasset');
-					xtagJson.id = tag.id;
-					XTagDemoAsset.findAssets(req, repoData, xtagJson);
+					var XTagElementAsset = sequelize.import(__dirname + '/xtagelementasset');
+					XTagElementAsset.findAssets(req, 
+						repoData.repository.owner.name,
+						repoData.repository.name, 
+						xtagJson.controlPath, 
+						repoData.ref.split('/')[2],
+						tag.id);
 					
 				}).error(function(err){
 					req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
