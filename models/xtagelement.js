@@ -50,7 +50,10 @@ module.exports = function(sequelize, DataTypes) {
 				xtagJson.xtags.forEach(function(tagUrl){
 					ghUrl.directory = tagUrl;
 					fetchXtagJson(req, ghUrl, function(err, xtagJson){
-						if (xtagJson) xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
+						if (xtagJson){
+							xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
+							xtagJson.directoryPath = tagUrl;
+						} 
 						crawlXtagJson(err, xtagJson);
 					});
 				});
@@ -63,13 +66,16 @@ module.exports = function(sequelize, DataTypes) {
 					}
 					return;
 				}
-				processXtagJson(req, ghData, ghUrl, xtagJson);
+				processXtagJson(req, ghData, xtagJson);
 			});
 		}
 
 		try {
 			fetchXtagJson(req, ghUrl, function(err, xtagJson){
-				if (xtagJson) xtagJson.controlLocation = ghData.branchUrl;
+				if (xtagJson){
+					xtagJson.controlLocation = ghData.branchUrl;
+					xtagJson.directoryPath = "/";
+				} 
 				crawlXtagJson(err, xtagJson);
 			});
 		} catch(e){
@@ -77,7 +83,7 @@ module.exports = function(sequelize, DataTypes) {
 		}
 	}
 
-	function processXtagJson(req, repoData, repoUrl, xtagJson){
+	function processXtagJson(req, repoData, xtagJson){
 
 		req.emit('log', "Processing control:", xtagJson);
 
@@ -157,18 +163,18 @@ module.exports = function(sequelize, DataTypes) {
 				
 					es_client.index(config.es.index,
 						'element', 
-						element,
-						{id: tag.id.toString(), refresh:true },
+						element, { id: tag.id.toString(), refresh:true },
 						function(err, res){
 							console.log("ES response", err, res, element);
 						}
 					);
 
 					// get demo assets
-					if (tag.demo_url) {
-						var XTagDemoAsset = sequelize.import(__dirname + '/xtagdemoasset');
-						XTagDemoAsset.findAssets(req, repoUrl, tag);
-					}
+					req.emit('log', 'Fetching Assets');
+					var XTagDemoAsset = sequelize.import(__dirname + '/xtagdemoasset');
+					xtagJson.id = tag.id;
+					XTagDemoAsset.findAssets(req, repoData, xtagJson);
+					
 				}).error(function(err){
 					req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
 				});
