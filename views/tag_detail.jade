@@ -1,4 +1,102 @@
 extends layout
 
+append head
+	link(rel="stylesheet", type="text/css", href="/assets/" + elementId + "/" + resourceName + ".css" )
+
 block content
-	h1 Tag Detail page
+	h1 #{xtagJson.name}
+
+	section#xtag-details
+		div
+			em Tag Name
+			span #{xtagJson.tagName}
+
+		div
+			em Version
+			span #{xtagJson.version}
+
+		div
+			em Categories
+			- if (xtagJson.categories && xtagJson.categories.length)
+				span #{xtagJson.categories.join(', ')}
+			- else
+				span None
+
+		div
+			em Author
+			span #{xtagJson.author}
+
+		div 
+			em Description
+			p #{xtagJson.description}
+
+		- if (themes.length)
+			div
+				em Themes
+				select.themes
+					option(selected) none
+					- for (var t in themes)
+						option(value=themes[t]) #{themes[t].replace('.css','')}
+
+		- if (xtagJson.demo && xtagJson.demo.length>0)
+			div
+				em Demo
+				a(href=xtagJson.demo || "demo") View
+
+	div#readme
+		- if (readme)
+			!{readme}
+		- else
+			h6 README.md not found.
+
+	
+	dl#documentation
+		- if (xtagJson.documentation)
+			- if (Object.keys(xtagJson.documentation.attributes).length)
+				dt Attributes
+				dd			
+					- for (var k in xtagJson.documentation.attributes)
+						h4 
+							code #{k}
+						p #{xtagJson.documentation.attributes[k]}
+
+			- if (Object.keys(xtagJson.documentation.getters).length)
+				dt Getters
+				dd
+					- for (var k in xtagJson.documentation.getters)
+						h4 
+							code #{k}
+						p #{xtagJson.documentation.getters[k]}
+
+			- if (Object.keys(xtagJson.documentation.setters).length)
+				dt Setters
+				dd	
+					- for (var k in xtagJson.documentation.setters)
+						h4 
+							code #{k}
+						p #{xtagJson.documentation.setters[k]}
+
+			- if (Object.keys(xtagJson.documentation.methods).length)
+				dt Methods
+				dd
+					- for (var k in xtagJson.documentation.methods)
+						h4 
+							code #{k}
+						p #{xtagJson.documentation.methods[k]}
+
+			- if (Object.keys(xtagJson.documentation.events).length)
+				dt Events
+				dd
+					- for (var k in xtagJson.documentation.events)
+						h4
+							code #{k}
+						p #{xtagJson.documentation.events[k]}
+		- else
+			h6 xtag.json documentation not found.
+
+append scripts
+	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
+	script(type="text/javascript", src="/js/tag_detail.js" )
+	script(type="text/javascript", src="/assets/" + elementId + "/" + resourceName + ".js" )
+	script
+		var elementId = #{elementId};

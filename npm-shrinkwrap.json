@@ -1,6 +1,6 @@
 {
   "name": "xtag-repository",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "settings": {
       "version": "0.1.0"
@@ -96,6 +96,18 @@
     },
     "async": {
       "version": "0.1.22"
+    },
+    "mimetype": {
+      "version": "0.0.3"
+    },
+    "marked": {
+      "version": "0.2.5"
+    },
+    "domino": {
+      "version": "1.0.5"
+    },
+    "semver": {
+      "version": "1.1.0"
     }
   }
 }

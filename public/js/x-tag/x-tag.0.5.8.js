@@ -4,14 +4,18 @@
     win = window,
     head = doc.getElementsByTagName('head')[0];
 
-  var nodeInserted = function(element, query){
-    if (query && xtag.tagList.length && element.childNodes.length){ 
-      xtag.query(element, xtag.tagList).forEach(function(element){ 
-        nodeInserted(element) 
+  function nodeInserted(element, extendChildren){
+    if (extendChildren && xtag.tagList.length && element.childNodes.length){
+        xtag.query(element, xtag.tagList).forEach(function(element){
+        nodeInserted(element);
       });
     }
-    xtag.extendElement(element, true);
-    if (element.parentNode) xtag.getOptions(element).onInsert.call(element);
+    if (xtag.tagCheck(element)){
+      xtag.extendElement(element);
+      if (doc.documentElement.contains(element)){
+        xtag.getOptions(element).onInsert.call(element);
+      } 
+    }
   };
 
   /**
@@ -37,7 +41,6 @@
   */
   var prefix = (function() {
     var styles = win.getComputedStyle(doc.documentElement, '');
-    
     var pre = (
         Array.prototype.slice
         .call(styles)
@@ -67,7 +70,7 @@
   * specified in the `source` parameter.
   * @return {object}
   */
-  var  mergeOne = function(source, key, current){
+  function mergeOne(source, key, current){
     switch (xtag.typeOf(current)){
       case 'object':
         if (xtag.typeOf(source[key]) == 'object'){
@@ -107,7 +110,7 @@
     click: 'touchend'
   };
   
-  xtag = {
+  var xtag = {
     tags: {},
     tagList: [],
     callbacks: {},
@@ -289,7 +292,7 @@
       var names = element.className.split(' ')
         .filter(function(item){ return item != "" }),
         idx = names.indexOf(className);
-      names.splice(idx,1);
+      if (idx>=0) names.splice(idx,1);
       element.className = names.join(' ');
       return element;
     },
@@ -399,7 +402,7 @@
     * @return {boolean}
     */    
     tagCheck: function(element){
-      return element.tagName ? xtag.tags[element.tagName.toLowerCase()] : false;
+      return element.nodeName ? xtag.tags[element.nodeName.toLowerCase()] : false;
     },
     
     /**
@@ -424,7 +427,9 @@
       xtag.tagList.push(tag);
       xtag.tags[tag] = xtag.merge({ tagName: tag }, xtag.tagOptions, 
         xtag.applyMixins(options || {}));
-      if (xtag.domready) xtag.query(doc, tag).forEach(nodeInserted);
+      if (xtag.domready) xtag.query(doc, tag).forEach(function(element){
+        nodeInserted(element);
+      });
     },
     
     /**
@@ -433,8 +438,8 @@
     *
     * @param {element} element The element to extend.
     */
-    extendElement: function(element, insert){
-      if (!element.xtag){
+    extendElement: function(element){
+      if (!element.xtag && xtag.tagCheck(element)){
         element.xtag = {}; // used as general storage
         var options = xtag.getOptions(element);
         for (var z in options.methods){
@@ -449,6 +454,23 @@
         xtag.addEvents(element, options.events);
         if (options.content) element.innerHTML = options.content;
         options.onCreate.call(element);
+      }
+    },
+
+    /**
+    * Helper method to ensure x-tags that are inserted via innerHTML
+    * are inflated.  
+    *
+    * @param {element} element The element.
+    * @param {html} element The html to insert.
+    */
+    innerHTML: function(element, html){
+      element.innerHTML = html;
+      if (xtag.observer){
+        xtag.parseMutations(xtag.observer.takeRecords(), nodeInserted);
+      }
+      else {
+        nodeInserted(element);
       }
     },
 
@@ -623,46 +645,53 @@
       for (var z in events) xtag.addEvent(element, z, events[z]);
     },
   
-  removeEvent: function(element, type, fn){
+    removeEvent: function(element, type, fn){
       var eventKey = type.split(':')[0],
         eventMap = xtag.eventMap[eventKey] || [eventKey];   
       eventMap.forEach(function(name){
         element.removeEventListener(name, fn);
       });
     },
-  
-  fireEvent: function(element, type, data, options){
+    
+    fireEvent: function(element, type, data, options){
       var options = options || {},
       event = doc.createEvent('Event');
       event.initEvent(type, 'bubbles' in options ? options.bubbles : true, 'cancelable' in options ? options.cancelable : true);
       element.dispatchEvent(xtag.merge(event, data));
     },
+
+    parseMutations: function(mutations, fn) {
+      var added = [];
+      mutations.forEach(function(record){
+        var nodes = record.addedNodes, length = nodes.length;
+        for (i = 0; i < length && added.indexOf(nodes[i]) == -1; i++){
+          added.push(nodes[i]);
+          fn(nodes[i], true);
+        }
+      });
+    },
     
     observe: function(element, fn){
       if (xtag.mutation){
-        var mutation = new xtag.mutation(function(mutations) {
-          var added = [];
-          mutations.forEach(function(record){
-            var nodes = record.addedNodes, length = nodes.length;
-            for (i = 0; i < length && added.indexOf(nodes[i]) == -1; i++){
-              added.push(nodes[i]);
-              fn(nodes[i], true);
-            }
-          });
+        var observer = new xtag.mutation(function(mutations) {
+          xtag.parseMutations(mutations, fn);
         });
-        mutation.observe(element, {
+        observer.observe(element, {
           subtree: true,
           childList: true,
           attributes: !true,
           characterData: false
         });
+        xtag.observer = observer;
       }
       else element.addEventListener('DOMNodeInserted', function(event){
-        fn(event.target);
+        fn(event.target, true);
       }, false);
     }
+
   };
-  
+
+
   var setAttribute = HTMLElement.prototype.setAttribute;
   (win.HTMLUnknownElement || HTMLElement).prototype.setAttribute = function(attr, value, setter){
     if (!setter && this.xtag && this.xtag.attributeSetters){
@@ -674,29 +703,41 @@
   var createElement = doc.createElement;
   doc.createElement = function(tag){
     var element = createElement.call(this, tag);
-    if (xtag.tagCheck(element)) xtag.extendElement(element);
+    xtag.extendElement(element);
     return element;
   };
   
-  function init(){
+  function init(){   
     xtag.observe(doc.documentElement, nodeInserted);
     if (xtag.tagList.length){
       xtag.query(doc, xtag.tagList).forEach(function(element){
         nodeInserted(element);
       });
     }
-    xtag.domready = true;
+    xtag.domready = true;    
     xtag.fireEvent(doc, 'DOMComponentsLoaded');
-    xtag.fireEvent(doc, '__DOMComponentsLoaded__');
+    xtag.fireEvent(doc, '__DOMComponentsLoaded__');    
   }
+  
 
-  if (doc.readyState === 'complete') init();
+  if (doc.readyState == 'complete'){
+      init();
+  } else if (doc.readyState == 'interactive'){
+      doc.addEventListener('readystatechange', function(e){
+        init();
+      }); 
+  }
   else {
     doc.addEventListener('DOMContentLoaded', function(event){
       init();
     }, false);
   }
   
-  if (typeof define == 'function' && define.amd) define(xtag);
+  if (typeof define == 'function' && define.amd) {
+      win.xtag = xtag;
+      define(xtag);
+  } else {
+      win.xtag = xtag;
+  }
   
 })();

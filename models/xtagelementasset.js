@@ -1,4 +1,6 @@
-var github = require('../lib/github');
+var github = require('../lib/github'),
+	domino = require('domino'),
+	_ = require('underscore');
 
 module.exports = function(sequelize, DataTypes) {
 
@@ -10,13 +12,48 @@ module.exports = function(sequelize, DataTypes) {
 		size: { type: DataTypes.INTEGER }
 	});
 
+	XTagElementAsset.getAsset = function(req, author, repo, tag, version, file_path, callback){
+
+		var query = 'SELECT a.* '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
+			'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.tag_name="' + tag + 
+			'" AND a.path="' + file_path + '"';
+
+		if (/^\d+\.\d+\.\d+$/.test(version)){
+			query += ' AND e.version="' + version + '"';
+		}
+		else {
+			query += ' AND e.is_current=1';
+		}
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(files){
+			callback(null, files[0]);
+		}).failure(function(err){
+			callback(err, null);
+		});
+	};
+
+	XTagElementAsset.getAllAssets = function(id, callback){
+		XTagElementAsset.findAll({where: { XTagElementId: id }})
+			.success(function(files){
+				callback(null, files);
+			}).failure(function(err){
+				callback(err, null);
+			});
+	};
+
 	XTagElementAsset.findAssets = function(req, author, repo, path, tag, id) {
 		req.emit('log', 'Finding assets for element: ', author, repo, path, tag, id);
 		getAssetContent(req, author, repo, path, tag, id, path); // start recursive grab
 	};
 
 	function getAssetContent(req, author, repo, path, tag, id, startPath) {
-		req.emit('log', 'DEBUG: ---- ', author, repo, path, tag, id);
+		//req.emit('log', 'DEBUG: ---- ', author, repo, path, tag, id);
 		github.getFile(author, repo, path, tag, function(err, file) {
 			file = JSON.parse(file);
 			if (err) { req.emit('log', "[XTagElementAssets.getFile error]",err); return; }
@@ -24,8 +61,13 @@ module.exports = function(sequelize, DataTypes) {
 			// individual file
 			if (!Array.isArray(file)) {
 				if (~['demo.html', 'test.html'].indexOf(file.name)){
-					var content = adjustHtmlResourceUrls(req, file.content, file.encoding, id);
-					file.content = content;
+					try {
+						var content = adjustHtmlResourceUrls(req, file.content, file.encoding, id);
+						file.content = content;
+					}
+					catch(e) {
+						req.emit('log', "error adjusting urls for:", file.name, e);
+					}
 				}
 				addAssetFile(req, id, file, startPath); // recursion exit
 			} // directory
@@ -38,7 +80,7 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function addAssetFile(req, tagId, file, rootPath) {
-		req.emit('log','DEBUG: addAssetFile', tagId, file);
+		//req.emit('log','DEBUG: addAssetFile', tagId, file.name, file.size);
 		XTagElementAsset.create({
 			XTagElementId: tagId,
 			path: file.path.replace(rootPath + "/", ''), //remove root path
@@ -52,12 +94,36 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function adjustHtmlResourceUrls(req, content, encoding, tagId){
-		var content = new Buffer(content, encoding);
-		// TODO: replace all src="" and href="" with a  relative path to something like 
-		//  /assetes/{elementId}  XTagElementId
-		// jsdom or regex?
-		// maybe move the resources from <head> to <body>, stripping everything else.
+		var win = domino.createWindow(new Buffer(content, encoding).toString());
+		var doc = win.document;
+		_.toArray(doc.getElementsByTagName('script')).forEach(function(script){
+			if (script.src.length>1){
+				script.src = adjustResourceUrl(script.src, tagId);
+			}
+		});
+		_.toArray(doc.getElementsByTagName('link')).forEach(function(link){
+			if (link.type == 'text/css'|| link.rel == 'stylesheet'){
+				link.href = adjustResourceUrl(link.href, tagId);
+			}
+		});
+		_.toArray(doc.getElementsByTagName('img')).forEach(function(img){
+			if (img.src.length>0){
+				img.src = adjustResourceUrl(img.src, tagId);
+			}
+		});
 
+		return new Buffer(doc.innerHTML).toString(encoding);
+	}
+
+	function adjustResourceUrl(resourceUrl, tagId){
+		if (~resourceUrl.indexOf('x-tag.js')){
+			resourceUrl = "/js/x-tag.js";
+		} else {
+			if (!/^http/.test(resourceUrl)){ // only adjust relative urls
+				resourceUrl = "/assets/" + tagId + "/" + resourceUrl.replace('../','');
+			}
+		}
+		return resourceUrl;
 	}
 
 	return XTagElementAsset;

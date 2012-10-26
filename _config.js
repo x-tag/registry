@@ -15,7 +15,8 @@ module.exports = {
 			username: '',
 			password: '',
 			host: ''
-		}
+		}, 
+		xtagLibVersion: "0.5.8"
 	}, 
 	production: {
 		db: {

@@ -288,7 +288,7 @@ header h1 {
 	margin: 0 auto;
 }
 
-div.max-width > dl {
+div.max-width > dl, #readme, #xtag-details {
 	margin-bottom: 40px;
 	padding: 12px 10px;
 	background: #fff;
@@ -830,7 +830,7 @@ div.demo-box > dl {
 	clear: both;
 }
 
-div.demo-box > dl dt {
+div.demo-box > dl dt , section.xtag-details{
 	font-size: 120%;
 	background: linear-gradient(top, #F3F3F3, #E6E6E6);
 	background: -ms-linear-gradient(top, #F3F3F3, #E6E6E6);
@@ -849,3 +849,19 @@ div.demo-box > dl dt {
 div.demo-box > dl dd {
 	margin: 0 10px 20px;
 }
+
+#xtag-details em {
+	width:105px;
+	display: block;
+	float: left;
+	font-weight: bold;
+}
+#xtag-details select.themes option, #xtag-details select.themes{
+	text-transform: capitalize;
+}
+div.x-tag-element{
+	margin: 10px 0;
+	padding: 10px;
+	border: dashed 1px #ddd;
+}
+

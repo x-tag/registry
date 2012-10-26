@@ -28,6 +28,30 @@ module.exports = function(sequelize, DataTypes) {
 		visible: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
 	});
 
+	XTagElement.getElementId = function(author, repo, tag_name, version, callback){
+		var query = 'SELECT e.id '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.tag_name="' + tag_name + '"';
+
+		if (/^\d+\.\d+\.\d+$/.test(version)){
+			query += ' AND e.version="' + version + '"';
+		}
+		else {
+			query += ' AND e.is_current=1';
+		}
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(files){
+			console.log("QUERY RESULT:", files );
+			callback(null, files.length == 1 ? files[0].id : null);
+		}).failure(function(err){
+			callback(err, null);
+		});
+	}
+
 	// Crawls repository and finds x-tag elements (xtag.json) files
 	XTagElement.findElements = function(req, callback){
 		req.emit('log', 'Finding elements for repo: ', req.data.github.repository.url);
