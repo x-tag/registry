@@ -1,6 +1,6 @@
 {
   "name": "xtag-repository",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "dependencies": {
     "settings": {
       "version": "0.1.0"
