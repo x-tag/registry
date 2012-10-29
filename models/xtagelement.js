@@ -196,7 +196,7 @@ module.exports = function(sequelize, DataTypes) {
 					// get demo assets
 					req.emit('log', 'Fetching Assets');
 					var XTagElementAsset = sequelize.import(__dirname + '/xtagelementasset');
-					XTagElementAsset.findAssets(req, 
+					XTagElementAsset.importAssets(req, 
 						repoData.repository.owner.name,
 						repoData.repository.name, 
 						xtagJson.controlPath, 

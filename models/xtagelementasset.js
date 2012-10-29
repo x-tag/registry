@@ -47,7 +47,7 @@ module.exports = function(sequelize, DataTypes) {
 			});
 	};
 
-	XTagElementAsset.findAssets = function(req, author, repo, path, tag, id) {
+	XTagElementAsset.importAssets = function(req, author, repo, path, tag, id) {
 		req.emit('log', 'Finding assets for element: ', author, repo, path, tag, id);
 		getAssetContent(req, author, repo, path, tag, id, path); // start recursive grab
 	};
@@ -57,7 +57,7 @@ module.exports = function(sequelize, DataTypes) {
 		github.getFile(author, repo, path, tag, function(err, file) {
 			file = JSON.parse(file);
 			if (err) { req.emit('log', "[XTagElementAssets.getFile error]",err); return; }
-			if (file.message) { req.emit('log', '[XTagElementAsset.findAssets] '+file.message); return; }
+			if (file.message) { req.emit('log', '[XTagElementAsset.importAssets] '+file.message); return; }
 			// individual file
 			if (!Array.isArray(file)) {
 				if (~['demo.html', 'test.html'].indexOf(file.name)){
