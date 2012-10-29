@@ -10,7 +10,6 @@ module.exports = function Routes(app, db){
 		config = new Settings(require('./config')),
 		github = require('./lib/github'),
 		_ = require('underscore'),
-		Sequelize = require('sequelize'),
 		marked = require('marked'),
 		semver = require('semver'),
 		domino = require('domino'); 
