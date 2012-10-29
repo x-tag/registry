@@ -142,7 +142,7 @@ module.exports = function(sequelize, DataTypes) {
 
 				if (alreadyExists){
 					req.emit('log', 'Control [' + xtagJson.tagName + '] already exists and has not been changed. Skipping...');
-					return console.log("control already exists");
+					return;
 				}
 
 				var categories = ["structural", "media", "input", "navigation", "behavioral"];
