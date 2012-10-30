@@ -135,9 +135,10 @@ module.exports = function(sequelize, DataTypes) {
 	function adjustResourceUrl(resourceUrl, tagId){
 		if (~resourceUrl.indexOf('x-tag.js')){
 			resourceUrl = "/js/x-tag.js";
-		} else {
-			if (!/^http/.test(resourceUrl)){ // only adjust relative urls
-				resourceUrl = "/assets/" + tagId + "/" + resourceUrl.replace('../','');
+		} 
+		else {
+			if (!/^http/.test(resourceUrl)){ // only adjust relative urls				
+				resourceUrl = "/assets/" + tagId + "/" + resourceUrl.replace(/^\.\.\/|^\//,'');				
 			}
 		}
 		return resourceUrl;
