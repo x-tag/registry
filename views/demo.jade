@@ -1,11 +1,24 @@
 extends layout
 
 append head
-	script(type="text/javascript", src="/js/x-tag.js")
+
 
 block content
 	.view-box
-		h3 Demo
-		dl 
+		h3
+			a(href="view") #{xtagJson.name}	
+		dl
+			- if (themes.length)				
+				dt Themes
+				select.themes
+					option(selected) none
+					- for (var t in themes)
+						option(value=themes[t]) #{themes[t].replace('.css','')}
+			dt  Demo
 			dd !{demo}
-		
+
+append scripts
+	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
+	script(type="text/javascript", src="/js/theme_selector.js" )
+	script
+		var elementId = #{elementId};

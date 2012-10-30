@@ -70,6 +70,10 @@ p code {
 	background: -webkit-linear-gradient(top, #fafafa, #efefef);
 }
 
+h3 a {
+	color:;
+}
+
 h4 {
 	margin: 14px 0 4px;
 }
@@ -867,5 +871,9 @@ div.view-box > dl dd {
 	margin: 10px 0;
 	padding: 10px;
 	border: dashed 1px #ddd;
+}
+
+h3 a:visited {
+	color: #fff;
 }
 

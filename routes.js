@@ -144,7 +144,6 @@ module.exports = function Routes(app, db){
 
 			// todo: improve this.... fetch specific files
 			// how to efficiently query for readme, xtag.json and theme files?
-
 			XTagElementAsset.getAllAssets(id, function(err, files){
 
 				if (err){
@@ -220,6 +219,93 @@ module.exports = function Routes(app, db){
 		});
 	});
 
+	
+	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?demo/, function(req, res) {
+		var user = req.params[0], 
+				repo = req.params[1], 
+				tag = req.params[2], 
+				version = req.params[3];
+
+		XTagElement.getElementId(user, repo, tag, version, function(err, id){
+
+			if (err){
+				return res.render('500', {err:err});
+			}
+			
+			if (!id){
+				return res.render('404', 404);
+			}
+
+			// todo: improve this.... fetch specific files
+			// how to efficiently query for readme, xtag.json and theme files?
+			XTagElementAsset.getAllAssets(id, function(err, files){
+
+				if (err){
+					return res.render('500', {err:err});
+				}
+
+				if (!files){
+					console.log("error: Unable to find any files for element:", id);
+					return res.render('404', 404);
+				}
+
+					// xtag.json
+				var xtagJson = files.filter(function(file){
+					return file.path == 'xtag.json';
+				});
+
+				if (xtagJson.length==1){
+					xtagJson = JSON.parse(new Buffer(xtagJson[0].content, 'base64').toString());
+					// perform a little normalization/cleanup
+					if (xtagJson.categories){
+						xtagJson.categories = xtagJson.categories.filter(function(c){
+							return c.length > 0;
+						});
+					}
+				}
+				else {
+					res.render('404', 404);
+					return;
+				}
+
+				// DEMO
+				var demo = files.filter(function(file){
+					return file.path == xtagJson.demo + '/demo.html';
+				});
+
+				if (demo.length==1){
+					demo = new Buffer(demo[0].content, 'base64').toString();
+				}
+				else {
+					demo = '';
+				}
+
+				// Themes
+				var themes = files.filter(function(file){
+					return file.path.indexOf('themes/')==0;
+				});
+
+				if (themes.length>0){
+					themes = themes.map(function(theme){
+						return theme.file_name;
+					});
+				}
+				else {
+					themes = [];
+				}
+
+				res.render('demo', { 
+					demo: demo, 
+					xtagJson: xtagJson,
+					themes: themes, 
+					elementId: id,
+					xtagVersion: req.query.xtagVersion || xtagJson.xtagVersion || '',
+					resourceName: (xtagJson.tagName || '').replace('x-','')
+				});
+			});
+		});
+	});
+
 	app.get(/assets\/(\d+)\/(.*)/, function(req, res){
 		// find asset by req.params.tagId and req.params[1]
 
@@ -251,39 +337,6 @@ module.exports = function Routes(app, db){
 		}).failure(function(err){
 			res.json({err:err}, 500);
 		});
-
-	});
-
-	// we can do something very similar for the test runner aka  /test
-	
-	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?demo/, function(req, res) {
-	//app.get('/:user/:repo/:tagname/:version/demo', function(req, res) {
-	
-		var query = 'SELECT a.* '+
-		'FROM XTagRepoes r '+
-		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
-		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
-		'WHERE r.author="' + req.params[0] + 
-		'" AND r.title="' + req.params[1] + 
-		'" AND e.tag_name="' + req.params[2] + 
-		'" AND a.path="demo/demo.html" LIMIT 1';
-
-		query = db.query(query, {}, {raw: true});
-		query.success(function(demoPage){
-			
-			if (demoPage.length){
-				demoPage = demoPage[0];
-				var content = new Buffer(demoPage.content, 'base64');
-				res.render('demo', { demo: content });
-			}
-			else {
-				res.render('404', {});
-			}
-			
-		}).failure(function(err){
-			res.render('500', {err:err});
-		});
-
 	});
 
 	app.get('/js/x-tag.js', function(req, res){
@@ -345,3 +398,4 @@ module.exports = function Routes(app, db){
 	  res.render('500', {err:err});
 	});
 };
+
