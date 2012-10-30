@@ -44,13 +44,37 @@ module.exports = function(sequelize, DataTypes) {
 		}
 
 		query = sequelize.query(query,{}, { raw: true });
-		query.success(function(files){
-			console.log("QUERY RESULT:", files );
-			callback(null, files.length == 1 ? files[0].id : null);
+		query.success(function(elements){			
+			callback(null, elements.length == 1 ? elements[0].id : null);
 		}).failure(function(err){
 			callback(err, null);
 		});
-	}
+	};
+
+	XTagElement.getElement = function(author, repo, tag_name, version, callback){
+
+		var query = 'SELECT e.* '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.tag_name="' + tag_name + '"';
+
+		if (/^\d+\.\d+\.\d+$/.test(version)){
+			query += ' AND e.version="' + version + '"';
+		}
+		else {
+			query += ' AND e.is_current=1';
+		}
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(elements){		
+			callback(null, elements[0]);
+		}).failure(function(err){
+			callback(err, null);
+		});
+
+	};
 
 	// Crawls repository and finds x-tag elements (xtag.json) files
 	XTagElement.findElements = function(req, callback){

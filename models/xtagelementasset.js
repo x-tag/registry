@@ -80,16 +80,33 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function addAssetFile(req, tagId, file, rootPath) {
-		//req.emit('log','DEBUG: addAssetFile', tagId, file.name, file.size);
-		XTagElementAsset.create({
-			XTagElementId: tagId,
-			path: file.path.replace(rootPath + "/", ''), //remove root path
-			file_name: file.name,
-			content_encoding: file.encoding,
-			content: file.content,
-			size: file.size
+		
+		var assetPath =  file.path.replace(rootPath + "/", ''); //remove root path
+
+		XTagElementAsset.find({where: {XTagElementId: tagId, path: assetPath, file_name: file.name }}).success(function(elem){
+			if (elem){
+				req.emit('log', 'This asset already exists [' + file.path + '], updating.');
+				elem.updateAttributes({
+					content: file.content, 
+					size: file.size
+				}).success(function(){}).error(function(err){
+					req.emit('log', 'There was an issue updating this file [' + file.path + ']: ' + err);
+				});
+			}
+			else {
+				XTagElementAsset.create({
+					XTagElementId: tagId,
+					path: assetPath,
+					file_name: file.name,
+					content_encoding: file.encoding,
+					content: file.content,
+					size: file.size
+				}).error(function(err){
+					req.emit('log', 'There was an issue saving demo asset [' + file.path + ']: ' + err);
+				});
+			}
 		}).error(function(err){
-			req.emit('log', 'There was an issue saving demo asset [' + file.path + ']: ' + err);
+			req.emit('log', 'There was an issue checking to see if this asset already exists [' + file.path + ']: ' + err);
 		});
 	}
 
