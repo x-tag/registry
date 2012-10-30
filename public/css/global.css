@@ -237,8 +237,7 @@ body > header > nav > a:visited{
 }
 
 body > header > iframe, body > header > a {
-	float: right;
-	margin-top: 13px;
+	
 }
 
 .anchor-id {
@@ -256,7 +255,7 @@ header {
 	text-align: center;
 }
 
-header h1 {
+header a h1 {
 	
 	float:left;
 	margin-left: 8px;
@@ -797,11 +796,14 @@ div.max-width > dl > dd:last-child p:last-child {
 	border-bottom: none;
 }
 
-div.demo-box {
+
+
+
+div.view-box {
 	margin-top:40px;
 }
 
-div.demo-box > h3 {
+div.view-box > h3{
 	float: left;
 	margin-bottom: 10px;
 	padding: 4px 9px;
@@ -818,7 +820,7 @@ div.demo-box > h3 {
 	-webkit-box-shadow: 0px 1px 3px -2px #000;
 }
 
-div.demo-box > dl {
+div.view-box > dl {
 	margin-bottom: 40px;
 	padding: 12px 10px;
 	background: #fff;
@@ -830,7 +832,7 @@ div.demo-box > dl {
 	clear: both;
 }
 
-div.demo-box > dl dt , section.xtag-details{
+div.view-box > dl dt{
 	font-size: 120%;
 	background: linear-gradient(top, #F3F3F3, #E6E6E6);
 	background: -ms-linear-gradient(top, #F3F3F3, #E6E6E6);
@@ -846,7 +848,7 @@ div.demo-box > dl dt , section.xtag-details{
 	-webkit-border-radius: 3px;
 }
 
-div.demo-box > dl dd {
+div.view-box > dl dd {
 	margin: 0 10px 20px;
 }
 
@@ -856,10 +858,12 @@ div.demo-box > dl dd {
 	float: left;
 	font-weight: bold;
 }
+
 #xtag-details select.themes option, #xtag-details select.themes{
 	text-transform: capitalize;
 }
-div.x-tag-element{
+
+.x-tag-element{
 	margin: 10px 0;
 	padding: 10px;
 	border: dashed 1px #ddd;
