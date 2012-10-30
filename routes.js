@@ -2,13 +2,26 @@ module.exports = function Routes(app, db){
 
 	console.log("init routes");
 
-	var mw = require('./lib/middleware'),
+	var path = require('path'),
+		fs = require('fs'),
+		http = require('https'),
+		mw = require('./lib/middleware'),
 		Settings = require('settings'),
 		config = new Settings(require('./config')),
+		github = require('./lib/github'),
 		_ = require('underscore'),
-		path = require('path');
+		marked = require('marked'),
+		semver = require('semver'),
+		domino = require('domino'); 
+		
+	marked.setOptions({
+		gfm: true,
+		pedantic: false,
+		sanitize: false,
+	});
 
 	var XTagElement = db.import(__dirname + '/models/xtagelement');
+	var XTagElementAsset = db.import(__dirname + '/models/xtagelementasset');
 	var XTagRepo = db.import(__dirname + '/models/xtagrepo');
 	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
 
@@ -109,11 +122,226 @@ module.exports = function Routes(app, db){
 			}
 		});
 	});
+
+	
+
+	//'/:user/:repo/:tagname/:version'
+	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?view/, function(req, res){
+		var user = req.params[0], 
+			repo = req.params[1], 
+			tag = req.params[2], 
+			version = req.params[3];
+
+		XTagElement.getElementId(user, repo, tag, version, function(err, id){
+
+			if (err){
+				return res.render('500', {err:err});
+			}
+			
+			if (!id){
+				return res.render('404', 404);
+			}
+
+			// todo: improve this.... fetch specific files
+			// how to efficiently query for readme, xtag.json and theme files?
+
+			XTagElementAsset.getAllAssets(id, function(err, files){
+
+				if (err){
+					return res.render('500', {err:err});
+				}
+
+				if (!files){
+					console.log("error: Unable to find any files for element:", id);
+					return res.render('404', 404);
+				}
+
+				// xtag.json
+				var xtagJson = files.filter(function(file){
+					return file.path == 'xtag.json';
+				});
+
+				if (xtagJson.length==1){
+					xtagJson = JSON.parse(new Buffer(xtagJson[0].content, 'base64').toString());
+					// perform a little normalization/cleanup
+					if (xtagJson.categories){
+						xtagJson.categories = xtagJson.categories.filter(function(c){
+							return c.length > 0;
+						});
+					}
+				}
+				else {
+					res.render('404', 404);
+					return;
+				}
+
+				// README.md
+				var readme = files.filter(function(file){
+					return file.path == 'README.md';
+				});
+
+				if (readme.length==1){
+					readme = marked(new Buffer(readme[0].content, 'base64').toString());
+
+					//markdown wraps everything in p tags, which messes up x-tags, 
+					//replace p with div
+					var rx = new RegExp('<p>(<' + xtagJson.tagName + '(?:.|[\\s])+?</' + xtagJson.tagName + '>)\\s+?</p>', 'gmi');
+					readme = readme.replace(rx, function(match, group, offset){
+						return "<div class='x-tag-element'>" + group + "</div>";
+					});
+				}
+				else {
+					readme = '';
+				}
+
+				// Themes
+				var themes = files.filter(function(file){
+					return file.path.indexOf('themes/')==0;
+				});
+
+				if (themes.length>0){
+					themes = themes.map(function(theme){
+						return theme.file_name;
+					});
+				}
+				else {
+					themes = [];
+				}
+
+				res.render('tag_detail', { 
+					readme: readme, 
+					xtagJson: xtagJson,
+					themes: themes, 
+					elementId: id,
+					xtagVersion: req.query.xtagVersion || xtagJson.xtagVersion || '',
+					resourceName: (xtagJson.tagName || '').replace('x-','')
+				});
+			});
+		});
+	});
+
+	app.get(/assets\/(\d+)\/(.*)/, function(req, res){
+		// find asset by req.params.tagId and req.params[1]
+
+		var assetPath = /^[\w-_\.\/]+$/.test(req.params[1]) ? req.params[1] : '';
+
+		var query = 'SELECT a.* '+
+		'FROM XTagRepoes r '+
+		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
+		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
+		'WHERE a.XTagElementId=' + Number(req.params[0]) + 
+		' AND a.path="'+ assetPath +'" LIMIT 1';
+
+		query = db.query(query, {}, {raw: true});
+		query.success(function(asset){
+			
+			if (asset.length){
+				asset = asset[0];
+				var content_type = require('mimetype').lookup(path.basename(asset.path));
+				var content = new Buffer(asset.content, 'base64');
+				if (/^text|^application/.test(content_type)) {
+						content = content.toString();
+				}
+				res.send(content, { 'Content-Type': content_type });
+			}
+			else {
+				res.render('404', {});
+			}
+			
+		}).failure(function(err){
+			res.json({err:err}, 500);
+		});
+
+	});
+
+	// we can do something very similar for the test runner aka  /test
+	
+	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?demo/, function(req, res) {
+	//app.get('/:user/:repo/:tagname/:version/demo', function(req, res) {
+	
+		var query = 'SELECT a.* '+
+		'FROM XTagRepoes r '+
+		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
+		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
+		'WHERE r.author="' + req.params[0] + 
+		'" AND r.title="' + req.params[1] + 
+		'" AND e.tag_name="' + req.params[2] + 
+		'" AND a.path="demo/demo.html" LIMIT 1';
+
+		query = db.query(query, {}, {raw: true});
+		query.success(function(demoPage){
+			
+			if (demoPage.length){
+				demoPage = demoPage[0];
+				var content = new Buffer(demoPage.content, 'base64');
+				res.render('demo', { demo: content });
+			}
+			else {
+				res.render('404', {});
+			}
+			
+		}).failure(function(err){
+			res.render('500', {err:err});
+		});
+
+	});
+
+	app.get('/js/x-tag.js', function(req, res){
+		
+		const latestXTagLib = "./public/js/x-tag/x-tag." +  config.xtagLibVersion + ".js";		
+		var xtagFilePath = latestXTagLib;
+
+		// If master then pull from github x-tag master
+		if (req.query.v == 'master'){
+			github.getFile('mozilla','x-tag','x-tag.js', 'master', function(err, file){
+				if (err){
+					res.render('500', {err:err});
+				} 
+				else {
+					file = JSON.parse(file);
+					res.send(new Buffer(file.content, file.encoding).toString(), {'Content-Type':'text/javascript'});
+					res.end();
+				}
+			});
+		} 
+		else {
+
+			if (semver.valid(req.query.v)){
+				xtagFilePath = latestXTagLib.replace(config.xtagLibVersion, req.query.v);
+			}
+
+			path.exists(xtagFilePath, function(exists){
+				if (!exists){
+					console.log("[error-/js/x-tag.js] - unable to find x-tag library: ", xtagFilePath);
+					xtagFilePath = latestXTagLib;
+				}
+
+				fs.readFile(xtagFilePath, function(err, data){
+					if (err){
+						res.render('500', {err:err});
+					}
+					else {
+						res.send(data, {'Content-Type':'text/javascript'});
+						res.end();
+					}
+				});
+			});
+		}
+	});
 	
 	app.get('/logs/:user', function(req, res){
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
-		.success(function(logs){		
+		.success(function(logs) {
 			res.render('userlog', {logs: logs});
 		});
 	});
-}
+
+	app.use(function(req, res){
+	  res.render('404', {});
+	});
+
+	app.use(function(err, req, res, next){
+	  console.error("500", err, err.stack);
+	  res.render('500', {err:err});
+	});
+};

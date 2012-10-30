@@ -45,7 +45,7 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				categories: item.category.split(','),
 				compatibility: JSON.parse(item.compatibility),
 				created_at: item.createdAt.toISOString(),
-				demo_url: item.demo_url,
+				demo_url: (item.demo_url) ? item.demo_url : '',
 				url: item.url,
 				version: item.version,
 				revision: item.revision,
@@ -56,10 +56,10 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				forked_from: item.forked_from,
 				visible: item.visible ? "true" : "false",
 				all: item.name + " " + item.tag_name + " " + item.description
-			}, 
-			{ 
-				id: item.id.toString(), refresh:true 
-			}, 
+			},
+			{
+				id: item.id.toString(), refresh:true
+			},
 			function(err, res){
 				console.log("ES response", err, res);
 			});

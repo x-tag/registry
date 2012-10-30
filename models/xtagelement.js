@@ -9,7 +9,6 @@ var path = require('path'),
 		{ port: config.es.port }), 
 	XTagElement = null;
 
-
 module.exports = function(sequelize, DataTypes) {
 
 	XTagElement = sequelize.define('XTagElement', {	
@@ -28,6 +27,54 @@ module.exports = function(sequelize, DataTypes) {
 		is_current: { type: DataTypes.BOOLEAN }, 
 		visible: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
 	});
+
+	XTagElement.getElementId = function(author, repo, tag_name, version, callback){
+		var query = 'SELECT e.id '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.tag_name="' + tag_name + '"';
+
+		if (/^\d+\.\d+\.\d+$/.test(version)){
+			query += ' AND e.version="' + version + '"';
+		}
+		else {
+			query += ' AND e.is_current=1';
+		}
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(elements){			
+			callback(null, elements.length == 1 ? elements[0].id : null);
+		}).failure(function(err){
+			callback(err, null);
+		});
+	};
+
+	XTagElement.getElement = function(author, repo, tag_name, version, callback){
+
+		var query = 'SELECT e.* '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.tag_name="' + tag_name + '"';
+
+		if (/^\d+\.\d+\.\d+$/.test(version)){
+			query += ' AND e.version="' + version + '"';
+		}
+		else {
+			query += ' AND e.is_current=1';
+		}
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(elements){		
+			callback(null, elements[0]);
+		}).failure(function(err){
+			callback(err, null);
+		});
+
+	};
 
 	// Crawls repository and finds x-tag elements (xtag.json) files
 	XTagElement.findElements = function(req, callback){
@@ -48,10 +95,13 @@ module.exports = function(sequelize, DataTypes) {
 			}
 
 			if (xtagJson.xtags){
-				xtagJson.xtags.forEach(function(tagUrl){
-					ghUrl.directory = tagUrl;
+				xtagJson.xtags.forEach(function(directory){
+					ghUrl.directory = directory;
 					fetchXtagJson(req, ghUrl, function(err, xtagJson){
-						if (xtagJson) xtagJson.controlLocation = ghData.branchUrl + "/" + tagUrl;
+						if (xtagJson){
+							xtagJson.controlUrl = ghData.branchUrl + "/" + directory;
+							xtagJson.controlPath = directory;
+						} 
 						crawlXtagJson(err, xtagJson);
 					});
 				});
@@ -70,7 +120,10 @@ module.exports = function(sequelize, DataTypes) {
 
 		try {
 			fetchXtagJson(req, ghUrl, function(err, xtagJson){
-				if (xtagJson) xtagJson.controlLocation = ghData.branchUrl;
+				if (xtagJson){
+					xtagJson.controlUrl = ghData.branchUrl;
+					xtagJson.controlPath = "/";
+				} 
 				crawlXtagJson(err, xtagJson);
 			});
 		} catch(e){
@@ -113,7 +166,7 @@ module.exports = function(sequelize, DataTypes) {
 
 				if (alreadyExists){
 					req.emit('log', 'Control [' + xtagJson.tagName + '] already exists and has not been changed. Skipping...');
-					return console.log("control already exists");
+					return;
 				}
 
 				var categories = ["structural", "media", "input", "navigation", "behavioral"];
@@ -126,7 +179,7 @@ module.exports = function(sequelize, DataTypes) {
 					images: (xtagJson.images || []).join(','),
 					compatibility: JSON.stringify(xtagJson.compatibility),
 					demo_url: xtagJson.demo,
-					url: xtagJson.controlLocation,
+					url: xtagJson.controlUrl,
 					version: xtagJson.version,
 					revision: repoData.after,
 					ref: repoData.ref,
@@ -158,12 +211,22 @@ module.exports = function(sequelize, DataTypes) {
 				
 					es_client.index(config.es.index,
 						'element', 
-						element,
-						{id: tag.id.toString(), refresh:true },
+						element, { id: tag.id.toString(), refresh:true },
 						function(err, res){
 							console.log("ES response", err, res, element);
 						}
 					);
+
+					// get demo assets
+					req.emit('log', 'Fetching Assets');
+					var XTagElementAsset = sequelize.import(__dirname + '/xtagelementasset');
+					XTagElementAsset.importAssets(req, 
+						repoData.repository.owner.name,
+						repoData.repository.name, 
+						xtagJson.controlPath, 
+						repoData.ref.split('/')[2],
+						tag.id);
+					
 				}).error(function(err){
 					req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
 				});

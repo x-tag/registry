@@ -10,10 +10,10 @@
 				'{demo_link}' +
 				'<div class="tag-header">' +
 					'<h3>' +
-						'<a class="tag-name" target="_blank" href="{url}">{name}</a>' +
+						'<a class="tag-name" href="{author}/{repo_name}/{tag_name}/view">{name}</a>' +
 						'<span class="tag-author">by <a target="_blank" href="http://github.com/{author}/{repo_name}">{author}</a></span>' +
 						'{forked_link}' +
-						'<span class="tag-version">latest <a href="#{author}-{repo_name}-{version}">{version}&#9662;</a></span>' +
+						'<span class="tag-version">latest <a href="{author}/{repo_name}/{tag_name}/{version}/view">{version}&#9662;</a></span>' +
 					'</h3>' +
 					'<nav class="tag-categories"></nav>' +
 					'{issues_link}' +
@@ -25,8 +25,9 @@
 		},
 		
 		createElement: function(data) {
+			if (!data) return this;
 			if (data.demo_url) {
-				data.demo_link = '<a class="tag-demo" target="' + data.demo_url + '"></a>';
+				data.demo_link = '<a class="tag-demo" href="/' + data.author + '/' + data.repo_name + '/' + data.tag_name + '/demo"></a>';
 			}
 			if (data.forked){
 				var originalAuthor = data.forked_from.split('/')[3];
@@ -48,7 +49,7 @@
 					'" class="other_issue" href="' + data.repo + '/issues">' +
 					totalIssues + '</a>';
 				}
-				data.issues_link += '</nav>'
+				data.issues_link += '</nav>';
 			}
 			
 			this.parent(data);
@@ -67,13 +68,6 @@
 					text: value
 				}).inject(compatibilityList);
 			});
-
-			/*var versionList = this.element.getElement('ul.tag-version-list');
-			data.versions.each(function(value){
-				new Element('li', {
-					html: '<a href="' + value.url + '">' + value.version + '</a>',
-				}).inject(versionList);
-			});*/
 			
 			return this;
 		}
