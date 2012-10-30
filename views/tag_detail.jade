@@ -55,7 +55,7 @@ block content
 		
 		dl#documentation			
 			- if (xtagJson.documentation)
-				- if (Object.keys(xtagJson.documentation.attributes).length)
+				- if (xtagJson.documentation.attributes && Object.keys(xtagJson.documentation.attributes).length)
 					dt Attributes
 					dd			
 						- for (var k in xtagJson.documentation.attributes)
@@ -63,7 +63,7 @@ block content
 								code #{k}
 							p #{xtagJson.documentation.attributes[k]}
 
-				- if (Object.keys(xtagJson.documentation.getters).length)
+				- if (xtagJson.documentation.getters && Object.keys(xtagJson.documentation.getters).length)
 					dt Getters
 					dd
 						- for (var k in xtagJson.documentation.getters)
@@ -71,7 +71,7 @@ block content
 								code #{k}
 							p #{xtagJson.documentation.getters[k]}
 
-				- if (Object.keys(xtagJson.documentation.setters).length)
+				- if (xtagJson.documentation.setters && Object.keys(xtagJson.documentation.setters).length)
 					dt Setters
 					dd	
 						- for (var k in xtagJson.documentation.setters)
@@ -79,7 +79,7 @@ block content
 								code #{k}
 							p #{xtagJson.documentation.setters[k]}
 
-				- if (Object.keys(xtagJson.documentation.methods).length)
+				- if (xtagJson.documentation.methods && Object.keys(xtagJson.documentation.methods).length)
 					dt Methods
 					dd
 						- for (var k in xtagJson.documentation.methods)
@@ -87,7 +87,7 @@ block content
 								code #{k}
 							p #{xtagJson.documentation.methods[k]}
 
-				- if (Object.keys(xtagJson.documentation.events).length)
+				- if (xtagJson.documentation.events && Object.keys(xtagJson.documentation.events).length)
 					dt Events
 					dd
 						- for (var k in xtagJson.documentation.events)
