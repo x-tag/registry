@@ -873,7 +873,7 @@ div.view-box > dl dd {
 	border: dashed 1px #ddd;
 }
 
-h3 a:visited {
+div.view-box h3 a:visited {
 	color: #fff;
 }
 
