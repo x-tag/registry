@@ -1,7 +1,7 @@
 extends layout
 
 append head
-
+	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
 
 block content
 	.view-box
@@ -18,7 +18,6 @@ block content
 			dd !{demo}
 
 append scripts
-	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
 	script(type="text/javascript", src="/js/theme_selector.js" )
 	script
 		var elementId = #{elementId};

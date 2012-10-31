@@ -2,6 +2,7 @@ extends layout
 
 append head
 	link(rel="stylesheet", type="text/css", href="/assets/" + elementId + "/" + resourceName + ".css" )
+	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
 
 block content
 	.view-box
@@ -98,7 +99,6 @@ block content
 				h6 xtag.json documentation not found.
 
 append scripts
-	script(type="text/javascript", src="/js/x-tag.js?v=" + xtagVersion)
 	script(type="text/javascript", src="/js/theme_selector.js" )
 	script(type="text/javascript", src="/assets/" + elementId + "/" + resourceName + ".js" )
 	script
