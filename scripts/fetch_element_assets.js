@@ -27,7 +27,14 @@ if (author && repo && element){
 	XTagElement.getElement(author, repo, element, version, function(err, xTagElement){
 		if (xTagElement){
 			console.log("found element:", xTagElement.id, xTagElement.ref.split('/')[2]);
-			XTagElementAsset.importAssets(mockRequest, author, repo, path, tag || xTagElement.ref.split('/')[2], xTagElement.id);
+			XTagElementAsset.importAssets(
+				mockRequest, 
+				author, 
+				repo, 
+				path, 
+				tag || xTagElement.ref.split('/')[2], 
+				xTagElement.id
+			);
 		} else{
 			console.log("unable to find control");
 		}
@@ -39,9 +46,19 @@ if (author && repo && element){
 		elements.forEach(function(elem){
 			console.log("found element:", elem.id, elem.name, elem.ref.split('/')[2]);
 			var xtagJson = JSON.parse(elem.raw);
-			XTagElementAsset.importAssets(mockRequest, author, repo, xtagJson.controlPath , tag || elem.ref.split('/')[2], elem.id);
-		});
-
+			if (!xtagJson.controlPath){ // this is required to find the control
+				console.log("error: ", elem.name, " Is missing controlPath" );
+				return;
+			}
+			XTagElementAsset.importAssets(
+				mockRequest, 
+				author,
+				repo,
+				xtagJson.controlPath,
+				tag || elem.ref.split('/')[2], 
+				elem.id
+			);
+		});]
 	});
 
 }
