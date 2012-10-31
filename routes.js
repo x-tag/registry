@@ -11,8 +11,7 @@ module.exports = function Routes(app, db){
 		github = require('./lib/github'),
 		_ = require('underscore'),
 		marked = require('marked'),
-		semver = require('semver'),
-		domino = require('domino'); 
+		semver = require('semver'); 
 		
 	marked.setOptions({
 		gfm: true,
