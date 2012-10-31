@@ -76,6 +76,24 @@ module.exports = function(sequelize, DataTypes) {
 
 	};
 
+	XTagElement.getElements = function(author, repo, callback){
+
+		var query = 'SELECT e.* '+
+			'FROM XTagRepoes r '+
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
+			'WHERE r.author="' + author + 
+			'" AND r.title="' + repo + 
+			'" AND e.is_current=1';
+
+		query = sequelize.query(query,{}, { raw: true });
+		query.success(function(elements){		
+			callback(null, elements);
+		}).failure(function(err){
+			callback(err, null);
+		});
+
+	}
+
 	// Crawls repository and finds x-tag elements (xtag.json) files
 	XTagElement.findElements = function(req, callback){
 		req.emit('log', 'Finding elements for repo: ', req.data.github.repository.url);
