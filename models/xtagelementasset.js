@@ -1,6 +1,5 @@
 var github = require('../lib/github'),
 	path = require('path'),
-	domino = require('domino'),
 	_ = require('underscore');
 
 module.exports = function(sequelize, DataTypes) {
@@ -9,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
 		path: { type: DataTypes.STRING, allowNull: false },
 		file_name: { type: DataTypes.STRING, allowNull: false },
 		content_encoding: { type: DataTypes.STRING },
-		content: { type: DataTypes.TEXT },
+		content: { type: 'MEDIUMTEXT' },
 		size: { type: DataTypes.INTEGER }
 	});
 
@@ -62,7 +61,8 @@ module.exports = function(sequelize, DataTypes) {
 			// individual file
 			if (!Array.isArray(file)) {
 				if (~['demo.html', 'test.html'].indexOf(file.name)){
-					try {						
+					try {
+						dir = dir.replace(file.name, '').replace(startPath, '');
 						var content = adjustHtmlResourceUrls(
 							req, 
 							new Buffer(file.content, file.encoding).toString(), 
@@ -117,30 +117,18 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function adjustHtmlResourceUrls(req, html, dir, tagId){
-		var win = domino.createWindow(html);
-		var doc = win.document;
-		_.toArray(doc.getElementsByTagName('script')).forEach(function(script){
-			if (script.src.length>1){
-				script.src = adjustResourceUrl(path.resolve(dir, script.src), tagId);
-			}
-		});
-		_.toArray(doc.getElementsByTagName('link')).forEach(function(link){
-			if (link.type == 'text/css'|| link.rel == 'stylesheet'){
-				link.href = adjustResourceUrl(path.resolve(dir, link.href), tagId);
-			}
-		});
-		_.toArray(doc.getElementsByTagName('img')).forEach(function(img){
-			if (img.src.length>0){
-				img.src = adjustResourceUrl(path.resolve(dir, img.src), tagId);
-			}
+
+		html = html.replace(/(?:src|href)="(.+)"/g, function(m, group, idx){
+			return m.replace(group, adjustResourceUrl(path.resolve(dir, trimSlash(group)), tagId));
 		});
 
-		return doc.innerHTML;
+		return html;
 	}
 
 	function adjustResourceUrl(resourceUrl, tagId){
 		if (~resourceUrl.indexOf('x-tag.js')){
-			resourceUrl = "/js/x-tag.js";
+			// the template already had this included, so make it ''
+			resourceUrl = '';
 		} 
 		else {
 			if (!/^http/.test(resourceUrl)){ // only adjust relative urls				
@@ -148,6 +136,13 @@ module.exports = function(sequelize, DataTypes) {
 			}
 		}
 		return resourceUrl;
+	}
+
+	function trimSlash(url){
+		if (url[0] == '/'){
+			return url.substr(1);
+		}
+		return url;
 	}
 
 	return XTagElementAsset;
