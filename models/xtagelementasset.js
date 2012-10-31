@@ -1,4 +1,5 @@
 var github = require('../lib/github'),
+	path = require('path'),
 	domino = require('domino'),
 	_ = require('underscore');
 
@@ -47,23 +48,28 @@ module.exports = function(sequelize, DataTypes) {
 			});
 	};
 
-	XTagElementAsset.importAssets = function(req, author, repo, path, tag, id) {
-		req.emit('log', 'Finding assets for element: ', author, repo, path, tag, id);
-		getAssetContent(req, author, repo, path, tag, id, path); // start recursive grab
+	XTagElementAsset.importAssets = function(req, author, repo, dir, tag, id) {
+		req.emit('log', 'Finding assets for element: ', author, repo, dir, tag, id);
+		getAssetContent(req, author, repo, dir, tag, id, dir); // start recursive grab
 	};
 
-	function getAssetContent(req, author, repo, path, tag, id, startPath) {
-		//req.emit('log', 'DEBUG: ---- ', author, repo, path, tag, id);
-		github.getFile(author, repo, path, tag, function(err, file) {
+	function getAssetContent(req, author, repo, dir, tag, id, startPath) {
+		//req.emit('log', 'DEBUG: ---- ', author, repo, dir, tag, id);
+		github.getFile(author, repo, dir, tag, function(err, file) {
 			file = JSON.parse(file);
 			if (err) { req.emit('log', "[XTagElementAssets.getFile error]",err); return; }
 			if (file.message) { req.emit('log', '[XTagElementAsset.importAssets] '+file.message); return; }
 			// individual file
 			if (!Array.isArray(file)) {
 				if (~['demo.html', 'test.html'].indexOf(file.name)){
-					try {
-						var content = adjustHtmlResourceUrls(req, file.content, file.encoding, id);
-						file.content = content;
+					try {						
+						var content = adjustHtmlResourceUrls(
+							req, 
+							new Buffer(file.content, file.encoding).toString(), 
+							dir, 
+							id
+						);
+						file.content = new Buffer(content).toString(file.encoding);;
 					}
 					catch(e) {
 						req.emit('log', "error adjusting urls for:", file.name, e);
@@ -110,26 +116,26 @@ module.exports = function(sequelize, DataTypes) {
 		});
 	}
 
-	function adjustHtmlResourceUrls(req, content, encoding, tagId){
-		var win = domino.createWindow(new Buffer(content, encoding).toString());
+	function adjustHtmlResourceUrls(req, html, dir, tagId){
+		var win = domino.createWindow(html);
 		var doc = win.document;
 		_.toArray(doc.getElementsByTagName('script')).forEach(function(script){
 			if (script.src.length>1){
-				script.src = adjustResourceUrl(script.src, tagId);
+				script.src = adjustResourceUrl(path.resolve(dir, script.src), tagId);
 			}
 		});
 		_.toArray(doc.getElementsByTagName('link')).forEach(function(link){
 			if (link.type == 'text/css'|| link.rel == 'stylesheet'){
-				link.href = adjustResourceUrl(link.href, tagId);
+				link.href = adjustResourceUrl(path.resolve(dir, link.href), tagId);
 			}
 		});
 		_.toArray(doc.getElementsByTagName('img')).forEach(function(img){
 			if (img.src.length>0){
-				img.src = adjustResourceUrl(img.src, tagId);
+				img.src = adjustResourceUrl(path.resolve(dir, img.src), tagId);
 			}
 		});
 
-		return new Buffer(doc.innerHTML).toString(encoding);
+		return doc.innerHTML;
 	}
 
 	function adjustResourceUrl(resourceUrl, tagId){
@@ -138,7 +144,7 @@ module.exports = function(sequelize, DataTypes) {
 		} 
 		else {
 			if (!/^http/.test(resourceUrl)){ // only adjust relative urls				
-				resourceUrl = "/assets/" + tagId + "/" + resourceUrl.replace(/^\.\.\/|^\//,'');				
+				resourceUrl = "/assets/" + tagId + resourceUrl;
 			}
 		}
 		return resourceUrl;
