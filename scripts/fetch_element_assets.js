@@ -58,7 +58,7 @@ if (author && repo && element){
 				tag || elem.ref.split('/')[2], 
 				elem.id
 			);
-		});]
+		});
 	});
 
 }
