@@ -167,6 +167,20 @@ module.exports = function Routes(app, db){
 							return c.length > 0;
 						});
 					}
+					if (xtagJson.documentation){
+						// take any keys that are not nested in a tag name
+						// and put them into the base tag name
+						Object.keys(xtagJson.documentation).forEach(function(key){
+							if (key != 'x-'){
+								if(!xtagJson.documentation[xtagJson.tagName]){
+									xtagJson.documentation[xtagJson.tagName] = {};
+								}
+								xtagJson.documentation[xtagJson.tagName][key] = xtagJson.documentation[key];
+								delete xtagJson.documentation[key];
+							}
+						});
+						
+					}
 				}
 				else {
 					res.render('404', 404);

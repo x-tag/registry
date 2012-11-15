@@ -877,3 +877,7 @@ div.view-box h3 a:visited {
 	color: #fff;
 }
 
+dl > h2{
+	margin-bottom: 14px;
+}
+
