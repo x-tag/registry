@@ -171,7 +171,7 @@ module.exports = function Routes(app, db){
 						// take any keys that are not nested in a tag name
 						// and put them into the base tag name
 						Object.keys(xtagJson.documentation).forEach(function(key){
-							if (key != 'x-'){
+							if (key.indexOf('x-') != 0){
 								if(!xtagJson.documentation[xtagJson.tagName]){
 									xtagJson.documentation[xtagJson.tagName] = {};
 								}
@@ -179,7 +179,6 @@ module.exports = function Routes(app, db){
 								delete xtagJson.documentation[key];
 							}
 						});
-						
 					}
 				}
 				else {
