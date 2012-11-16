@@ -118,7 +118,7 @@ module.exports = function(sequelize, DataTypes) {
 
 	function adjustHtmlResourceUrls(req, html, dir, tagId){
 
-		html = html.replace(/(?:src|href)="(.+)"/g, function(m, group, idx){
+		html = html.replace(/(?:src|href|icon)="(.+)"/g, function(m, group, idx){
 			return m.replace(group, adjustResourceUrl(path.resolve(dir, trimSlash(group)), tagId));
 		});
 
