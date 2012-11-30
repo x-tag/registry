@@ -282,7 +282,7 @@ module.exports = function Routes(app, db){
 
 				// DEMO
 				var demo = files.filter(function(file){
-					return file.path == xtagJson.demo + '/demo.html';
+					return file.path == 'demo/demo.html';
 				});
 
 				if (demo.length==1){
