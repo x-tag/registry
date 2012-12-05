@@ -96,12 +96,19 @@
 		},
 		
 		getQuery: function(){
-			return {
-				query: $('search_input').value,
+			var query = {				
 				forked: $('include_forks').checked,
 				'compatibility[ie]': $('ie9_compat').checked ? 9 : null,
 				author: $('official_tags').checked ? 'mozilla' : null
 			};
+			category = [];
+			query.query = $('search_input').value.replace(/#(\w+)/g, function(match,group1,idx){
+				category.push(group1);
+				return '';
+			});
+			console.log(category);
+			query.category = category.join(',');
+			return query;
 		},
 		
 		search: function(){
