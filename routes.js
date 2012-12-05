@@ -131,16 +131,17 @@ module.exports = function Routes(app, db){
 			tag = req.params[2], 
 			version = req.params[3];
 
-		XTagElement.getElementId(user, repo, tag, version, function(err, id){
+		XTagElement.getElement(user, repo, tag, version, function(err, element){
 
 			if (err){
 				return res.render('500', {err:err});
 			}
 			
-			if (!id){
+			if (!element){
 				return res.render('404', 404);
 			}
 
+			var id = element.id;
 			// todo: improve this.... fetch specific files
 			// how to efficiently query for readme, xtag.json and theme files?
 			XTagElementAsset.getAllAssets(id, function(err, files){
@@ -218,12 +219,13 @@ module.exports = function Routes(app, db){
 				else {
 					themes = [];
 				}
-
+console.log(element.url, "\n\n" ,element);
 				res.render('tag_detail', { 
 					readme: readme, 
 					xtagJson: xtagJson,
 					themes: themes, 
 					elementId: id,
+					gitUrl: element.url,
 					xtagVersion: req.query.xtagVersion || xtagJson.xtagVersion || '',
 					resourceName: (xtagJson.tagName || '').replace('x-','')
 				});
