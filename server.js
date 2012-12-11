@@ -8,6 +8,7 @@ module.exports = function Server(){
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.set('view options', { layout: false });
+	app.set( "jsonp callback", true );
 	app.use(express.logger());
 	app.use(express.bodyParser());
 	app.use(logger.reqLogListener);
