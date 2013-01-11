@@ -219,7 +219,7 @@ module.exports = function Routes(app, db){
 				else {
 					themes = [];
 				}
-console.log(element.url, "\n\n" ,element);
+
 				res.render('tag_detail', { 
 					readme: readme, 
 					xtagJson: xtagJson,
