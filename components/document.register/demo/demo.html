@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8" />
+		<title>document.register - Mozilla Web Components</title>
+	 	<script type="text/javascript" src="../document.register.js"></script>
+		<script type="text/javascript" src="../HTMLTemplateElement.js"></script>
+	</head>
+	
+	<template><img src="$(foo)" /></template>
+	
+	<style>
+		body {
+			padding: 20px;
+		}
+		
+		x-foo {
+			padding: 10px;
+			background: rgba(0,40,80, 0.10);
+			font-size: 20px;
+			border: 1px solid rgba(0,40,80, 0.15);
+		}
+		
+		x-foo:before {
+			content: "x-foo";
+		}
+		
+		x-bar {
+			padding: 10px;
+			background: rgba(80,10,0, 0.10);
+			font-size: 20px;
+			border: 1px solid rgba(80,10,0, 0.15);
+		}
+		x-bar:before {
+			content: "x-bar";
+		}
+		
+	</style>
+
+<body>
+<img src="$(bar)" />
+	<x-foo></x-foo>
+
+</body>
+
+<script type="text/javascript">
+
+	document.register('x-foo', {
+		'prototype': Object.create((window.HTMLSpanElement || window.HTMLElement).prototype, {
+			baz: {
+				get: function() { return 'get baz'; },
+				set: function() { console.log('set baz'); },
+				enumerable: true,
+				configurable: true
+			}
+		}),
+		'lifecycle': {
+			created: function(proto){
+				console.log('x-foo created', this);
+			},
+			inserted: function(){
+				console.log('x-foo inserted', this);
+			},
+			removed: function(){
+				console.log('x-foo removed', this);
+			},
+			attributeChanged: function(attr, value){
+				console.log('x-foo attributeChanged', this, attr, value);
+			}
+		}
+	});
+	
+	document.register('x-bar', {
+		'prototype': Object.create((window.HTMLSpanElement || window.HTMLElement).prototype, {
+			baz: {
+				get: function() { return 'get baz'; },
+				set: function() { console.log('set baz'); },
+				enumerable: true,
+				configurable: true
+			}
+		}),
+		'lifecycle': {
+			created: function(proto){
+				console.log('x-bar created', this);
+			},
+			inserted: function(){
+				console.log('x-bar inserted', this);
+			},
+			removed: function(){
+				console.log('x-bar removed', this);
+			},
+			attributeChanged: function(attr, value){
+				console.log('x-bar attributeChanged', this, attr, value);
+			}
+		}
+	});
+	
+	var foo = document.querySelector('x-foo');
+	foo.addEventListener('elementreplace', function(e){
+		console.log('x-foo elementreplace', this, e.upgrade);
+	});
+	
+	document.addEventListener('elementupgrade', function(e){
+		console.log(e.target.nodeName + ' elementupgrade', e.target);
+	});
+	
+	setTimeout(function(){
+		var foo_new = document.querySelector('x-foo');
+		document.body.removeChild(foo_new);
+		setTimeout(function(){
+			document.body.appendChild(foo_new);
+			setTimeout(function(){
+				foo_new.setAttribute('foo', 'bar');
+				setTimeout(function(){
+					foo_new.innerHTML = '<x-bar></x-bar>';
+					setTimeout(function(){
+						document.body.appendChild(document.createElement('x-foo'));
+					}, 1000);
+				}, 1000);
+			}, 1000);
+		}, 1000);
+	}, 1000);
+	
+/*  if (!window.HTMLTemplateElement) {
+    xtag.register('template', {
+      lifecycle: {
+	      upgrade: function(){
+	        var html = '',
+	            script = doc.createElement('script');
+	            script.type = 'text/template';
+	        xtag.toArray(this.childNodes).forEach(function(node){
+	          html += this.removeChild(node).outerHTML || '';
+	        }, this);
+	        this.appendChild(script);
+	        this.innerHTML = html;
+	      }
+      },
+      getters: {
+        content: function(){
+          return this.xtag.content;
+        },
+        innerHTML: function(html){
+          return this.firstChild.innerHTML;
+        }
+      },
+      setters: {
+        content: function(value){
+          return value;
+        },
+        innerHTML: function(html){
+          this.firstChild.innerHTML = html;
+          this.xtag.content = xtag.createFragment(html);
+        }
+      }
+    });
+  }
+*/
+</script>
+
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "x-tag-core",
+  "description": "X-Tag core library for creating custom as defined by the w3c Web Components spec.",
+  "version": "0.0.0",
+  "keywords": [
+    "web-components",
+    "element",
+    "custom",
+    "core",
+    "x-tag"
+  ],
+  "scripts": [
+    "src/core.js"
+  ],
+  "dependencies": {
+    "document.register": "*"
+  },
+  "gitHead": "0c0980f68704bf8f92c6459624a5b5b852991a25",
+  "readme": "X-Tag - Custom Elements for Modern Browsers\n=====\n\nBased on the current W3 Web Components [draft][1], X-Tag enables the custom element portion of the proposal.\nCustom elements let you register new tags/elements with the parser so they are recognized and inflated with\nspecial abilities you define.\n\nFind out more about what X-Tag does, where it works, and how to use it, on the project page here: http://x-tags.org\n\nX-Tag (excluding third-party icons or images) is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.\n\n  [1]: https://dvcs.w3.org/hg/webcomponents/raw-file/tip/explainer/index.html       \"W3 Web Components Spec (Draft)\"\n\nDevelopers\n==========\n\nTo get started hacking on X-Tag:\n\n    $ git clone https://github.com/x-tag/core x-tag-core\n\n    $ cd x-tag-core\n\n    $ npm install   // for devDependencies\n\n    $ npm install bower -g   //for X-Tag components dependencies\n\n    $ bower install  // installs component dependencies\n\n\n#### Tests\n\n\tJasmine tests via grunt are not working yet, please open\n\ttest/index.html in your browser to see if everything passes.\n\n\n#### Distributable Build\n\t\n\t$ grunt build\n\n\t// See ./dist/ directory for the js files that can be used in your project\n\n\n\n#### Create your own X-Tags\n\nTo get started making your own X-Tags visit [x-tags.org](http://x-tags.org).  \n\nShare your tags by adding them to the offical [X-Tag Registry](http://registry.x-tags.org/).\n",
+  "readmeFilename": "README.md",
+  "_id": "x-tag-core@0.6.1",
+  "commit": "0c0980f68704bf8f92c6459624a5b5b852991a25",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/x-tag/core.git"
+  }
+}
