@@ -119,7 +119,7 @@ module.exports = function(sequelize, DataTypes) {
 	function adjustHtmlResourceUrls(req, html, dir, tagId){
 
 		html = html.replace(/(?:src|href|icon)="(.+)"/g, function(m, group, idx){
-			return m.replace(group, adjustResourceUrl(path.resolve(dir, trimSlash(group)), tagId));
+			return m.replace(group, adjustResourceUrl(path.join(dir, group), tagId));
 		});
 
 		return html;
@@ -132,7 +132,7 @@ module.exports = function(sequelize, DataTypes) {
 		} 
 		else {
 			if (!/^http/.test(resourceUrl)){ // only adjust relative urls				
-				resourceUrl = "/assets/" + tagId + resourceUrl;
+				resourceUrl = "/assets/" + tagId + "/" + resourceUrl;
 			}
 		}
 		return resourceUrl;
