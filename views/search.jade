@@ -1,5 +1,8 @@
 extends layout
 
+append head
+	link(rel="stylesheet", type="text/css", href="/css/search.css")
+
 block content
 	section#controls
 		ul#search_controls
@@ -36,4 +39,13 @@ block content
 	dl#results
 
 append scripts
+	script(type="text/javascript", src="/js/mootools-core-1.4.5.js")
+	script(type="text/javascript", src="/js/Extend.Core.js")
+	script(type="text/javascript", src="/js/Extend.DOM.js")
+	script(type="text/javascript", src="/js/mootools-more-1.4.0.1.js")
+	script(type="text/javascript", src="/js/Extend.More.js")
+	script(type="text/javascript", src="/js/Template.js")
+	script(type="text/javascript", src="/js/ContentBox.js")
+	script(type="text/javascript", src="/highlight/highlight.pack.js")
+	script(type="text/javascript", src="/js/page.js")
 	script(type="text/javascript", src="/js/search.js")

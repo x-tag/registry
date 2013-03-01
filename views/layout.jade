@@ -10,93 +10,15 @@ html(lang='en')
 		block head
 	body
 		header
-			a(href="/")
-				span#logo &lt;<span>x</span>&gt;
-				h1 Tag Registry
-			nav
+			.global_nav
 				a(href="http://x-tags.org") About x-tags
-				button(id="toggleInstructions") Contribute Tags
+				a(href="/", selected="")
+					span#logo &lt;<span>x</span>&gt;
+				a(href="http://github.com/x-tag/registry") Contribute Tags
 			
 		
 		div(id="tags", class="max-width")
-			section#instructions
-				div
-					h4 Do you want to share your tags?
-					
-					p 1. Use github.com and create a public repository.
-					p 2. Add a xtag.json file to the root of your project.
-					pre
-						code
-							|{	
-							|  // Name of the tag
-							|  "name": "Flipbox",
-							
-							|  // The tag name to be used in HTML
-							|  "tagName": "x-flipbox",
 
-							|  // Current version of the tag
-							|  "version": "0.0.1",
-
-							|  // Author(s) of element
-							|  "author": "Coder McCoderson",
-
-							|  // Please provide a complete description of your tag and its features
-							|  "description": "The flipbox tag allows you to flip a content element",
-
-							|  // If you have images of your control, then provide links here
-							|  "images": ["test.com/images/screen1.png"],	
-
-							|  // select the most appropriate categories from:
-							|  // "structural", "media", "input", "navigation", "behavioral"
-							|  "categories": ["structural"],
-
-							|  // Try to make your tags as cross browser as possible. If there are
-							|  // issues with lower versions then you may define it here by setting
-							|  // the lowest version it works on for each browser.
-							|  "compatibility": {	
-							|    "firefox": 5,
-							|    "chrome": 4,
-							|	 "ie": 9,
-							|    "opera": 11,
-							|    "android": 2.1,
-							|    "ios": 4
-							|  },
-
-							|  // If you have multiple tags in your github repository then 
-							|  // use this xtags property to tell us where they are and also
-							|  // provide a xtag.json in each control's folder.
-							|  "xtags":[
-							|  	"path/to/other/controls"
-							|  ]
-							|}
-						
-					br
-					p 3. Add a <a href="https://help.github.com/articles/post-receive-hooks">github POST-commit hook</a> to http://registry.x-tags.org/customtag			
-					p 4. Tag your repo and push the tag to github
-					pre
-						code
-							| # create a tag 
-							| git tag xtag-v0.0.1 
-
-							| # push it
-							| git push --tags
-						
-					br
-					p We will be notified as soon as you push your tag to github and it should only take a few minutes to crawl your controls and update the registry.
-					br
-					p If your tags don't show up in the registry, then chances are something went wrong.  You can check the import logs at http://registry.x-tags.org/logs/[your-github-username] to help debug the issue.
-					br
-					br
-		
 			block content
 
 		block scripts
-			script(type="text/javascript", src="/js/mootools-core-1.4.5.js")
-			script(type="text/javascript", src="/js/Extend.Core.js")
-			script(type="text/javascript", src="/js/Extend.DOM.js")
-			script(type="text/javascript", src="/js/mootools-more-1.4.0.1.js")
-			script(type="text/javascript", src="/js/Extend.More.js")
-			script(type="text/javascript", src="/js/Template.js")
-			script(type="text/javascript", src="/js/ContentBox.js")
-			script(type="text/javascript", src="/highlight/highlight.pack.js")
-			script(type="text/javascript", src="/js/page.js")
