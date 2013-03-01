@@ -352,49 +352,6 @@ module.exports = function Routes(app, db){
 			res.json({err:err}, 500);
 		});
 	});
-
-	app.get('/js/x-tag.js', function(req, res){
-		
-		const latestXTagLib = "./public/js/x-tag/x-tag." +  config.xtagLibVersion + ".js";		
-		var xtagFilePath = latestXTagLib;
-
-		// If master then pull from github x-tag master
-		if (req.query.v == 'master'){
-			github.getFile('mozilla','x-tag','x-tag.js', 'master', function(err, file){
-				if (err){
-					res.render('500', {err:err});
-				} 
-				else {
-					file = JSON.parse(file);
-					res.send(new Buffer(file.content, file.encoding).toString(), {'Content-Type':'text/javascript'});
-					res.end();
-				}
-			});
-		} 
-		else {
-
-			if (semver.valid(req.query.v)){
-				xtagFilePath = latestXTagLib.replace(config.xtagLibVersion, req.query.v);
-			}
-
-			path.exists(xtagFilePath, function(exists){
-				if (!exists){
-					console.log("[error-/js/x-tag.js] - unable to find x-tag library: ", xtagFilePath);
-					xtagFilePath = latestXTagLib;
-				}
-
-				fs.readFile(xtagFilePath, function(err, data){
-					if (err){
-						res.render('500', {err:err});
-					}
-					else {
-						res.send(data, {'Content-Type':'text/javascript'});
-						res.end();
-					}
-				});
-			});
-		}
-	});
 	
 	app.get('/logs/:user', function(req, res){
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
