@@ -134,9 +134,7 @@ button code {
 	background: #fff;
 }
 
-input[type="radio"], input[type="checkbox"] {
-	display: none;
-}
+
 
 	input[type="radio"] + button, input[type="checkbox"] + button {
 		position: relative;
