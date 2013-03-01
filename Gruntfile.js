@@ -12,7 +12,7 @@ module.exports = function(grunt) {
           'components/document.register/src/document.register.js', 
           'components/x-tag-core/src/core.js',
         ],
-        dest: 'public/js/x-tag/x-tag.1.0.0.js'
+        dest: 'public/js/x-tag-core.js'
       }
     }
   });
