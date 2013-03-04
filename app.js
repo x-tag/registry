@@ -5,4 +5,6 @@ var app = require('./server'),
 var service = require('./lib/github-service');
 service.run();
 
-app.listen(process.env.PORT || process.env.VCAP_APP_PORT || 3000);
+var port = process.env.PORT || process.env.VCAP_APP_PORT || 3001;
+console.log("Registry listening on port:", port)
+app.listen(port);
