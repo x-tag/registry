@@ -5,18 +5,17 @@ html(lang='en')
 		link(href="/images/shortcut.png", rel="shortcut icon", type="image/x-icon")
 		link(rel="stylesheet", type="text/css", href="/css/reset.css")
 		link(rel="stylesheet", type="text/css", href="/css/global.css")
-		link(href="https://fonts.googleapis.com/css?family=Days+One|Righteous", rel="stylesheet", type="text/css")
+		link(href="https://fonts.googleapis.com/css?family=Righteous|Maven+Pro", rel="stylesheet", type="text/css")
 		link(rel="stylesheet", type="text/css", href="/highlight/styles/vs.css")
 		block head
 	body
 		header
 			.global_nav
-				a(href="http://x-tags.org") About x-tags
+				a(href="http://www.x-tags.org") x-tags.org
 				a(href="/", selected="")
-					span#logo &lt;<span>x</span>&gt;
-				a(href="http://github.com/x-tag/registry") Contribute Tags
-			
-		
+					span#logo &lt;<span>x<span>-registry</span></span>&gt;
+				a(href="https://github.com/x-tag/registry") Contribute
+
 		div(id="tags", class="max-width")
 
 			block content
