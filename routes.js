@@ -308,7 +308,8 @@ module.exports = function Routes(app, db){
 					themes = [];
 				}
 
-				res.render('demo', { 
+				res.render(req.query.frame != undefined ? '_demo' : 'demo', {
+					url: req.url,
 					demo: demo, 
 					xtagJson: xtagJson,
 					themes: themes, 

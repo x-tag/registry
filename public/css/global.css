@@ -389,24 +389,10 @@ div.view-box > dl {
 	clear: both;
 }
 
-div.view-box > dl dt{
-	font-size: 120%;
-	background: linear-gradient(top, #F3F3F3, #E6E6E6);
-	background: -ms-linear-gradient(top, #F3F3F3, #E6E6E6);
-	background: -moz-linear-gradient(top, #F3F3F3, #E6E6E6);
-	background: -webkit-linear-gradient(top, #F3F3F3, #E6E6E6);
-	border: 1px solid;
-	border-color: #E6E6E6 #dadada #d0d0d0;
-	margin-bottom: 8px;
-	padding: 2px 6px;
-	text-shadow: 0 1px 0 #fff;
-	border-radius: 3px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-}
-
-div.view-box > dl dd {
-	margin: 0 10px 20px;
+div.view-box iframe {
+	border: none;
+	width: 100%;
+	height: 600px;
 }
 
 #xtag-details em {

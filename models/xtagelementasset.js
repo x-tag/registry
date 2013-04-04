@@ -60,7 +60,8 @@ module.exports = function(sequelize, DataTypes) {
 			if (file.message) { req.emit('log', '[XTagElementAsset.importAssets] '+file.message); return; }
 			// individual file
 			if (!Array.isArray(file)) {
-				if (~['demo.html', 'test.html'].indexOf(file.name)){
+				// this sucks soooo bad
+				if (~['demo.html', 'test.html','index.html'].indexOf(file.name)){
 					try {
 						dir = dir.replace(file.name, '').replace(startPath, '');
 						var content = adjustHtmlResourceUrls(
