@@ -48,39 +48,6 @@ module.exports = function Routes(app, db){
 
   });
 
- app.get('/admin/repo/add', validateRequest, function(req, res){
-    var repoUrl = req.query.repo;
-    // http://github.com/user/repo/
-    var parts = repoUrl.split('/');
-
-    github.getJSONFile(parts[3], parts[4], 'xtag.json', null, function(err, xtagJson){
-
-      if(!xtagJson){
-        req.emit('log', 'repo missing xtag.json file.');
-        res.send(400);
-        return;
-      }
-
-      github.getRepo(parts[3], parts[4], function(err, repo){
-
-        req.data = { github:{
-          repository: JSON.parse(repo),
-          ref: 'ref/tag/' + xtagJson.version }};
-        res.send(req.data);
-        XTagRepo.addUpdateRepo(req, function(err, repo){
-          if (err) {
-            console.log("addUpdateRepo error:", err);
-          } else {
-            req.data.github.repoId = repo.id;
-            req.data.github.repository.forked_from = repo.forked_from;
-            req.data.github.branchUrl = req.data.github.repository.html_url + "/" + path.join("tree", req.data.github.ref.split('/')[2]);
-            XTagElement.findElements(req);
-          }
-        });
-      });
-    });
-  });
-
   function validateRequest(req, res, next){
     if (req.query.secret==config.admin.secret){
       next();

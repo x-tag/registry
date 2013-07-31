@@ -1,9 +1,9 @@
 (function(){
-	
+
 	TagResult = new Class({
-		
+
 		Extends: Template,
-		
+
 		Template: {
 			name: 'TagResult',
 			html: '<dd class="{resultClass}">' +
@@ -23,7 +23,7 @@
 				'<ul class="tag-version-list"></ul>' +
 			'</dd>'
 		},
-		
+
 		createElement: function(data) {
 			if (!data) return this;
 			if (data.demo_url) {
@@ -51,16 +51,16 @@
 				}
 				data.issues_link += '</nav>';
 			}
-			
+
 			this.parent(data);
-			
+
 			var categoryList = this.element.getElement('nav.tag-categories');
-			data.category.each(function(category){
+			(data.category || []).each(function(category){
 				new Element('a', {
 					html: '<b>' + category + '</b>'
 				}).inject(categoryList);
 			});
-			
+
 			var compatibilityList = this.element.getElement('ul.tag-compatibility');
 			Object.each(data.compatibility, function(value, key){
 				new Element('li', {
@@ -68,22 +68,22 @@
 					text: value
 				}).inject(compatibilityList);
 			});
-			
+
 			return this;
 		}
-		
+
 	});
-	
+
 	TagSearch = new Class({
-	
+
 		Extends: ContentBox,
-		
+
 		Binds: ['search'],
-		
+
 		Plugins: {
 			searchRequest: Request.JSON
 		},
-		
+
 		options: {
 			searchRequest: {
 				url: '/search',
@@ -94,9 +94,9 @@
 				}
 			}
 		},
-		
+
 		getQuery: function(){
-			var query = {				
+			var query = {
 				forked: $('include_forks').checked,
 				'compatibility[ie]': $('ie9_compat').checked ? 9 : null,
 				author: $('official_tags').checked ? 'mozilla' : null
@@ -110,7 +110,7 @@
 			query.category = category.join(',');
 			return query;
 		},
-		
+
 		search: function(){
 			var self = this,
 				query = this.getQuery();
@@ -123,7 +123,7 @@
 			});
 			return this;
 		},
-		
+
 		blink: function(fn){
 			this.collapse(function(){
 				fn.call(this);
@@ -131,7 +131,7 @@
 			});
 			return this;
 		},
-		
+
 		groupByDefault: function(){
 			this.blink(function(){
 				this.element.empty();
@@ -140,12 +140,12 @@
 				}, this);
 			});
 		},
-		
+
 		groupByCategory: function(){
 			this.blink(function(){
 				var self = this,
 					categories = {};
-					
+
 				this.element.empty();
 				this.searchRequest.data.each(function(result){
 					result.category.each(function(category){
@@ -158,7 +158,7 @@
 				});
 			});
 		},
-		
+
 		groupByAuthor: function(){
 			this.blink(function(){
 				var self = this,
@@ -173,18 +173,18 @@
 				});
 			});
 		}
-		
+
 	});
-	
+
 	var advancedBox = new ContentBox($('advanced_controls').getFirst(), { wrap: $('advanced_controls') });
 	RegistrySearch = new TagSearch('results').search();
-	
+
 	window.addEvents({
 		'keydown:relay(#search_input):keys(enter)': RegistrySearch.search,
 		'click:relay(#search_button)': RegistrySearch.search,
 		'click:relay(#advanced_controls button)': function(){
 			var input = this.getPrevious();
-			
+
 			if (input.type == 'radio' && !input.checked){
 				input.checked = true;
 				RegistrySearch['groupBy' + input.value.capitalize()]();
@@ -200,9 +200,50 @@
 		},
 		'click:relay(#filters button)': function(){
 			RegistrySearch.search();
+		},
+		'click:relay(#add_tag_button)': function(){
+			var req = new Request.JSON({
+				url: '/customtag/add',
+				onRequest: function(){
+					$('tag_repo_message').innerText = 'Processing repository';
+				},
+				onFailure: function(err){
+					$('tag_repo_message').innerText = err;
+					setTimeout(function(){
+						$('tag_repo_message').innerText = '';
+					},10000);
+				},
+				onSuccess: function(data){
+					if (data.success){
+						var templateData = {
+							resultClass: 'new_tag',
+							author: data.repo.author,
+							repo_name: data.repo.author,
+							tag_name: data.repo.title,
+							name: data.xtag_json.name,
+							version: data.xtag_json.version,
+							description: data.xtag_json.description
+						}
+						var elem = new TagResult().createElement(templateData).element;
+						elem.inject($('results').children[0],'before');
+						$('tag_repo').value = '';
+						$('tag_repo_message').innerText = 'Repository Added';
+					}
+					else if(data.error){
+						$('tag_repo_message').innerText = data.error;
+					}
+					else {
+						$('tag_repo_message').innerText = 'An error occured, please file a github issue for x-tag/registry';
+					}
+					setTimeout(function(){
+						$('tag_repo_message').innerText = '';
+					},15000);
+				}
+			});
+			req.post({repo: $('tag_repo').value });
 		}
 	});
-	
+
 	RegistryKeyboard = new Keyboard({
 		defaultEventType: 'keyup',
 		events: {

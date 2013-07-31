@@ -45,6 +45,50 @@ module.exports = function Routes(app, db){
 		});
 	});
 
+	app.post('/customtag/add', function(req, res){
+		var repoUrl = req.body.repo;
+    // http://github.com/user/repo/
+    var parts = repoUrl.split('/');
+
+    github.getJSONFile(parts[3], parts[4], 'xtag.json', null, function(err, xtagJson){
+
+    	if(err){
+    		req.emit('log', 'error fetching file' + repoUrl + ', ' + err);
+        res.send({'error':'error fetching file' + repoUrl + ', ' + err});
+        return;
+    	}
+      if (!xtagJson){
+        req.emit('log', 'repo missing xtag.json file.');
+        res.send({'error':'Missing xtag.json for: ' + repoUrl});
+        return;
+      }
+
+      github.getRepo(parts[3], parts[4], function(err, repo){
+
+        req.data = { github:{
+          repository: JSON.parse(repo),
+          ref: 'ref/tag/' + xtagJson.version }};
+
+
+
+        XTagRepo.addUpdateRepo(req, function(err, repo){
+          if (err) {
+            console.log('addUpdateRepo error:', err);
+            res.send({'error':'Server Error'});
+            res.end();
+          } else {
+          	res.send({"success":"adding repository", repo: repo, xtag_json: xtagJson});
+          	res.end();
+            req.data.github.repoId = repo.id;
+            req.data.github.repository.forked_from = repo.forked_from;
+            req.data.github.branchUrl = req.data.github.repository.html_url + "/" + path.join("tree", req.data.github.ref.split('/')[2]);
+            XTagElement.findElements(req);
+          }
+        });
+      });
+    });
+	});
+
 	app.get('/', function(req, res){
 		res.render('search', {});
 	});
@@ -57,16 +101,16 @@ module.exports = function Routes(app, db){
 		};
 		if (req.query.query){
 			query.query = {
-				"bool":{
-					"should":[
+				'bool':{
+					'should':[
 						{
-							"text": { "name": { "query": req.query.query, "boost": 3.0 }}
+							'text': { 'name': { 'query': req.query.query, 'boost': 3.0 }}
 						},
 						{
-							"text": { "description": { "query": req.query.query, "boost": 2.0 }}
+							'text': { 'description': { 'query': req.query.query, 'boost': 2.0 }}
 						},
 						{
-							"text": { "all": { "query": req.query.query, "boost": 1.0 }}
+							'text': { 'all': { 'query': req.query.query, 'boost': 1.0 }}
 						},
 					]
 				}
@@ -74,14 +118,14 @@ module.exports = function Routes(app, db){
 		}
 		if (req.query.category){
 			query.filter.and.push({
-				"terms": { "categories": req.query.category.split(',') }
+				'terms': { 'categories': req.query.category.split(',') }
 			});
 		}
 		if (req.query.compatibility){
 			_.each(req.query.compatibility, function(item, key){
-				var range = { "range" : {} };
-				range["range"]["compatibility." + key] = {
-					"lte": Number(item),
+				var range = { 'range' : {} };
+				range['range']['compatibility.' + key] = {
+					'lte': Number(item),
 				}
 				query.filter.and.push(range);
 			});
@@ -90,29 +134,29 @@ module.exports = function Routes(app, db){
 			// no filter?
 		} else {
 			query.filter.and.push({
-				"term": { "forked": 0 }
+				'term': { 'forked': 0 }
 			});
 		}
 		if (req.query.author){
 			query.filter.and.push({
-				"term": { "author": req.query.author }
+				'term': { 'author': req.query.author }
 			});
 		}
 		if (!req.query.query){
 			query.size = 100;
 			query.sort = [
-					{ "created_at": { "order": "desc" } }
+					{ 'created_at': { 'order': 'desc' } }
 				]
 		}
 		if (!req.query.showDisabled){
 			query.filter.and.push({
-				"term": { "visible": 1 }
+				'term': { 'visible': 1 }
 			});
 		}
 
 		require('../lib/search').findTags(query, function(err, tags){
 			if (err){
-				console.log("[/search/]"+err);
+				console.log('[/search/]'+err);
 				req.emit('log', JSON.stringify(err));
 				res.json({ data: [], error: err }, 500);
 			} else {
@@ -150,7 +194,7 @@ module.exports = function Routes(app, db){
 				}
 
 				if (!files){
-					console.log("error: Unable to find any files for element:", id);
+					console.log('error: Unable to find any files for element:', id);
 					return res.render('404', 404);
 				}
 
@@ -198,7 +242,7 @@ module.exports = function Routes(app, db){
 					//replace p with div
 					var rx = new RegExp('<p>(<' + xtagJson.tagName + '(?:.|[\\s])+?</' + xtagJson.tagName + '>)\\s+?</p>', 'gmi');
 					readme = readme.replace(rx, function(match, group, offset){
-						return "<div class='x-tag-element'>" + group + "</div>";
+						return '<div class="x-tag-element">' + group + '</div>';
 					});
 				}
 				else {
