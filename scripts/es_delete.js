@@ -6,6 +6,6 @@ var client = new elastical.Client(config.es.host);
 var index = config.es.index;
 
 client.deleteIndex(index, function(err){
-	console.log(arguments);	
+	console.log(arguments);
 });
 

@@ -16,11 +16,11 @@ module.exports = function(sequelize, DataTypes) {
 
 		var query = 'SELECT a.* '+
 			'FROM XTagRepoes r '+
-			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
-			'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
-			'WHERE r.author="' + author + 
-			'" AND r.title="' + repo + 
-			'" AND e.tag_name="' + tag + 
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' +
+			'JOIN XTagElementAssets a on e.id = a.XTagElementId ' +
+			'WHERE r.author="' + author +
+			'" AND r.title="' + repo +
+			'" AND e.tag_name="' + tag +
 			'" AND a.path="' + file_path + '"';
 
 		if (/^\d+\.\d+\.\d+$/.test(version)){
@@ -53,7 +53,6 @@ module.exports = function(sequelize, DataTypes) {
 	};
 
 	function getAssetContent(req, author, repo, dir, tag, id, startPath) {
-		//req.emit('log', 'DEBUG: ---- ', author, repo, dir, tag, id);
 		github.getFile(author, repo, dir, tag, function(err, file) {
 			file = JSON.parse(file);
 			if (err) { req.emit('log', "[XTagElementAssets.getFile error]",err); return; }
@@ -65,9 +64,9 @@ module.exports = function(sequelize, DataTypes) {
 					try {
 						dir = dir.replace(file.name, '').replace(startPath, '');
 						var content = adjustHtmlResourceUrls(
-							req, 
-							new Buffer(file.content, file.encoding).toString(), 
-							dir, 
+							req,
+							new Buffer(file.content, file.encoding).toString(),
+							dir,
 							id
 						);
 						file.content = new Buffer(content).toString(file.encoding);;
@@ -87,14 +86,14 @@ module.exports = function(sequelize, DataTypes) {
 	}
 
 	function addAssetFile(req, tagId, file, rootPath) {
-		
+
 		var assetPath =  file.path.replace(rootPath + "/", ''); //remove root path
 
 		XTagElementAsset.find({where: {XTagElementId: tagId, path: assetPath, file_name: file.name }}).success(function(elem){
 			if (elem){
 				req.emit('log', 'This asset already exists [' + file.path + '], updating.');
 				elem.updateAttributes({
-					content: file.content, 
+					content: file.content,
 					size: file.size
 				}).success(function(){}).error(function(err){
 					req.emit('log', 'There was an issue updating this file [' + file.path + ']: ' + err);
@@ -130,9 +129,9 @@ module.exports = function(sequelize, DataTypes) {
 		if (~resourceUrl.indexOf('x-tag.js')){
 			// the template already had this included, so make it ''
 			resourceUrl = '';
-		} 
+		}
 		else {
-			if (!/^http/.test(resourceUrl)){ // only adjust relative urls				
+			if (!/^http/.test(resourceUrl)){ // only adjust relative urls
 				resourceUrl = "/assets/" + tagId + "/" + resourceUrl;
 			}
 		}

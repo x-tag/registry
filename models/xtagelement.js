@@ -5,13 +5,13 @@ var path = require('path'),
 	Settings = require('settings'),
 	config = new Settings(require('../config')),
 	elastical = require('elastical'),
-	es_client = new elastical.Client(config.es.host, 
-		{ port: config.es.port }), 
+	es_client = new elastical.Client(config.es.host,
+		{ port: config.es.port }),
 	XTagElement = null;
 
 module.exports = function(sequelize, DataTypes) {
 
-	XTagElement = sequelize.define('XTagElement', {	
+	XTagElement = sequelize.define('XTagElement', {
 		name: { type: DataTypes.STRING },
 		tag_name: { type: DataTypes.STRING },
 		description: { type: DataTypes.TEXT },
@@ -24,16 +24,16 @@ module.exports = function(sequelize, DataTypes) {
 		revision: { type: DataTypes.STRING },
 		ref: { type: DataTypes.STRING },
 		raw: { type: DataTypes.TEXT },
-		is_current: { type: DataTypes.BOOLEAN }, 
+		is_current: { type: DataTypes.BOOLEAN },
 		visible: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
 	});
 
 	XTagElement.getElementId = function(author, repo, tag_name, version, callback){
 		var query = 'SELECT e.id '+
 			'FROM XTagRepoes r '+
-			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
-			'WHERE r.author="' + author + 
-			'" AND r.title="' + repo + 
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' +
+			'WHERE r.author="' + author +
+			'" AND r.title="' + repo +
 			'" AND e.tag_name="' + tag_name + '"';
 
 		if (/^\d+\.\d+\.\d+$/.test(version)){
@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
 		}
 
 		query = sequelize.query(query,{}, { raw: true });
-		query.success(function(elements){			
+		query.success(function(elements){
 			callback(null, elements.length == 1 ? elements[0].id : null);
 		}).failure(function(err){
 			callback(err, null);
@@ -55,9 +55,9 @@ module.exports = function(sequelize, DataTypes) {
 
 		var query = 'SELECT e.* '+
 			'FROM XTagRepoes r '+
-			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
-			'WHERE r.author="' + author + 
-			'" AND r.title="' + repo + 
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' +
+			'WHERE r.author="' + author +
+			'" AND r.title="' + repo +
 			'" AND e.tag_name="' + tag_name + '"';
 
 		if (/^\d+\.\d+\.\d+$/.test(version)){
@@ -68,7 +68,7 @@ module.exports = function(sequelize, DataTypes) {
 		}
 
 		query = sequelize.query(query,{}, { raw: true });
-		query.success(function(elements){		
+		query.success(function(elements){
 			callback(null, elements[0]);
 		}).failure(function(err){
 			callback(err, null);
@@ -80,13 +80,13 @@ module.exports = function(sequelize, DataTypes) {
 
 		var query = 'SELECT e.* '+
 			'FROM XTagRepoes r '+
-			'JOIN XTagElements e on r.id = e.XTagRepoId ' + 			
-			'WHERE r.author="' + author + 
-			'" AND r.title="' + repo + 
+			'JOIN XTagElements e on r.id = e.XTagRepoId ' +
+			'WHERE r.author="' + author +
+			'" AND r.title="' + repo +
 			'" AND e.is_current=1';
 
 		query = sequelize.query(query,{}, { raw: true });
-		query.success(function(elements){		
+		query.success(function(elements){
 			callback(null, elements);
 		}).failure(function(err){
 			callback(err, null);
@@ -98,14 +98,14 @@ module.exports = function(sequelize, DataTypes) {
 	XTagElement.findElements = function(req, callback){
 		req.emit('log', 'Finding elements for repo: ', req.data.github.repository.url);
 		var ghData = req.data.github;
-		var split = ghData.repository.url.replace('https://github.com/','').split('/');
+		var split = (ghData.repository.html_url || ghData.repository.url).replace('https://github.com/','').split('/');
 		var ghUrl = {
 			repo: split[1],
 			author: split[0],
 			directory: null,
 			tag: ghData.ref.split('/')[2]
 		};
-		
+
 		var crawlXtagJson = function(err, xtagJson){
 			if (err){
 				req.emit('log', 'Error fetching xtag.json:', xtagJson, "error:", err, " Returning");
@@ -119,11 +119,11 @@ module.exports = function(sequelize, DataTypes) {
 						if (xtagJson){
 							xtagJson.controlUrl = ghData.branchUrl + "/" + directory;
 							xtagJson.controlPath = directory;
-						} 
+						}
 						crawlXtagJson(err, xtagJson);
 					});
 				});
-			} 
+			}
 
 			exgf.validate(xtagJson, require('../lib/schemas').xtagJson, function(err){
 				if (err) {
@@ -141,7 +141,7 @@ module.exports = function(sequelize, DataTypes) {
 				if (xtagJson){
 					xtagJson.controlUrl = ghData.branchUrl;
 					xtagJson.controlPath = "/";
-				} 
+				}
 				crawlXtagJson(err, xtagJson);
 			});
 		} catch(e){
@@ -158,8 +158,8 @@ module.exports = function(sequelize, DataTypes) {
 			// current control is a fork and has the same version, so we're skipping it
 			if (!isNew) {
 				return;
-			}	
-			XTagElement.findAll({ 
+			}
+			XTagElement.findAll({
 				where: {
 					tag_name: xtagJson.tagName,
 					XTagRepoId: repoData.repoId,
@@ -219,16 +219,18 @@ module.exports = function(sequelize, DataTypes) {
 						version: tag.version,
 						revision: tag.revision,
 						repo_name: repoData.repository.name,
-						author: repoData.repository.owner.name,
+						author: repoData.repository.owner.name || repoData.repository.owner.login,
 						versions: previousVersions,
-						forked: repoData.repository.fork ? "true" : "false",
+						forked: repoData.repository.fork ? 1 : 0,
 						forked_from: repoData.repository.forked_from,
-						visible: tag.visible ? "true" : "false",
+						visible: tag.visible ? 1 : 0,
 						all: tag.name + " " + tag.tag_name + " " + tag.description
 					};
-				
+
+console.log('DEBUG es.index: \n', element);
+
 					es_client.index(config.es.index,
-						'element', 
+						'element',
 						element, { id: tag.id.toString(), refresh:true },
 						function(err, res){
 							console.log("ES response", err, res, element);
@@ -238,27 +240,27 @@ module.exports = function(sequelize, DataTypes) {
 					// get demo assets
 					req.emit('log', 'Fetching Assets');
 					var XTagElementAsset = sequelize.import(__dirname + '/xtagelementasset');
-					XTagElementAsset.importAssets(req, 
-						repoData.repository.owner.name,
-						repoData.repository.name, 
-						xtagJson.controlPath, 
+					XTagElementAsset.importAssets(req,
+						repoData.repository.owner.name || repoData.repository.owner.login,
+						repoData.repository.name,
+						xtagJson.controlPath,
 						repoData.ref.split('/')[2],
 						tag.id);
-					
+
 				}).error(function(err){
 					req.emit('log', 'There was an issue saving [' + xtagJson.tagName + ']: ' + err);
 				});
-				
+
 			}).error(function(err){
 				req.emit('log', 'There was an error finding ['+xtagJson.tagName+']:' + err);
 			});
 
 		});
-		
+
 	}
 
 	function elementHasChangedFromBase(req, repoData, xtagJson, callback){
-		
+
 		if (repoData.repository.fork){
 			req.emit('log', 'This repo is a fork, checking to see if ['+xtagJson.tagName+'] is a different version.');
 			var XTagRepo = sequelize.import(__dirname + '/xtagrepo');
@@ -266,12 +268,12 @@ module.exports = function(sequelize, DataTypes) {
 				where: { repo: repoData.repository.forked_from }
 			}).success(function(repo){
 				if (repo){
-					XTagElement.findAll({ 
+					XTagElement.findAll({
 						where: {
 							tag_name: xtagJson.tagName,
-							XTagRepoId: repo.id, 
+							XTagRepoId: repo.id,
 							version: xtagJson.version
-						}, 
+						},
 						order: 'id ASC'
 					}).success(function(tags){
 						if (tags.length){
@@ -299,7 +301,7 @@ module.exports = function(sequelize, DataTypes) {
 
 	function fetchXtagJson(req, ghUrl, callback){
 
-		var rpath = path.join('repos', ghUrl.author, 
+		var rpath = path.join('repos', ghUrl.author,
 			ghUrl.repo, 'contents', ghUrl.directory, 'xtag.json?ref=' + ghUrl.tag);
 
 		req.emit('log', 'Fetching xtag.json: ', rpath);
@@ -314,7 +316,7 @@ module.exports = function(sequelize, DataTypes) {
 					var buffer = new Buffer(xtagJsonRaw.content, 'base64');
 					var xtagJson = JSON.parse(buffer.toString('utf8'));
 					req.emit('log', 'Found xtag.json: ' + rpath);
-					callback(null, xtagJson);	
+					callback(null, xtagJson);
 				} catch(e){
 					req.emit('log', 'Error parsing xtagJson.content for [', rpath, '] content:', buffer.toString('utf8'));
 					callback("[fetchXtagJson.parse.content] "+e, null);

@@ -5,24 +5,24 @@ module.exports = function Routes(app, db){
 	var path = require('path'),
 		fs = require('fs'),
 		http = require('https'),
-		mw = require('./lib/middleware'),
+		mw = require('../lib/middleware'),
 		Settings = require('settings'),
-		config = new Settings(require('./config')),
-		github = require('./lib/github'),
+		config = new Settings(require('../config')),
+		github = require('../lib/github'),
 		_ = require('underscore'),
 		marked = require('marked'),
-		semver = require('semver'); 
-		
+		semver = require('semver');
+
 	marked.setOptions({
 		gfm: true,
 		pedantic: false,
 		sanitize: false,
 	});
 
-	var XTagElement = db.import(__dirname + '/models/xtagelement');
-	var XTagElementAsset = db.import(__dirname + '/models/xtagelementasset');
-	var XTagRepo = db.import(__dirname + '/models/xtagrepo');
-	var XTagImportLog = db.import(__dirname + '/models/xtagimportlog');
+	var XTagElement = db.import(__dirname + '/../models/xtagelement');
+	var XTagElementAsset = db.import(__dirname + '/../models/xtagelementasset');
+	var XTagRepo = db.import(__dirname + '/../models/xtagrepo');
+	var XTagImportLog = db.import(__dirname + '/../models/xtagimportlog');
 
 	app.post('/customtag', mw.validateGitHubData, function(req, res){
 		req.emit('log','======================================================');
@@ -43,7 +43,6 @@ module.exports = function Routes(app, db){
 				XTagElement.findElements(req);
 			}
 		});
-
 	});
 
 	app.get('/', function(req, res){
@@ -60,25 +59,25 @@ module.exports = function Routes(app, db){
 			query.query = {
 				"bool":{
 					"should":[
-						{ 
+						{
 							"text": { "name": { "query": req.query.query, "boost": 3.0 }}
 						},
-						{ 
+						{
 							"text": { "description": { "query": req.query.query, "boost": 2.0 }}
 						},
-						{ 
+						{
 							"text": { "all": { "query": req.query.query, "boost": 1.0 }}
 						},
 					]
 				}
 			}
-		}	
-		if (req.query.category){		
+		}
+		if (req.query.category){
 			query.filter.and.push({
 				"terms": { "categories": req.query.category.split(',') }
 			});
 		}
-		if (req.query.compatibility){		
+		if (req.query.compatibility){
 			_.each(req.query.compatibility, function(item, key){
 				var range = { "range" : {} };
 				range["range"]["compatibility." + key] = {
@@ -91,7 +90,7 @@ module.exports = function Routes(app, db){
 			// no filter?
 		} else {
 			query.filter.and.push({
-				"term": { "forked": "false" }
+				"term": { "forked": 0 }
 			});
 		}
 		if (req.query.author){
@@ -107,11 +106,11 @@ module.exports = function Routes(app, db){
 		}
 		if (!req.query.showDisabled){
 			query.filter.and.push({
-				"term": { "visible": "true" }
+				"term": { "visible": 1 }
 			});
 		}
 
-		require('./lib/search').findTags(query, function(err, tags){
+		require('../lib/search').findTags(query, function(err, tags){
 			if (err){
 				console.log("[/search/]"+err);
 				req.emit('log', JSON.stringify(err));
@@ -122,13 +121,13 @@ module.exports = function Routes(app, db){
 		});
 	});
 
-	
+
 
 	//'/:user/:repo/:tagname/:version'
 	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?view/, function(req, res){
-		var user = req.params[0], 
-			repo = req.params[1], 
-			tag = req.params[2], 
+		var user = req.params[0],
+			repo = req.params[1],
+			tag = req.params[2],
 			version = req.params[3];
 
 		XTagElement.getElement(user, repo, tag, version, function(err, element){
@@ -136,7 +135,7 @@ module.exports = function Routes(app, db){
 			if (err){
 				return res.render('500', {err:err});
 			}
-			
+
 			if (!element){
 				return res.render('404', 404);
 			}
@@ -195,7 +194,7 @@ module.exports = function Routes(app, db){
 				if (readme.length==1){
 					readme = marked(new Buffer(readme[0].content, 'base64').toString());
 
-					//markdown wraps everything in p tags, which messes up x-tags, 
+					//markdown wraps everything in p tags, which messes up x-tags,
 					//replace p with div
 					var rx = new RegExp('<p>(<' + xtagJson.tagName + '(?:.|[\\s])+?</' + xtagJson.tagName + '>)\\s+?</p>', 'gmi');
 					readme = readme.replace(rx, function(match, group, offset){
@@ -220,10 +219,10 @@ module.exports = function Routes(app, db){
 					themes = [];
 				}
 
-				res.render('tag_detail', { 
-					readme: readme, 
+				res.render('tag_detail', {
+					readme: readme,
 					xtagJson: xtagJson,
-					themes: themes, 
+					themes: themes,
 					elementId: id,
 					gitUrl: element.url,
 					xtagVersion: req.query.xtagVersion || xtagJson.xtagVersion || '',
@@ -233,11 +232,11 @@ module.exports = function Routes(app, db){
 		});
 	});
 
-	
+
 	app.get(/([\w-_]+)\/([\w-_]+)\/([\w-_]+)\/(\d\.\d\.\d)?\/?demo/, function(req, res) {
-		var user = req.params[0], 
-				repo = req.params[1], 
-				tag = req.params[2], 
+		var user = req.params[0],
+				repo = req.params[1],
+				tag = req.params[2],
 				version = req.params[3];
 
 		XTagElement.getElementId(user, repo, tag, version, function(err, id){
@@ -245,7 +244,7 @@ module.exports = function Routes(app, db){
 			if (err){
 				return res.render('500', {err:err});
 			}
-			
+
 			if (!id){
 				return res.render('404', 404);
 			}
@@ -310,9 +309,9 @@ module.exports = function Routes(app, db){
 
 				res.render(req.query.frame != undefined ? '_demo' : 'demo', {
 					url: req.url,
-					demo: demo, 
+					demo: demo,
 					xtagJson: xtagJson,
-					themes: themes, 
+					themes: themes,
 					elementId: id,
 					xtagVersion: req.query.xtagVersion || xtagJson.xtagVersion || '',
 					resourceName: (xtagJson.tagName || '').replace('x-','')
@@ -328,14 +327,14 @@ module.exports = function Routes(app, db){
 
 		var query = 'SELECT a.* '+
 		'FROM XTagRepoes r '+
-		'JOIN XTagElements e on r.id = e.XTagRepoId ' + 
-		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' + 
-		'WHERE a.XTagElementId=' + Number(req.params[0]) + 
+		'JOIN XTagElements e on r.id = e.XTagRepoId ' +
+		'JOIN XTagElementAssets a on e.id = a.XTagElementId ' +
+		'WHERE a.XTagElementId=' + Number(req.params[0]) +
 		' AND a.path="'+ assetPath +'" LIMIT 1';
 
 		query = db.query(query, {}, {raw: true});
 		query.success(function(asset){
-			
+
 			if (asset.length){
 				asset = asset[0];
 				var content_type = require('mimetype').lookup(path.basename(asset.path));
@@ -348,12 +347,12 @@ module.exports = function Routes(app, db){
 			else {
 				res.render('404', {});
 			}
-			
+
 		}).failure(function(err){
 			res.json({err:err}, 500);
 		});
 	});
-	
+
 	app.get('/logs/:user', function(req, res){
 		XTagImportLog.findAll({where: { user: req.param('user') }, order: 'createdAt DESC', limit: 500})
 		.success(function(logs) {

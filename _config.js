@@ -2,33 +2,34 @@ module.exports = {
 	common: {
 		db: {
 			host: 'localhost',
-			database: 'xtag', 
-			user: 'root', 
-			password: null
-		}, 
+			database: 'xtag',
+			user: 'root',
+			password: ''
+		},
 		es: {
-			index: 'xtag', 
+			index: 'xtag',
 			host: 'localhost',
-			port: '9200'
+			port: '9200',
+			admin-secret: ''
 		},
 		github:{
 			username: '',
 			password: '',
 			host: ''
-		}, 
-		xtagLibVersion: "0.5.8"
-	}, 
+		}
+	},
 	production: {
 		db: {
 			host: '',
-			database: '', 
-			user: '', 
+			database: '',
+			user: '',
 			password: ''
-		},	
+		},
 		es: {
-			index: 'xtag',			
+			index: 'xtag',
 			host: '',
-			port: '9200'
+			port: '9200',
+			admin-secret: ''
 		}
 	}
 }

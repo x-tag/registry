@@ -1,0 +1,11 @@
+name: x-tag-registry
+
+framework:
+  type: node
+  runtime: node08
+
+services:
+  xtag-db: mysql
+
+processes:
+  web: node app/app.js

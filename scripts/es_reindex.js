@@ -3,18 +3,18 @@ var config = new Settings(require('../config'));
 var Sequelize = require('sequelize');
 var elastical = require('elastical');
 
-var es_client = new elastical.Client(config.es.host, 
+var es_client = new elastical.Client(config.es.host,
 	{ port: config.es.port });
 
-var sequelize = new Sequelize(config.db.database, 
-	config.db.user, 
+var sequelize = new Sequelize(config.db.name,
+	config.db.user,
 	config.db.password, { host: config.db.host });
 
 var query = "SELECT e.name, e.tag_name, e.description, e.url, e.category, " +
 	"e.images, e.compatibility, e.demo_url, e.version, e.revision, " +
 	"e.ref, e.id, e.createdAt, e.is_current, r.id as repoId, " +
 	"r.description as repoDescription, r.title as repoTitle, " +
-	"r.updatedAt as repoUpdated, r.id as repoId, r.author, " + 
+	"r.updatedAt as repoUpdated, r.id as repoId, r.author, " +
 	"r.forked, r.forked_from, e.visible " +
 	"FROM XTagElements e JOIN XTagRepoes r ON e.XTagRepoId = r.id " +
 	"ORDER BY r.id, e.tag_name, e.is_current, e.version DESC";
@@ -52,9 +52,9 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				repo_name: item.repoTitle,
 				author: item.author,
 				versions: previousVersions[key],
-				forked: item.forked ? "true" : "false",
+				forked: item.forked,
 				forked_from: item.forked_from,
-				visible: item.visible ? "true" : "false",
+				visible: item.visible,
 				all: item.name + " " + item.tag_name + " " + item.description
 			},
 			{
