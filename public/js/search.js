@@ -6,7 +6,7 @@
 
 		Template: {
 			name: 'TagResult',
-			html: '<dd class="{resultClass}">' +
+			html: '<dd class="{resultClass}" id="{author}-{repo_name}">' +
 				'{demo_link}' +
 				'<div class="tag-header">' +
 					'<h3>' +
@@ -202,6 +202,15 @@
 			RegistrySearch.search();
 		},
 		'click:relay(#add_tag_button)': function(){
+
+			var match = $('tag_repo').value.match(
+				/https?:\/\/github.com\/([\w-_]+)\/([\w-_]+)/);
+
+			if (!match){
+				$('tag_repo_message').innerText = 'Invalid github repository.';
+				return;
+			}
+
 			var req = new Request.JSON({
 				url: '/customtag/add',
 				onRequest: function(){
@@ -215,19 +224,25 @@
 				},
 				onSuccess: function(data){
 					if (data.success){
-						var templateData = {
-							resultClass: 'new_tag',
-							author: data.repo.author,
-							repo_name: data.repo.author,
-							tag_name: data.repo.title,
-							name: data.xtag_json.name,
-							version: data.xtag_json.version,
-							description: data.xtag_json.description
+						var existing = $(match[1] + '-' + match[2]);
+						if (existing){
+							existing.addClass('new_tag');
+							$('tag_repo_message').innerText = 'Repository updated.';
+							existing.inject($('results').children[0],'before');
+						} else {
+							var elem = new TagResult().createElement({
+									resultClass: 'new_tag',
+									author: data.repo.author,
+									repo_name: data.repo.author,
+									tag_name: data.repo.title,
+									name: data.xtag_json.name,
+									version: data.xtag_json.version,
+									description: data.xtag_json.description
+								}).element;
+							elem.inject($('results').children[0],'before');
+							$('tag_repo').value = '';
+							$('tag_repo_message').innerText = 'Repository Added';
 						}
-						var elem = new TagResult().createElement(templateData).element;
-						elem.inject($('results').children[0],'before');
-						$('tag_repo').value = '';
-						$('tag_repo_message').innerText = 'Repository Added';
 					}
 					else if(data.error){
 						$('tag_repo_message').innerText = data.error;
