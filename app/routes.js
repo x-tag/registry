@@ -145,7 +145,7 @@ module.exports = function Routes(app, db){
 		if (!req.query.query){
 			query.size = 100;
 			query.sort = [
-					{ 'created_at': { 'order': 'desc' } }
+					{ 'name': { 'order': 'asc' } }
 				]
 		}
 		if (!req.query.showDisabled){
