@@ -233,7 +233,7 @@
 							var elem = new TagResult().createElement({
 									resultClass: 'new_tag',
 									author: data.repo.author,
-									repo_name: data.repo.author,
+									repo_name: data.repo.title,
 									tag_name: data.repo.title,
 									name: data.xtag_json.name,
 									version: data.xtag_json.version,
