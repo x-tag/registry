@@ -106,7 +106,6 @@
 				category.push(group1);
 				return '';
 			});
-			console.log(category);
 			query.category = category.join(',');
 			return query;
 		},

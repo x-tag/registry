@@ -217,12 +217,12 @@ module.exports = function(sequelize, DataTypes) {
 						demo_url: tag.demo_url,
 						url: tag.url,
 						version: tag.version,
-						revision: tag.revision,
+						revision: tag.revision || '',
 						repo_name: repoData.repository.name,
 						author: repoData.repository.owner.name || repoData.repository.owner.login,
 						versions: previousVersions,
 						forked: repoData.repository.fork ? 1 : 0,
-						forked_from: repoData.repository.forked_from,
+						forked_from: repoData.repository.forked_from || '',
 						visible: tag.visible ? 1 : 0,
 						all: tag.name + " " + tag.tag_name + " " + tag.description
 					};
