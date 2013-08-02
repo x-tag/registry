@@ -17,7 +17,6 @@ var query = "SELECT e.name, e.tag_name, e.description, e.url, e.category, " +
 	"r.updatedAt as repoUpdated, r.id as repoId, r.author, " +
 	"r.forked, r.forked_from, e.visible " +
 	"FROM XTagElements e JOIN XTagRepoes r ON e.XTagRepoId = r.id " +
-	"WHERE e.is_current = 1" +
 	"ORDER BY r.id, e.tag_name, e.is_current, e.version DESC";
 
 sequelize.query(query, {}, {raw: true}).success(function(results){
@@ -29,17 +28,16 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 
 		var key = item.tag_name + "-" + item.repoId;
 
-		console.log(item);
-
 		if (!previousVersions[key]){
 			previousVersions[key] = [];
 		}
 		if (!item.is_current){
 			previousVersions[key].push({ version: item.version, url: item.url });
+			// only index current items
 			return;
 		}
 
-		es_client.index(config.es.index, 'element', {
+		var element = {
 				name: item.name,
 				tag_name: item.tag_name,
 				description: item.description,
@@ -57,7 +55,11 @@ sequelize.query(query, {}, {raw: true}).success(function(results){
 				forked_from: item.forked_from || '',
 				visible: item.visible,
 				all: item.name + " " + item.tag_name + " " + item.description
-			},
+			};
+
+			console.log(element);
+
+			es_client.index(config.es.index, 'element', element,
 			{
 				id: item.id.toString(), refresh:true
 			},

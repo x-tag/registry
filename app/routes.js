@@ -142,11 +142,12 @@ module.exports = function Routes(app, db){
 				'term': { 'author': req.query.author }
 			});
 		}
+		query.from = 0;
+		query.size = 100;
 		if (!req.query.query){
-			query.size = 100;
-			query.sort = [
-					{ 'name': { 'order': 'asc' } }
-				]
+				query.sort = [
+					{ 'name.raw_name': 'asc' }
+				];
 		}
 		if (!req.query.showDisabled){
 			query.filter.and.push({
